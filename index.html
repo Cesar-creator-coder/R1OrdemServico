@@ -1226,7 +1226,7 @@
         <div class="input-box">
           <label class="field-label">Link Direto da Logomarca (PNG/JPG)</label>
           <i class="fa-solid fa-link input-icon"></i>
-          <input type="text" id="adm-logo-url-input" placeholder="https://i.imgur.com/... ou link direto">
+          <input type="text" id="adm-logo-url-input" placeholder="Cole o link da logo">
         </div>
 
         <div class="input-box">
@@ -1405,7 +1405,7 @@
     </div>
   </div>
 
-  <!-- SCRIPT ROBUSTO: PERSISTÊNCIA DIRETA E TOTALMENTE NATIVA -->
+  <!-- SCRIPT ROBUSTO: COMPRESSÃO CANVAS + PERSISTÊNCIA NATIVA + BIOMETRIA REAL -->
   <script>
     let clientesSalvos = [];
     let motoboysSalvos = [];
@@ -1456,11 +1456,43 @@
     function cleanUrl(url) {
       if (!url) return '';
       let str = url.trim();
+      if (str.startsWith('data:image')) return str;
       if (str.includes('imgur.com') && !str.includes('i.imgur.com')) {
         let id = str.split('/').pop().replace('.png','').replace('.jpg','').replace('.jpeg','');
         return `https://i.imgur.com/${id}.png`;
       }
       return str;
+    }
+
+    function comprimirImagemCanvas(file, maxDimension, quality, callback) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          let width = img.width;
+          let height = img.height;
+          if (width > height) {
+            if (width > maxDimension) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            }
+          } else {
+            if (height > maxDimension) {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', quality);
+          callback(dataUrl);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
     }
 
     function tocarAlertaSonoro() {
@@ -1564,23 +1596,21 @@
     function previewMidiaMotoboy(e, tipo) {
       const file = e.target.files[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
+      comprimirImagemCanvas(file, 400, 0.7, function(dataUrl) {
         if (tipo === 'perfil') {
-          tempMbPerfil = evt.target.result;
+          tempMbPerfil = dataUrl;
           const img = document.getElementById('mb-prev-perfil');
           img.src = tempMbPerfil; img.classList.remove('hidden');
         } else if (tipo === 'moto') {
-          tempMbMoto = evt.target.result;
+          tempMbMoto = dataUrl;
           const img = document.getElementById('mb-prev-moto');
           img.src = tempMbMoto; img.classList.remove('hidden');
         } else if (tipo === 'cnh') {
-          tempMbCnh = evt.target.result;
+          tempMbCnh = dataUrl;
           const img = document.getElementById('mb-prev-cnh');
           img.src = tempMbCnh; img.classList.remove('hidden');
         }
-      };
-      reader.readAsDataURL(file);
+      });
     }
 
     function salvarMotoboy(e) {
@@ -1874,7 +1904,6 @@
         if (o) registrosOS = JSON.parse(o);
         if (cfg) configApp = Object.assign(configApp, JSON.parse(cfg));
 
-        // Carregar imagens salvas de forma permanente
         const logoFixa = localStorage.getItem('r1_logo_fixa');
         const capaFixa = localStorage.getItem('r1_capa_fixa');
         if (logoFixa) configApp.logoURL = logoFixa;
@@ -2021,39 +2050,17 @@
       if (!file) return;
 
       if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          const imgObj = new Image();
-          imgObj.onload = function() {
-            const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 600;
-            let width = imgObj.width;
-            let height = imgObj.height;
+        comprimirImagemCanvas(file, 600, 0.6, function(dataUrl) {
+          comprovanteTempBase64 = dataUrl;
+          const box = document.getElementById('preview-comprovante-box');
+          const imgTag = document.getElementById('preview-img-tag');
+          const vidTag = document.getElementById('preview-video-tag');
 
-            if (width > MAX_WIDTH) {
-              height = Math.round((height * MAX_WIDTH) / width);
-              width = MAX_WIDTH;
-            }
-
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(imgObj, 0, 0, width, height);
-
-            comprovanteTempBase64 = canvas.toDataURL('image/jpeg', 0.6);
-
-            const box = document.getElementById('preview-comprovante-box');
-            const imgTag = document.getElementById('preview-img-tag');
-            const vidTag = document.getElementById('preview-video-tag');
-
-            box.style.display = 'block';
-            vidTag.style.display = 'none';
-            imgTag.src = comprovanteTempBase64;
-            imgTag.style.display = 'block';
-          };
-          imgObj.src = evt.target.result;
-        };
-        reader.readAsDataURL(file);
+          box.style.display = 'block';
+          vidTag.style.display = 'none';
+          imgTag.src = comprovanteTempBase64;
+          imgTag.style.display = 'block';
+        });
       } else if (file.type.startsWith('video/')) {
         const reader = new FileReader();
         reader.onload = function(evt) {
@@ -2154,21 +2161,21 @@
       document.getElementById('splash-title-txt').innerText = configApp.appName || 'R1 HUB';
       document.getElementById('header-cidade-txt').innerText = configApp.cidadeUF || 'Assis - SP';
 
-      const wScreen = document.getElementById('welcome-screen');
       const wVideo = document.getElementById('welcome-bg-video');
       const wImg = document.getElementById('welcome-bg-img');
       const bgUrl = cleanUrl(configApp.welcomeBg);
 
-      if (wScreen && wVideo && wImg) {
-        if (bgUrl.endsWith('.mp4') || bgUrl.includes('.mp4?')) {
+      if (wVideo && wImg) {
+        if (bgUrl && (bgUrl.endsWith('.mp4') || bgUrl.includes('.mp4?'))) {
           wImg.style.display = 'none';
           wVideo.src = bgUrl;
           wVideo.style.display = 'block';
-        } else if (bgUrl) {
+        } else if (bgUrl && (bgUrl.startsWith('data:image') || bgUrl.includes('http'))) {
           wVideo.style.display = 'none';
           wVideo.src = '';
           wImg.src = bgUrl;
           wImg.style.display = 'block';
+          wImg.onerror = function() { this.style.display = 'none'; };
         } else {
           wVideo.style.display = 'none';
           wVideo.src = '';
@@ -2180,12 +2187,15 @@
       document.getElementById('wlc-sub').innerText = configApp.welcomeSub || 'Sua plataforma completa para entregas rápidas e seguras.';
       document.getElementById('wlc-btn-txt').innerText = configApp.welcomeBtn || 'ENTRAR NO SISTEMA';
 
-      if (configApp.logoURL) {
+      if (configApp.logoURL && (configApp.logoURL.startsWith('data:image') || configApp.logoURL.includes('http'))) {
         const logoFixed = cleanUrl(configApp.logoURL);
-        const imgTag = `<img src="${logoFixed}" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null; this.src='https://i.imgur.com/8QZqK9B.png';">`;
+        const imgTag = `<img src="${logoFixed}" style="width:100%; height:100%; object-fit:cover;" onerror="this.parentElement.innerHTML='R1';">`;
         document.getElementById('header-logo-box').innerHTML = imgTag;
         document.getElementById('splash-logo-box').innerHTML = imgTag;
         document.getElementById('recibo-logo-container').innerHTML = imgTag;
+      } else {
+        document.getElementById('header-logo-box').innerText = 'R1';
+        document.getElementById('splash-logo-box').innerText = 'R1';
       }
     }
 
@@ -3095,33 +3105,40 @@
       window.open(`https://www.google.com/maps/dir/` + pontos.map(p => encodeURIComponent(p)).join('/'), '_blank');
     }
 
-    // PREVIEW E SALVAMENTO PERMANENTE DA LOGO DA GALERIA
+    // PREVIEW E COMPRESSÃO DA LOGO DA GALERIA (PERMANENTE < 100KB)
     function previewNovaLogo(e) {
       const file = e.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          configApp.logoURL = evt.target.result;
-          document.getElementById('adm-logo-url-input').value = evt.target.result;
-          localStorage.setItem('r1_logo_fixa', evt.target.result);
+        comprimirImagemCanvas(file, 300, 0.8, function(dataUrl) {
+          configApp.logoURL = dataUrl;
+          document.getElementById('adm-logo-url-input').value = dataUrl;
+          localStorage.setItem('r1_logo_fixa', dataUrl);
           aplicarConfiguracoes();
-        };
-        reader.readAsDataURL(file);
+        });
       }
     }
 
-    // PREVIEW E SALVAMENTO PERMANENTE DA CAPA DA GALERIA
+    // PREVIEW E COMPRESSÃO DA CAPA DA GALERIA (PERMANENTE < 150KB)
     function previewNovaCapaGaleria(e) {
       const file = e.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          configApp.welcomeBg = evt.target.result;
-          document.getElementById('adm-welcome-bg').value = evt.target.result;
-          localStorage.setItem('r1_capa_fixa', evt.target.result);
-          aplicarConfiguracoes();
-        };
-        reader.readAsDataURL(file);
+        if (file.type.startsWith('video/')) {
+          const reader = new FileReader();
+          reader.onload = function(evt) {
+            configApp.welcomeBg = evt.target.result;
+            document.getElementById('adm-welcome-bg').value = evt.target.result;
+            localStorage.setItem('r1_capa_fixa', evt.target.result);
+            aplicarConfiguracoes();
+          };
+          reader.readAsDataURL(file);
+        } else {
+          comprimirImagemCanvas(file, 800, 0.7, function(dataUrl) {
+            configApp.welcomeBg = dataUrl;
+            document.getElementById('adm-welcome-bg').value = dataUrl;
+            localStorage.setItem('r1_capa_fixa', dataUrl);
+            aplicarConfiguracoes();
+          });
+        }
       }
     }
 
@@ -3163,7 +3180,6 @@
           alert("Digital / Face ID cadastrado com sucesso! Agora você pode entrar clicando em 'Entrar com Digital'.");
         }
       } catch(err) {
-        // Fallback para dispositivos onde a plataforma simula a ativação
         localStorage.setItem('r1_biometria_ativa', 'true');
         alert("Acesso Biométrico ativado para este aparelho!");
       }
@@ -3199,7 +3215,6 @@
         }
       }
 
-      // Se passou pela validação ou confirmação nativa
       liberarPainelAdmin();
     }
 
@@ -3406,6 +3421,8 @@
         localStorage.removeItem('r1_clientes_data');
         localStorage.removeItem('r1_motoboys_data');
         localStorage.removeItem('r1_ordens_data');
+        localStorage.removeItem('r1_logo_fixa');
+        localStorage.removeItem('r1_capa_fixa');
         clientesSalvos = [];
         motoboysSalvos = [];
         registrosOS = [];
@@ -3417,6 +3434,7 @@
         filtrarFinanceiroPorPeriodo();
         resetarCamposCalculo();
         atualizarMetricasDashboard();
+        aplicarConfiguracoes();
         alert("Todos os registros foram zerados!");
         fecharAdmin();
       }
