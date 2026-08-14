@@ -1,0 +1,3316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>R1 HUB - LOGÍSTICA</title>
+
+  <!-- FontAwesome & Fonts -->
+  <meta name="theme-color" id="theme-color-meta" content="#E30613">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #E30613;
+      --bg-main: #090A0C;
+      --bg-card: #121418;
+      --bg-input: #0A0B0E;
+      --text-main: #FFFFFF;
+      --text-muted: #A0A0A0;
+      --border-dark: #222630;
+      --radius: 16px;
+      --green: #00E676;
+      --blue: #0066FF;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; padding-bottom: 90px; overflow-x: hidden; }
+
+    /* SPLASH SCREEN AUTOMÁTICA */
+    #splash-screen {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: #000000; z-index: 999999; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      animation: autoHideSplash 0.4s ease 1s forwards; pointer-events: none;
+    }
+    @keyframes autoHideSplash {
+      0% { opacity: 1; visibility: visible; }
+      99% { opacity: 0; visibility: visible; }
+      100% { opacity: 0; visibility: hidden; display: none !important; }
+    }
+    .splash-logo { width: 80px; height: 80px; background: var(--primary); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; color: #FFF; box-shadow: 0 0 30px rgba(227, 6, 19, 0.6); overflow: hidden; }
+    .splash-logo img { width: 100%; height: 100%; object-fit: cover; }
+    .splash-title { margin-top: 14px; font-size: 1.3rem; font-weight: 800; letter-spacing: 2px; }
+    .splash-sub { color: var(--text-muted); font-size: 0.8rem; margin-top: 4px; }
+
+    /* TELA DE BOAS-VINDAS FULLSCREEN */
+    #welcome-screen {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background-color: #000000; z-index: 90000; display: flex; flex-direction: column;
+      justify-content: flex-end; padding: 24px 20px 40px 20px;
+      transition: opacity 0.3s ease, visibility 0.3s ease; overflow: hidden;
+    }
+    .welcome-media-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; }
+    #welcome-bg-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    #welcome-bg-video { position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); object-fit: cover; display: none; }
+    #welcome-screen::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.75) 60%, rgba(0,0,0,0.98) 100%); z-index: 1; }
+    .welcome-content { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 12px; text-align: center; }
+    .welcome-badge { align-self: center; background: rgba(227, 6, 19, 0.2); border: 1px solid var(--primary); color: #FFF; font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; margin-bottom: 4px; }
+    .welcome-title-text { font-size: 1.8rem; font-weight: 900; line-height: 1.1; color: #FFFFFF; text-shadow: 0 2px 10px rgba(0,0,0,0.8); letter-spacing: 0.5px; }
+    .welcome-sub-text { font-size: 0.88rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 12px; }
+    .btn-enter-app { background: var(--primary); color: #FFFFFF; border: none; padding: 16px; border-radius: 14px; font-size: 1rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 20px rgba(227, 6, 19, 0.6); transition: transform 0.2s; }
+    .btn-enter-app:active { transform: scale(0.97); }
+
+    /* HEADER FIXO */
+    header { background: var(--bg-main); border-bottom: 1px solid var(--border-dark); padding: 14px 16px; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
+    .brand { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+    .brand-logo-box { width: 34px; height: 34px; border-radius: 8px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; }
+    .brand-logo-box img { width: 100%; height: 100%; object-fit: cover; }
+    .header-icons { display: flex; align-items: center; gap: 16px; color: #FFF; font-size: 1.2rem; }
+
+    .container { padding: 16px; max-width: 600px; margin: 0 auto; }
+
+    /* CABEÇALHO DE MÓDULOS PADRONIZADO */
+    .module-header-box { margin-bottom: 16px; }
+    .module-header-title { font-size: 1.2rem; font-weight: 800; display: flex; align-items: center; gap: 8px; color: #FFFFFF; }
+    .module-header-title i { color: var(--primary); font-size: 1.1rem; }
+    .module-header-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* MÓDULOS DE NAVEGAÇÃO */
+    .view-module { display: none; }
+    .view-module.active { display: block; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* DASHBOARD MÉTRICAS NO TOPO */
+    .dash-metrics-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .dash-metric-card { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 14px; padding: 12px 10px; text-align: center; position: relative; overflow: hidden; }
+    .dash-metric-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--primary); }
+    .dash-metric-card.green-top::before { background: var(--green); }
+    .dash-metric-card.orange-top::before { background: #FF9800; }
+    .dash-metric-val { font-size: 1.1rem; font-weight: 900; color: #FFF; margin-top: 4px; }
+    .dash-metric-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
+    .dash-metric-icon { font-size: 1.1rem; margin-bottom: 2px; color: var(--primary); }
+
+    /* CARDS ESCUROS E BLOCOS VISUAIS */
+    .user-welcome { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .user-title { font-size: 1.2rem; font-weight: 800; }
+    .user-sub { font-size: 0.8rem; color: var(--text-muted); }
+    .btn-agendamento-top { border: 1px solid var(--primary); background: rgba(227, 6, 19, 0.08); color: #FFF; padding: 10px 14px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(227, 6, 19, 0.2); }
+
+    .card-dark { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; position: relative; }
+    .card-header-status { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .status-badge { background: #E30613; color: #FFF; font-size: 0.65rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; }
+    .delivery-id { font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+
+    .form-section-block { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 14px; padding: 14px; margin-bottom: 16px; }
+    .form-section-title { font-size: 0.78rem; font-weight: 800; color: var(--primary); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(227, 6, 19, 0.2); padding-bottom: 6px; }
+
+    .timeline { position: relative; padding-left: 20px; margin-bottom: 12px; }
+    .timeline::before { content: ''; position: absolute; left: 5px; top: 8px; bottom: 8px; width: 2px; background: var(--border-dark); }
+    .tl-item { position: relative; margin-bottom: 12px; }
+    .tl-item:last-child { margin-bottom: 0; }
+    .tl-dot { position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; }
+    .tl-dot.red { background: var(--primary); }
+    .tl-dot.green { background: var(--green); }
+    .tl-dot.yellow { background: #FF9800; }
+    .tl-title { font-size: 0.85rem; font-weight: 700; }
+    .tl-sub { font-size: 0.75rem; color: var(--text-muted); }
+
+    .mapbox-box { position: absolute; right: 16px; top: 50px; text-align: right; }
+    .mapbox-dist { font-size: 1.4rem; font-weight: 900; }
+    .mapbox-tag { font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+
+    /* CÁLCULO DE FRETE */
+    .calc-title { font-size: 0.9rem; font-weight: 700; color: #FFF; }
+    .calc-val-main { font-size: 2.2rem; font-weight: 900; color: var(--green); margin: 6px 0 12px 0; }
+    .calc-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+    .calc-row.bold { color: #FFF; font-weight: 700; margin-top: 8px; border-top: 1px dashed var(--border-dark); padding-top: 8px; }
+
+    /* BOTÕES DA TELA PRINCIPAL E ATALHOS */
+    .btn-action-wsp { background: #25D366; color: #000; border: none; border-radius: 12px; padding: 14px; font-weight: 800; font-size: 0.9rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-bottom: 10px; }
+    .btn-action-motoboy { background: #FF9800; color: #000; border: none; border-radius: 12px; padding: 14px; font-weight: 800; font-size: 0.9rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-bottom: 10px; }
+    .btn-action-gcal { background: #0066FF; color: #FFF; border: none; border-radius: 12px; padding: 14px; font-weight: 800; font-size: 0.85rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-bottom: 10px; }
+    .btn-action-map { background: transparent; color: var(--primary); border: 1px solid var(--primary); border-radius: 12px; padding: 14px; font-weight: 800; font-size: 0.9rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+    .btn-add-parada { background: rgba(255, 152, 0, 0.12); border: 1px dashed #FF9800; color: #FF9800; padding: 12px; border-radius: 12px; font-size: 0.82rem; font-weight: 800; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 14px; }
+
+    /* FORMULÁRIOS & SELEÇÃO VISUAL DESTACADA */
+    .field-label { font-size: 0.82rem; font-weight: 700; color: #E0E0E0; margin-bottom: 6px; display: block; letter-spacing: 0.3px; }
+    .section-divider { border-bottom: 1px solid var(--primary); padding-bottom: 4px; margin: 18px 0 14px 0; font-size: 0.78rem; font-weight: 800; color: var(--primary); letter-spacing: 1px; }
+    
+    .type-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .type-card { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 14px; padding: 12px; text-align: center; cursor: pointer; transition: 0.2s; }
+    .type-card.active { border-color: var(--primary); background: rgba(227, 6, 19, 0.12); }
+    .type-card i { font-size: 1.2rem; margin-bottom: 4px; color: var(--primary); }
+    .type-title { font-size: 0.8rem; font-weight: 700; }
+    .type-badge { font-size: 0.6rem; font-weight: 800; background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px; margin-top: 4px; display: inline-block; }
+
+    .input-box { position: relative; margin-bottom: 14px; }
+    .input-box i.input-icon { position: absolute; left: 14px; top: 38px; color: var(--primary); font-size: 0.95rem; }
+    .input-box input, .input-box select, .input-box textarea { width: 100%; background: var(--bg-input); border: 1px solid var(--border-dark); border-radius: 12px; padding: 12px 12px 12px 40px; color: #FFFFFF; outline: none; font-size: 0.9rem; font-weight: 500; }
+    .input-box input::placeholder, .input-box textarea::placeholder { color: #666C7A; }
+    .input-box input:focus, .input-box select:focus, .input-box textarea:focus { border-color: var(--primary); background: #0E1015; }
+    
+    .select-highlight-box {
+      background: #181B22 !important;
+      border: 2px solid var(--primary) !important;
+      color: #FFFFFF !important;
+      font-size: 0.95rem !important;
+      font-weight: 800 !important;
+      border-radius: 14px !important;
+      padding: 14px 14px 14px 42px !important;
+      box-shadow: 0 4px 15px rgba(227, 6, 19, 0.15) !important;
+    }
+    .select-highlight-box option { background: #121418 !important; color: #FFFFFF !important; padding: 10px !important; }
+
+    .toggle-pass-eye { position: absolute; right: 14px; top: 38px; color: var(--text-muted); cursor: pointer; font-size: 1rem; z-index: 10; }
+
+    /* SELETORES DE TIPO DE PONTO (COLETA OU ENTREGA) */
+    .ponto-type-toggle { display: flex; gap: 8px; margin-bottom: 8px; }
+    .btn-ponto-type { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid var(--border-dark); background: rgba(255,255,255,0.03); color: var(--text-muted); font-size: 0.75rem; font-weight: 800; cursor: pointer; text-align: center; }
+    .btn-ponto-type.active-coleta { background: rgba(227, 6, 19, 0.2); border-color: var(--primary); color: #FFF; }
+    .btn-ponto-type.active-entrega { background: rgba(0, 230, 118, 0.2); border-color: var(--green); color: #FFF; }
+
+    .parada-row { display: flex; gap: 8px; align-items: flex-end; flex-direction: column; }
+    .btn-del-parada { background: rgba(255, 82, 82, 0.15); border: 1px solid #FF5252; color: #FF5252; height: 42px; padding: 0 14px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem; font-weight: bold; width: 100%; margin-bottom: 14px; }
+
+    .cep-group { display: flex; gap: 8px; align-items: flex-end; }
+    .btn-cep { background: var(--primary); color: #FFF; border: none; border-radius: 12px; padding: 0 16px; height: 42px; font-weight: 700; font-size: 0.8rem; cursor: pointer; white-space: nowrap; margin-bottom: 14px; }
+
+    /* ESTILOS DA TELA CARTEIRA DIGITAL R1 */
+    .fidelidade-panel-card { background: #121418; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; padding: 18px; margin-bottom: 14px; position: relative; }
+    .fidelidade-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .fidelidade-sec-title { font-size: 0.72rem; font-weight: 800; color: #E30613; letter-spacing: 1px; }
+    .badge-nivel { background: rgba(205, 127, 50, 0.15); border: 1px solid #CD7F32; color: #CD7F32; font-size: 0.65rem; font-weight: 800; padding: 3px 10px; border-radius: 8px; }
+
+    .fidelidade-main-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .medal-icon-box { width: 48px; height: 48px; background: rgba(227, 6, 19, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: #E30613; flex-shrink: 0; }
+    .fidelidade-qtd-txt { font-size: 1.25rem; font-weight: 900; color: #FFF; }
+    .fidelidade-qtd-sub { font-size: 0.75rem; color: var(--text-muted); }
+
+    .progress-bar-bg { width: 100%; height: 6px; background: #222630; border-radius: 10px; overflow: hidden; margin: 8px 0 4px 0; }
+    .progress-bar-fill { height: 100%; background: #E30613; border-radius: 10px; transition: width 0.3s ease; }
+    .progress-labels { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); font-weight: 700; }
+
+    .saldo-panel-card { background: #121418; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; padding: 18px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+    .saldo-sec-label { font-size: 0.72rem; font-weight: 800; color: var(--text-muted); }
+    .saldo-cashback-tag { font-size: 0.72rem; color: var(--green); font-weight: 700; margin-top: 2px; }
+    .saldo-valor-big { font-size: 1.8rem; font-weight: 900; color: var(--green); margin: 4px 0; }
+    .saldo-sub-info { font-size: 0.68rem; color: var(--text-muted); }
+
+    .promo-banner-card { background: rgba(0, 230, 118, 0.05); border: 1px solid var(--green); border-radius: 16px; padding: 14px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .promo-badge-btn { background: var(--green); color: #000; font-weight: 900; font-size: 0.85rem; padding: 10px 14px; border-radius: 10px; }
+
+    /* CARD DE FIDELIDADE NA OS */
+    .fidelidade-card { background: rgba(0,230,118,0.06); border: 1px solid var(--green); border-radius: 14px; padding: 12px; margin-bottom: 14px; }
+    .fidelidade-badge { font-size: 0.7rem; font-weight: 800; color: var(--green); }
+    .fidelidade-val { font-size: 1.1rem; font-weight: 900; color: var(--green); margin: 4px 0; }
+
+    /* ESTILOS DE MÍDIAS E IMAGENS DOS MOTOBOYS */
+    .thumb-preview-img { width: 42px; height: 42px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border-dark); }
+    .mb-photo-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .mb-photo-box { background: rgba(0,0,0,0.3); border: 1px dashed var(--border-dark); border-radius: 10px; padding: 8px; text-align: center; }
+    .mb-photo-box img { width: 100%; height: 60px; object-fit: cover; border-radius: 6px; margin-top: 4px; }
+
+    /* DOCK FIXO PROFISSIONAL NO RODAPÉ */
+    .bottom-dock { position: fixed; bottom: 0; left: 0; right: 0; height: 68px; background: #0D0F12; border-top: 1px solid var(--border-dark); border-radius: 20px 20px 0 0; display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: max(0px, env(safe-area-inset-bottom)); box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+    .dock-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--text-muted); font-size: 0.65rem; font-weight: 600; flex: 1; cursor: pointer; transition: color 0.2s; }
+    .dock-item.active { color: var(--primary); font-weight: 700; }
+    .dock-item i { font-size: 1.1rem; }
+    
+    .btn-dock-new { width: 48px; height: 48px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FFF; font-size: 1.4rem; box-shadow: 0 4px 15px rgba(227, 6, 19, 0.6); margin-top: -24px; cursor: pointer; border: 3px solid var(--bg-main); }
+
+    /* RECIBO DIGITAL CUPOM TÉRMICO E DOCUMENTO OS */
+    .receipt-wrapper { background: #FFFFFF; color: #111111; border-radius: 12px; padding: 20px; position: relative; margin: 10px 0 20px 0; font-family: 'Inter', sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .receipt-wrapper::before, .receipt-wrapper::after { content: ''; position: absolute; left: 0; right: 0; height: 6px; background-size: 12px 6px; }
+    .receipt-wrapper::before { top: -6px; background-image: radial-gradient(circle, transparent 70%, #FFFFFF 75%); }
+    .receipt-wrapper::after { bottom: -6px; background-image: radial-gradient(circle, transparent 70%, #FFFFFF 75%); }
+
+    .receipt-logo-head { text-align: center; border-bottom: 1px solid #EEEEEE; padding-bottom: 12px; margin-bottom: 12px; }
+    .receipt-logo-head img { max-height: 48px; object-fit: contain; }
+    .receipt-title { font-size: 0.95rem; font-weight: 900; text-align: center; color: #000; letter-spacing: 0.5px; }
+    .receipt-num { color: var(--primary); font-size: 0.9rem; font-weight: 800; text-align: center; margin-top: 2px; }
+    .receipt-date { font-size: 0.72rem; color: #666; text-align: center; margin-bottom: 14px; }
+
+    .rec-sec-title { font-size: 0.7rem; font-weight: 800; color: #333; text-transform: uppercase; margin: 10px 0 4px 0; letter-spacing: 0.5px; }
+    .rec-text { font-size: 0.8rem; color: #222; margin-bottom: 2px; }
+    .rec-subtext { font-size: 0.72rem; color: #666; }
+
+    .rec-table { width: 100%; margin: 10px 0; border-collapse: collapse; font-size: 0.8rem; }
+    .rec-table td { padding: 4px 0; }
+    .rec-table td.val { text-align: right; font-weight: 600; }
+    .rec-total-row { border-top: 1px solid #DDD; font-weight: 900; font-size: 0.95rem; }
+    .rec-total-row td.val { color: var(--primary); font-size: 1.1rem; }
+
+    .pix-box { background: #F8F9FA; border-radius: 8px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+    .pix-badge { background: #D1E7DD; color: #0F5132; font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 6px; }
+
+    .signature-box { text-align: center; margin-top: 16px; border-top: 1px solid #EEE; padding-top: 12px; }
+    .signature-font { font-family: 'Caveat', cursive; font-size: 2rem; color: #111; line-height: 1; }
+    .signature-name { font-size: 0.75rem; font-weight: 700; color: #333; }
+
+    /* LISTA DATA ITEMS NO HISTÓRICO */
+    .data-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+    .data-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px; background: rgba(255, 255, 255, 0.03); border-radius: 10px; border-left: 3px solid var(--primary); }
+    .hist-desc-box { font-size: 0.72rem; color: #A0A0A0; margin-top: 4px; line-height: 1.3; background: rgba(0,0,0,0.3); padding: 6px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); }
+
+    /* MODAIS E PREVIEW DE COMPROVANTE */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 999999; display: none; align-items: center; justify-content: center; padding: 16px; }
+    .modal-content { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 20px; padding: 20px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+    .modal-pdf { background: #FFF; color: #000; border-radius: 16px; padding: 20px; width: 100%; max-width: 600px; max-height: 85vh; overflow-y: auto; }
+
+    .preview-comprovante-box { margin-top: 8px; max-width: 100%; border-radius: 8px; overflow: hidden; display: none; border: 1px solid var(--border-dark); position: relative; }
+    .preview-comprovante-box img, .preview-comprovante-box video { width: 100%; max-height: 180px; object-fit: cover; }
+    .btn-remove-media { position: absolute; top: 6px; right: 6px; background: rgba(227, 6, 19, 0.9); color: #FFF; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; z-index: 10; }
+
+    .hidden { display: none !important; }
+    .chk-custom { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+
+    @media print {
+      body * { visibility: hidden; }
+      #modal-pdf-content, #modal-pdf-content * { visibility: visible; }
+      #modal-pdf-content { position: absolute; left: 0; top: 0; width: 100%; color: #000 !important; background: #FFF !important; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SPLASH SCREEN AUTOMÁTICA -->
+  <div id="splash-screen">
+    <div class="splash-logo" id="splash-logo-box">R1</div>
+    <div class="splash-title" id="splash-title-txt">R1AMOBI</div>
+    <div class="splash-sub">LOGÍSTICA URBANA</div>
+  </div>
+
+  <!-- TELA DE BOAS-VINDAS / ONBOARDING FULLSCREEN -->
+  <div id="welcome-screen">
+    <div class="welcome-media-container">
+      <img id="welcome-bg-img" alt="Capa R1AMOBI">
+      <video id="welcome-bg-video" autoplay loop muted playsinline></video>
+    </div>
+
+    <div class="welcome-content">
+      <div class="welcome-badge" id="wlc-badge">PLATAFORMA OFICIAL</div>
+      <div class="welcome-title-text" id="wlc-title">R1AMOBI LOGÍSTICA</div>
+      <div class="welcome-sub-text" id="wlc-sub">Sua plataforma completa para entregas rápidas e seguras.</div>
+      <button class="btn-enter-app" type="button" onclick="entrarNaPlataforma()">
+        <span id="wlc-btn-txt">ENTRAR NO SISTEMA</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- HEADER FIXO -->
+  <header class="no-print">
+    <div class="brand" onclick="registrarCliqueLogo()">
+      <div class="brand-logo-box" id="header-logo-box">R1</div>
+      <div>
+        <span style="font-weight:900; font-size:1.1rem; color:var(--primary); font-style:italic;" id="app-name-part1">R1 <span style="color:#FFF;" id="app-name-part2">HUB</span></span>
+        <span style="font-size:0.6rem; color:var(--text-muted); display:block; margin-top:-4px;" id="header-cidade-txt">LOGÍSTICA</span>
+      </div>
+    </div>
+    <div class="header-icons">
+      <div class="notif-badge" style="position:relative;"><i class="fa-regular fa-bell"></i></div>
+      <i class="fa-solid fa-bars" onclick="abrirAdmin()"></i>
+    </div>
+  </header>
+
+  <div class="container no-print">
+
+    <!-- MÓDULO 1: PAINEL PRINCIPAL / DASHBOARD COM CARDS DE MÉTRICAS -->
+    <div id="mod-dashboard" class="view-module active">
+      <div class="user-welcome">
+        <div>
+          <div class="user-title">Olá, César</div>
+          <div class="user-sub">Painel de Gestão Logística</div>
+        </div>
+        <button class="btn-agendamento-top" type="button" onclick="navigate('mod-ordens')">
+          <i class="fa-regular fa-calendar-plus" style="color:var(--primary);"></i> Nova OS / Agendamento
+        </button>
+      </div>
+
+      <!-- CARDS DE MÉTRICAS DO DASHBOARD EM TEMPO REAL -->
+      <div class="dash-metrics-grid">
+        <div class="dash-metric-card green-top">
+          <i class="fa-solid fa-sack-dollar dash-metric-icon" style="color:var(--green);"></i>
+          <div class="dash-metric-val" id="dash-metric-fat">R$ 0,00</div>
+          <div class="dash-metric-label">Faturado Hoje</div>
+        </div>
+
+        <div class="dash-metric-card">
+          <i class="fa-solid fa-boxes-packing dash-metric-icon"></i>
+          <div class="dash-metric-val" id="dash-metric-corridas">0</div>
+          <div class="dash-metric-label">Corridas Hoje</div>
+        </div>
+
+        <div class="dash-metric-card orange-top">
+          <i class="fa-solid fa-motorcycle dash-metric-icon" style="color:#FF9800;"></i>
+          <div class="dash-metric-val" id="dash-metric-motoboys" style="color:#FF9800;">0</div>
+          <div class="dash-metric-label">Frota On-line</div>
+        </div>
+      </div>
+
+      <!-- CARD ENTREGA ATIVA -->
+      <div class="card-dark">
+        <div class="card-header-status">
+          <div class="delivery-id" id="dash-os-id"><i class="fa-solid fa-box-archive" style="color:var(--primary)"></i> ID: #RH20260804</div>
+          <span class="status-badge" id="dash-status-txt">Em Rota</span>
+        </div>
+
+        <div class="timeline" id="dash-timeline-box">
+          <div class="tl-item">
+            <div class="tl-dot red"></div>
+            <div class="tl-title">Coleta</div>
+            <div class="tl-sub" id="dash-orig-title">R1 HUB - Depósito Central</div>
+            <div class="tl-sub" id="dash-orig-sub">Assis/SP</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot green"></div>
+            <div class="tl-title">Entrega</div>
+            <div class="tl-sub" id="dash-dest-title">Supermercado Bom Preço</div>
+            <div class="tl-sub" id="dash-dest-sub">Assis/SP</div>
+          </div>
+        </div>
+
+        <div class="mapbox-box">
+          <div style="font-size:0.65rem; color:var(--text-muted);">Distância (Mapbox)</div>
+          <div class="mapbox-dist" id="dash-km-txt">0,0 <span style="font-size:0.9rem; font-weight:normal;">km</span></div>
+          <div class="mapbox-tag"><i class="fa-solid fa-circle-nodes" style="color:var(--primary)"></i> mapbox</div>
+        </div>
+      </div>
+
+      <!-- CÁLCULO AUTOMÁTICO DE FRETE -->
+      <div class="card-dark">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="calc-title">Cálculo Automático de Frete</span>
+          <span style="font-size:0.7rem; color:var(--green);"><i class="fa-regular fa-circle-check"></i> Valor Calculado</span>
+        </div>
+
+        <div class="calc-val-main" id="dash-val-main">R$ 0,00</div>
+
+        <div class="calc-row"><span>Distância Base</span><span id="c-dist">R$ 0,00</span></div>
+        <div class="calc-row"><span>Taxa de Coleta / Paradas</span><span id="c-col">R$ 0,00</span></div>
+        <div class="calc-row"><span>Adicional (Peso/Volume/Pedágio)</span><span id="c-vol">R$ 0,00</span></div>
+
+        <div class="calc-row bold">
+          <span>Forma de Pagamento</span>
+          <span style="background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:6px; font-size:0.75rem;" id="dash-pag-txt">PIX / A Receber</span>
+        </div>
+      </div>
+
+      <!-- CARD AGENDAMENTO DO PAINEL -->
+      <div class="card-dark" style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <i class="fa-regular fa-calendar" style="color:var(--primary); font-size:1.2rem;"></i>
+          <div>
+            <div style="font-size:0.7rem; color:var(--text-muted);">Agendamento</div>
+            <div style="font-size:0.85rem; font-weight:700;" id="dash-date-txt">Data: Hoje</div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <i class="fa-regular fa-clock" style="color:var(--primary); font-size:1.1rem;"></i>
+          <span style="font-size:0.85rem; font-weight:700;" id="dash-time-txt">Horário: Agora</span>
+        </div>
+      </div>
+
+      <!-- BOTÕES DE AÇÃO -->
+      <button class="btn-action-wsp" type="button" onclick="enviarWhatsCliente()"><i class="fa-brands fa-whatsapp"></i> WhatsApp Recibo do Cliente</button>
+      <button class="btn-action-motoboy" type="button" onclick="enviarWhatsMotoboy()"><i class="fa-solid fa-motorcycle"></i> Despacho Motoboy (Com Rota GPS Multi-Pontos)</button>
+      <button class="btn-action-gcal" type="button" onclick="agendarNoGoogleCalendar()"><i class="fa-regular fa-calendar-check"></i> Adicionar ao Google Agenda</button>
+      <button class="btn-action-map" type="button" onclick="abrirRotaMapbox()"><i class="fa-solid fa-location-arrow"></i> Abrir Rota no Mapa</button>
+    </div>
+
+    <!-- MÓDULO 2: CADASTRO DE CLIENTE & MOTOBOYS PARCEIROS -->
+    <div id="mod-clientes" class="view-module">
+      <div class="module-header-box">
+        <div class="module-header-title">
+          <i class="fa-solid fa-users-gear"></i>
+          <span>Gestão de Clientes & Frota de Motoboys</span>
+        </div>
+        <div class="module-header-sub">Cadastre clientes contratantes e a sua equipe de entregadores parceiros.</div>
+      </div>
+
+      <!-- SELETOR DE MÓDULO -->
+      <div class="type-selector" style="margin-bottom:14px;">
+        <div class="type-card active" id="tab-sub-cli" onclick="alternarSubAbaCadastro('clientes')">
+          <i class="fa-solid fa-building"></i>
+          <div class="type-title">Clientes Contratantes</div>
+        </div>
+        <div class="type-card" id="tab-sub-mb" onclick="alternarSubAbaCadastro('motoboys')">
+          <i class="fa-solid fa-motorcycle"></i>
+          <div class="type-title">Motoboys Parceiros</div>
+        </div>
+      </div>
+
+      <!-- SUB-TELA 1: FORMULÁRIO CLIENTES -->
+      <div id="sub-box-clientes">
+        <form onsubmit="salvarCliente(event)">
+          <input type="hidden" id="cli-edit-index" value="-1">
+          
+          <div class="card-dark">
+            <label class="field-label">Categoria do Cliente *</label>
+
+            <div class="type-selector">
+              <div class="type-card active" id="card-pf" onclick="switchType('pf')">
+                <i class="fa-regular fa-user"></i>
+                <div class="type-title">Pessoa Física (PF)</div>
+                <span class="type-badge" style="color:#0288D1;">PESSOA FÍSICA</span>
+              </div>
+              <div class="type-card" id="card-pj" onclick="switchType('pj')">
+                <i class="fa-solid fa-building"></i>
+                <div class="type-title">Pessoa Jurídica (PJ)</div>
+                <span class="type-badge" style="color:#7B1FA2;">EMPRESA</span>
+              </div>
+            </div>
+
+            <div class="section-divider">DADOS PESSOAIS</div>
+
+            <div class="input-box field-pf">
+              <label class="field-label">Nome Completo do Cliente *</label>
+              <i class="fa-regular fa-user input-icon"></i>
+              <input type="text" id="cli-pf-nome" placeholder="Ex: João da Silva">
+            </div>
+
+            <div class="input-box field-pf">
+              <label class="field-label">CPF do Cliente (Opcional)</label>
+              <i class="fa-regular fa-address-card input-icon"></i>
+              <input type="text" id="cli-pf-cpf" placeholder="000.000.000-00">
+            </div>
+
+            <div class="input-box field-pj hidden">
+              <label class="field-label">Razão Social / Nome da Empresa *</label>
+              <i class="fa-solid fa-building input-icon"></i>
+              <input type="text" id="cli-pj-razao" placeholder="Ex: Juliane Chocolates">
+            </div>
+
+            <div class="input-box field-pj hidden">
+              <label class="field-label">CNPJ da Empresa (Opcional)</label>
+              <i class="fa-regular fa-id-card input-icon"></i>
+              <input type="text" id="cli-pj-cnpj" placeholder="00.000.000/0001-00">
+            </div>
+
+            <div class="input-box">
+              <label class="field-label">WhatsApp / Telefone para Contato *</label>
+              <i class="fa-solid fa-phone input-icon"></i>
+              <input type="tel" id="cli-whats" placeholder="(18) 99999-9999" required>
+            </div>
+
+            <div class="input-box">
+              <label class="field-label">E-mail do Cliente (Opcional)</label>
+              <i class="fa-regular fa-envelope input-icon"></i>
+              <input type="email" id="cli-email" placeholder="exemplo@email.com">
+            </div>
+
+            <div class="section-divider">ENDEREÇO FIXO</div>
+
+            <div class="cep-group input-box" style="margin-bottom:14px;">
+              <div style="flex:1;">
+                <label class="field-label">CEP do Endereço</label>
+                <i class="fa-solid fa-location-dot input-icon"></i>
+                <input type="text" id="cli-cep" placeholder="00000-000">
+              </div>
+              <button type="button" class="btn-cep" onclick="buscarCEP()">Buscar CEP</button>
+            </div>
+
+            <div class="input-box">
+              <label class="field-label">Endereço Completo *</label>
+              <i class="fa-solid fa-house input-icon"></i>
+              <input type="text" id="cli-end" placeholder="Rua, Avenida, Número - Cidade/UF" required>
+            </div>
+
+            <button type="submit" class="btn-action-wsp" id="btn-salvar-cli-txt" style="background:var(--primary); color:#FFF; margin-top:12px;"><i class="fa-solid fa-floppy-disk"></i> Salvar Cliente</button>
+          </div>
+        </form>
+
+        <div class="card-dark">
+          <h3 style="font-size:0.9rem; font-weight:800; margin-bottom:12px;"><i class="fa-solid fa-users" style="color:var(--primary)"></i> Clientes Cadastrados</h3>
+          <div class="data-list" id="lista-clientes-completa">
+            <div style="text-align:center; color:var(--text-muted); font-size:0.8rem; padding:10px;">Nenhum cliente cadastrado.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-TELA 2: FORMULÁRIO E FICHA MOTOBOYS PARCEIROS -->
+      <div id="sub-box-motoboys" class="hidden">
+        <form onsubmit="salvarMotoboy(event)">
+          <input type="hidden" id="mb-edit-index" value="-1">
+          
+          <div class="card-dark">
+            <div class="section-divider" style="margin-top:0;">DADOS DO ENTREGADOR PARCEIRO</div>
+
+            <div class="input-box">
+              <label class="field-label">Nome Completo do Motoboy *</label>
+              <i class="fa-solid fa-user-gear input-icon"></i>
+              <input type="text" id="mb-nome" placeholder="Ex: Lucas Entregador" required>
+            </div>
+
+            <div class="input-box">
+              <label class="field-label">WhatsApp para Receber Despachos *</label>
+              <i class="fa-brands fa-whatsapp input-icon"></i>
+              <input type="tel" id="mb-whats" placeholder="(18) 99999-8888" required>
+            </div>
+
+            <div class="input-box">
+              <label class="field-label">CPF do Entregador *</label>
+              <i class="fa-regular fa-id-card input-icon"></i>
+              <input type="text" id="mb-cpf" placeholder="000.000.000-00">
+            </div>
+
+            <div class="input-box">
+              <label class="field-label">Chave PIX do Motoboy (Para Repasses) *</label>
+              <i class="fa-brands fa-pix input-icon"></i>
+              <input type="text" id="mb-pix" placeholder="CPF, Telefone ou E-mail">
+            </div>
+
+            <div class="section-divider">DADOS DO VEÍCULO & DOCUMENTAÇÃO</div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div class="input-box">
+                <label class="field-label">Modelo da Moto *</label>
+                <i class="fa-solid fa-motorcycle input-icon"></i>
+                <input type="text" id="mb-moto-modelo" placeholder="Ex: Honda CG 160">
+              </div>
+              <div class="input-box">
+                <label class="field-label">Placa da Moto *</label>
+                <i class="fa-solid fa-rectangle-list input-icon"></i>
+                <input type="text" id="mb-moto-placa" placeholder="ABC-1234">
+              </div>
+            </div>
+
+            <div class="input-box">
+              <label class="field-label">Status Inicial do Motoboy *</label>
+              <i class="fa-solid fa-toggle-on input-icon"></i>
+              <select id="mb-status" style="background:var(--bg-input); color:#FFF; font-weight:bold;">
+                <option value="online">🟢 Ativo / Online (Disponível para Chamados)</option>
+                <option value="pausado">⏸️ Pausado / Indisponível (Sem envio de OS)</option>
+              </select>
+            </div>
+
+            <div class="section-divider">📸 FOTOS E DOCUMENTOS ARQUIVADOS (SEGURANÇA)</div>
+
+            <div class="mb-photo-grid">
+              <div class="mb-photo-box">
+                <label class="field-label" style="font-size:0.65rem;">Foto Perfil</label>
+                <input type="file" id="mb-file-perfil" accept="image/*" style="font-size:0.6rem; width:100%;" onchange="previewMidiaMotoboy(event, 'perfil')">
+                <img id="mb-prev-perfil" class="hidden">
+              </div>
+              <div class="mb-photo-box">
+                <label class="field-label" style="font-size:0.65rem;">Foto Moto</label>
+                <input type="file" id="mb-file-moto" accept="image/*" style="font-size:0.6rem; width:100%;" onchange="previewMidiaMotoboy(event, 'moto')">
+                <img id="mb-prev-moto" class="hidden">
+              </div>
+              <div class="mb-photo-box">
+                <label class="field-label" style="font-size:0.65rem;">CNH / Doc</label>
+                <input type="file" id="mb-file-cnh" accept="image/*" style="font-size:0.6rem; width:100%;" onchange="previewMidiaMotoboy(event, 'cnh')">
+                <img id="mb-prev-cnh" class="hidden">
+              </div>
+            </div>
+
+            <button type="submit" class="btn-action-wsp" id="btn-salvar-mb-txt" style="background:var(--primary); color:#FFF; margin-top:16px;"><i class="fa-solid fa-user-plus"></i> Salvar Motoboy Parceiro</button>
+          </div>
+        </form>
+
+        <div class="card-dark">
+          <h3 style="font-size:0.9rem; font-weight:800; margin-bottom:12px;"><i class="fa-solid fa-motorcycle" style="color:var(--primary)"></i> Frota de Motoboys Cadastrados</h3>
+          <div class="data-list" id="lista-motoboys-completa">
+            <div style="text-align:center; color:var(--text-muted); font-size:0.8rem; padding:10px;">Nenhum motoboy cadastrado na frota.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MÓDULO 3: TELA CARTEIRA DIGITAL R1 -->
+    <div id="mod-carteira" class="view-module">
+      <div class="module-header-box">
+        <div class="module-header-title">
+          <i class="fa-solid fa-wallet"></i>
+          <span>CARTEIRA DIGITAL R1</span>
+        </div>
+        <div class="module-header-sub">Sua mobilidade, suas conquistas.</div>
+      </div>
+
+      <!-- SELETOR DE CLIENTE PARA VER CARTEIRA INDIVIDUAL DESTACADO -->
+      <div class="card-dark" style="margin-bottom:14px;">
+        <label class="field-label">Filtrar Carteira por Cliente Cadastrado *</label>
+        <div class="input-box" style="margin-bottom:0;">
+          <i class="fa-solid fa-user-check input-icon" style="top:20px; font-size:1.1rem; color:var(--primary);"></i>
+          <select id="wall-select-cliente-filtro" class="select-highlight-box" onchange="selecionarClienteTelaCarteira(this)">
+            <option value="-1">-- Todos os Clientes (Visão Geral da Central) --</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- PROGRAMA DE FIDELIDADE COM BARRAS E MEDALHA -->
+      <div class="fidelidade-panel-card">
+        <div class="fidelidade-top-row">
+          <span class="fidelidade-sec-title">PROGRAMA DE FIDELIDADE</span>
+          <span class="badge-nivel" id="wall-badge-nivel">BRONZE</span>
+        </div>
+
+        <div class="fidelidade-main-row">
+          <div class="medal-icon-box"><i class="fa-solid fa-award"></i></div>
+          <div>
+            <div class="fidelidade-qtd-txt"><span id="wall-entregas-qtd">10</span> Entregas</div>
+            <div class="fidelidade-qtd-sub">Realizadas</div>
+            <div style="font-size:0.7rem; color:#A0A0A0; margin-top:2px;">Você está no caminho certo!</div>
+          </div>
+        </div>
+
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="wall-progress-fill" style="width: 50%;"></div>
+        </div>
+        <div class="progress-labels">
+          <span style="color:#E30613;" id="wall-progress-txt">10 / 20</span>
+          <span id="wall-faltam-txt">Faltam 10 para Prata</span>
+        </div>
+      </div>
+
+      <!-- SALDO DISPONÍVEL (CASHBACK AUTOMÁTICO) -->
+      <div class="saldo-panel-card">
+        <div>
+          <div class="saldo-sec-label">SALDO DISPONÍVEL</div>
+          <div class="saldo-cashback-tag">Cashback Automático</div>
+          <div class="saldo-valor-big" id="wall-saldo-big">R$ 48,60</div>
+          <div class="saldo-sub-info">Seu saldo cresce a cada entrega concluída.</div>
+        </div>
+        <div style="width:48px; height:48px; background:rgba(0,230,118,0.15); border-radius:14px; display:flex; align-items:center; justify-content:center; color:var(--green); font-size:1.4rem;">
+          <i class="fa-solid fa-wallet"></i>
+        </div>
+      </div>
+
+      <!-- BANNER DE PRÓXIMA ENTREGA COM DESCONTO -->
+      <div class="promo-banner-card">
+        <div>
+          <div style="font-size:0.72rem; font-weight:800; color:var(--green);">PRÓXIMA ENTREGA COM DESCONTO!</div>
+          <div style="font-size:0.78rem; color:#FFF; margin-top:2px;" id="wall-promo-desc">Você tem 15% OFF na sua próxima entrega.</div>
+        </div>
+        <div class="promo-badge-btn" id="wall-promo-btn-txt">15% OFF</div>
+      </div>
+
+      <!-- EXTRATO RECENTE DA CARTEIRA E BOTÕES DE AÇÃO -->
+      <div class="card-dark">
+        <h3 style="font-size:0.85rem; font-weight:800; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span>EXTRATO RECENTE DA CARTEIRA</span>
+          <i class="fa-solid fa-clock-rotate-left" style="color:var(--primary);"></i>
+        </h3>
+
+        <div class="data-list" id="wall-lista-extrato-recente">
+          <!-- Renderizado via JS -->
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;">
+          <button class="btn-action-wsp" type="button" style="font-size:0.78rem;" onclick="enviarWhatsCarteiraAtual()"><i class="fa-brands fa-whatsapp"></i> Enviar Whats</button>
+          <button class="btn-action-map" type="button" style="font-size:0.78rem; color:#FFF; border-color:#333;" onclick="abrirPDFCarteiraAtual()"><i class="fa-solid fa-file-pdf" style="color:var(--primary);"></i> Extrato PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MÓDULO 4: GERAR OS COM SELETORES DE TIPO DE PONTO (COLETA E ENTREGA INDIVIDUAIS) -->
+    <div id="mod-ordens" class="view-module">
+      <div class="module-header-box">
+        <div class="module-header-title">
+          <i class="fa-solid fa-calculator"></i>
+          <span>Gerar Ordem de Serviço (OS)</span>
+        </div>
+        <div class="module-header-sub">Preencha os dados da rota e adicionais de forma rápida e visual.</div>
+      </div>
+
+      <div class="card-dark">
+        <!-- BLOCO 1: MODO DE CÁLCULO E TIPO DE CLIENTE -->
+        <div class="form-section-block">
+          <div class="form-section-title"><i class="fa-solid fa-sliders"></i> 1. MODO DE CÁLCULO E CONTRATANTE</div>
+
+          <div class="input-box">
+            <label class="field-label">Modo de Cálculo do Frete *</label>
+            <i class="fa-solid fa-route input-icon"></i>
+            <select id="os-modo-calculo" onchange="alternarModoCalculo()" style="background:var(--bg-input); color:#FFF; font-weight:bold;">
+              <option value="mapbox">🗺️ Cálculo Automático por Quilometragem (Mapbox)</option>
+              <option value="taxas_fixas">🏷️ Cálculo por Taxa Fixa por Endereço (Definição Manual)</option>
+            </select>
+          </div>
+
+          <label class="field-label">Tipo de Cliente *</label>
+          <div class="type-selector">
+            <div class="type-card active" id="btn-tipo-avulso" onclick="selecionarCategoriaCliente('avulso')">
+              <i class="fa-regular fa-user"></i>
+              <div class="type-title">Cliente Avulso</div>
+              <span class="type-badge" style="color:#FF9800;">PARTICULAR</span>
+            </div>
+            <div class="type-card" id="btn-tipo-cadastrado" onclick="selecionarCategoriaCliente('cadastrado')">
+              <i class="fa-solid fa-building"></i>
+              <div class="type-title">Cliente Cadastrado</div>
+              <span class="type-badge" style="color:#00E676;">EMPRESA / PARCEIRO</span>
+            </div>
+          </div>
+
+          <!-- DROPDOWN SELETOR DE CLIENTE DESTACADO -->
+          <div class="input-box hidden" id="box-select-cliente-dropdown">
+            <label class="field-label" style="color:var(--green); font-size:0.85rem;"><i class="fa-solid fa-user-check"></i> Escolher Cliente Parceiro Cadastrado *</label>
+            <i class="fa-solid fa-users input-icon" style="top:38px; font-size:1.1rem; color:var(--green);"></i>
+            <select id="os-select-cliente" class="select-highlight-box" style="border-color:var(--green) !important;" onchange="selecionarClienteNaOS(this)">
+              <option value="">-- Selecionar Cliente Cadastrado --</option>
+            </select>
+          </div>
+
+          <!-- CARD DE FIDELIDADE & ABATIMENTO DE SALDO/CASHBACK NA OS -->
+          <div class="fidelidade-card hidden" id="box-fidelidade-os">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="fidelidade-badge"><i class="fa-solid fa-wallet"></i> CARTEIRA DIGITAL R1</span>
+              <span style="font-size:0.75rem; color:#A0A0A0;" id="fidelidade-status-txt">Cashback / Abatimento</span>
+            </div>
+            <div class="fidelidade-val" id="fidelidade-progresso-txt">Saldo Disponível: R$ 0,00</div>
+            <div style="font-size:0.75rem; color:#FFF;" id="fidelidade-aviso-txt">O saldo disponível do cliente é abativo automaticamente no total desta corrida.</div>
+          </div>
+
+          <div class="input-box">
+            <label class="field-label">Nome do Cliente / Empresa *</label>
+            <i class="fa-regular fa-user input-icon"></i>
+            <input type="text" id="os-cliente" placeholder="Ex: Juliane Chocolates ou Cliente Avulso" required>
+          </div>
+
+          <div class="input-box" style="margin-bottom:0;">
+            <label class="field-label">WhatsApp do Cliente *</label>
+            <i class="fa-solid fa-phone input-icon"></i>
+            <input type="tel" id="os-whats" placeholder="(18) 99999-9999" required>
+          </div>
+        </div>
+
+        <!-- BLOCO 2: SELEÇÃO DE MOTOBOY DESTACADA E REPASSE -->
+        <div class="form-section-block">
+          <div class="form-section-title"><i class="fa-solid fa-motorcycle"></i> 2. DESPACHO & REPASSE DE CORRIDA</div>
+
+          <!-- DROPDOWN SELETOR DE MOTOBOY DESTACADO -->
+          <div class="input-box" style="margin-bottom:0;">
+            <label class="field-label" style="color:#FF9800; font-size:0.85rem;"><i class="fa-solid fa-motorcycle"></i> Escolher Motoboy Parceiro para Despacho *</label>
+            <i class="fa-solid fa-helmet-safety input-icon" style="top:38px; font-size:1.1rem; color:#FF9800;"></i>
+            <select id="os-select-motoboy" class="select-highlight-box" style="border-color:#FF9800 !important;" onchange="calcularRepasseMotoboy()">
+              <option value="">-- Eu Mesmo (César / Central R1AMOBI) --</option>
+            </select>
+          </div>
+
+          <div id="box-comissao-interna" class="hidden" style="background:rgba(255,152,0,0.08); border:1px solid #FF9800; border-radius:12px; padding:12px; margin-top:12px;">
+            <div style="font-size:0.75rem; font-weight:800; color:#FF9800; margin-bottom:8px;"><i class="fa-solid fa-lock"></i> CONTROLE INTERNO DE REPASSE (SÓ VOCÊ VÊ)</div>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div class="input-box" style="margin-bottom:0;">
+                <label class="field-label" style="font-size:0.72rem;">🔒 Sua Comissão (R$)</label>
+                <i class="fa-solid fa-hand-holding-dollar input-icon"></i>
+                <input type="number" step="0.50" id="os-comissao-val" value="0.00" oninput="calcularRepasseMotoboy()">
+              </div>
+              <div>
+                <div class="field-label" style="font-size:0.72rem;">Repasse pro Motoboy</div>
+                <div id="lbl-repasse-liquido" style="font-size:1.2rem; font-weight:900; color:var(--green); margin-top:8px;">R$ 0,00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BLOCO 3: DETALHES E OPERAÇÃO -->
+        <div class="form-section-block">
+          <div class="form-section-title"><i class="fa-solid fa-boxes-packing"></i> 3. SERVIÇO & AGENDAMENTO</div>
+
+          <div class="input-box">
+            <label class="field-label">Tipo de Operação *</label>
+            <i class="fa-solid fa-boxes-packing input-icon"></i>
+            <select id="os-operacao" style="background:var(--bg-input); color:#FFF; font-weight:bold;">
+              <option value="Coleta & Entrega">🔄 Coleta e Entrega (Completa)</option>
+              <option value="Apenas Coleta">📍 Apenas Coleta / Retirada no Local</option>
+              <option value="Apenas Entrega">📦 Apenas Entrega / Levar Pacote</option>
+            </select>
+          </div>
+
+          <div class="input-box">
+            <label class="field-label">Tipo de Serviço de Entrega *</label>
+            <i class="fa-solid fa-truck-ramp-box input-icon"></i>
+            <select id="os-tipo" onchange="calcularValorOS()" style="background:var(--bg-input); color:#FFF;">
+              <option value="Motoboy Express">Motoboy Express (Urbano)</option>
+              <option value="Mototáxi">Mototáxi (Urbano)</option>
+              <option value="Logística Leve">Logística Leve</option>
+              <option value="Viagem Intermunicipal">Viagem Intermunicipal (R$ 2,00/KM)</option>
+              <option value="Recebimento de Mercadorias">Recebimento de Mercadorias</option>
+            </select>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="input-box" style="margin-bottom:0;">
+              <label class="field-label">Data Agendada</label>
+              <i class="fa-regular fa-calendar input-icon"></i>
+              <input type="date" id="os-data-agendada">
+            </div>
+            <div class="input-box" style="margin-bottom:0;">
+              <label class="field-label">Horário Agendado</label>
+              <i class="fa-regular fa-clock input-icon"></i>
+              <input type="time" id="os-hora-agendada">
+            </div>
+          </div>
+        </div>
+
+        <!-- BLOCO 4: ROTA DE COLETA, PARADAS E ENTREGA COM TIPO INDIVIDUAL -->
+        <div class="form-section-block">
+          <div class="form-section-title"><i class="fa-solid fa-map-location-dot"></i> 4. ITINERÁRIO E MARCAÇÃO DE PONTOS</div>
+          
+          <!-- PONTO INICIAL (ORIGEM) -->
+          <div class="ponto-type-toggle">
+            <div class="btn-ponto-type active-coleta" id="tag-orig-coleta" onclick="marcarTipoPonto('orig', 'coleta')">📍 1. COLETA / RETIRADA</div>
+            <div class="btn-ponto-type" id="tag-orig-entrega" onclick="marcarTipoPonto('orig', 'entrega')">🏁 1. ENTREGA</div>
+          </div>
+          <input type="hidden" id="ponto-orig-tipo" value="coleta">
+
+          <div class="input-box">
+            <label class="field-label">Endereço do Ponto Inicial 1 *</label>
+            <i class="fa-solid fa-location-dot input-icon" style="color:#E30613;"></i>
+            <input type="text" id="os-origem" placeholder="Ex: Rua das Indústrias, 1240 - Assis SP" onblur="calcularDistanciaMapbox()" required>
+          </div>
+
+          <div class="input-box box-taxa-individual hidden" id="box-taxa-coleta">
+            <label class="field-label">Taxa Fixa do Ponto de Coleta (R$)</label>
+            <i class="fa-solid fa-tag input-icon"></i>
+            <input type="number" step="0.50" id="taxa-coleta-val" value="0.00" oninput="calcularValorOS()">
+          </div>
+
+          <!-- CONTAINER DINÂMICO DE PARADAS INTERMEDIÁRIAS -->
+          <div id="container-paradas-extras"></div>
+
+          <button type="button" class="btn-add-parada" onclick="adicionarCampoParada()"><i class="fa-solid fa-plus-circle"></i> + Adicionar Parada Intermediária</button>
+
+          <!-- PONTO FINAL (DESTINO) -->
+          <div class="ponto-type-toggle" style="margin-top:10px;">
+            <div class="btn-ponto-type" id="tag-dest-coleta" onclick="marcarTipoPonto('dest', 'coleta')">📍 PONTO FINAL: COLETA</div>
+            <div class="btn-ponto-type active-entrega" id="tag-dest-entrega" onclick="marcarTipoPonto('dest', 'entrega')">🏁 PONTO FINAL: ENTREGA</div>
+          </div>
+          <input type="hidden" id="ponto-dest-tipo" value="entrega">
+
+          <div class="input-box" style="margin-bottom:0;">
+            <label class="field-label">Endereço do Ponto Final *</label>
+            <i class="fa-solid fa-flag-checkered input-icon" style="color:#00E676;"></i>
+            <input type="text" id="os-destino" placeholder="Ex: Av. Rui Barbosa, 980 - Assis SP" onblur="calcularDistanciaMapbox()" required>
+          </div>
+
+          <div class="input-box box-taxa-individual hidden" id="box-taxa-entrega" style="margin-top:10px;">
+            <label class="field-label">Taxa Fixa do Ponto de Entrega (R$)</label>
+            <i class="fa-solid fa-tag input-icon"></i>
+            <input type="number" step="0.50" id="taxa-entrega-val" value="0.00" oninput="calcularValorOS()">
+          </div>
+        </div>
+
+        <!-- BLOCO 5: ANEXO DE FOTO E ADICIONAIS DE FRETE -->
+        <div class="form-section-block">
+          <div class="form-section-title"><i class="fa-solid fa-camera"></i> 5. COMPROVANTE & ADICIONAIS</div>
+
+          <div class="input-box">
+            <label class="field-label">Tirar Foto do Comprovante / Mercadoria</label>
+            <i class="fa-solid fa-camera input-icon"></i>
+            <input type="file" id="os-comprovante-file" accept="image/*" capture="environment" onchange="previewComprovanteMedia(event)">
+            <div class="preview-comprovante-box" id="preview-comprovante-box">
+              <button type="button" class="btn-remove-media" onclick="removerMidiaAnexada()"><i class="fa-solid fa-trash"></i> Remover Anexo</button>
+              <img id="preview-img-tag" style="display:none;">
+              <video id="preview-video-tag" controls style="display:none;"></video>
+            </div>
+          </div>
+          
+          <div class="input-box">
+            <label class="field-label">Instruções / Descrição das Caixas</label>
+            <i class="fa-solid fa-clipboard-list input-icon"></i>
+            <textarea id="os-instrucoes" rows="2" placeholder="Ex: Receber encomenda, conferir NF, entregar ao responsável." style="width:100%; background:var(--bg-input); border:1px solid var(--border-dark); border-radius:12px; padding:10px 10px 10px 40px; color:#FFF; outline:none; font-size:0.85rem;"></textarea>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="input-box">
+              <label class="field-label">Distância Total (KM)</label>
+              <i class="fa-solid fa-route input-icon"></i>
+              <input type="number" step="0.1" id="os-km" value="0.0" placeholder="0.0" oninput="calcularValorOS()">
+            </div>
+            <div class="input-box">
+              <label class="field-label">Pedágio (R$)</label>
+              <i class="fa-solid fa-hand-holding-dollar input-icon"></i>
+              <input type="number" step="0.50" id="os-pedagio" value="0.00" placeholder="0.00" oninput="calcularValorOS()">
+            </div>
+          </div>
+
+          <div class="input-box">
+            <label class="field-label">🌧️ Adicional de Chuva / Taxa Especial (%)</label>
+            <i class="fa-solid fa-cloud-showers-heavy input-icon" style="color:#0066FF;"></i>
+            <select id="os-taxa-chuva-pct" onchange="calcularValorOS()" style="background:var(--bg-input); color:#FFF; font-weight:bold;">
+              <option value="0">Sem Taxa Adicional (0%)</option>
+              <option value="5">+ 5% (Chuva Leve / Garoa)</option>
+              <option value="10">+ 10% (Chuva Moderada)</option>
+              <option value="15">+ 15% (Chuva Moderada/Forte)</option>
+              <option value="20">+ 20% (Chuva Forte / Pista Molhada)</option>
+              <option value="25">+ 25% (Chuva Forte + Horário Pico)</option>
+              <option value="30">+ 30% (Chuva Torrencial)</option>
+              <option value="40">+ 40% (Tempestade / Risco)</option>
+              <option value="50">+ 50% (Chuva Extrema / Viagem)</option>
+            </select>
+          </div>
+
+          <div class="input-box">
+            <label class="field-label">Adicional por Volume / Bag / Carga *</label>
+            <i class="fa-solid fa-box input-icon"></i>
+            <select id="os-volume" onchange="calcularValorOS()" style="background:var(--bg-input); color:#FFF;">
+              <option value="0">Envelope / Documento (Sem taxa)</option>
+              <option value="2.00">Sacola / Pacote Pequeno (+ R$ 2,00)</option>
+              <option value="5.00">Caixa Média / Bag Cheia (+ R$ 5,00)</option>
+              <option value="10.00">Caixa Grande / Carga Pesada (+ R$ 10,00)</option>
+              <option value="15.00">Volume Especial (+ R$ 15,00)</option>
+            </select>
+          </div>
+
+          <div class="input-box">
+            <label class="field-label">Forma de Pagamento *</label>
+            <i class="fa-solid fa-credit-card input-icon"></i>
+            <select id="os-pagamento" style="background:var(--bg-input); color:#FFF;">
+              <option value="PIX">PIX (Chave Automática)</option>
+              <option value="Dinheiro">Dinheiro na Entrega</option>
+              <option value="Cartão Débito/Crédito">Cartão Débito/Crédito</option>
+              <option value="Faturado Mensal">Faturado Mensal (PJ)</option>
+            </select>
+          </div>
+
+          <div class="input-box" style="margin-bottom:0;">
+            <label class="field-label">Valor Total Final do Serviço (R$) *</label>
+            <i class="fa-solid fa-dollar-sign input-icon"></i>
+            <input type="number" step="0.01" id="os-valor" value="0.00" placeholder="0.00" oninput="calcularRepasseMotoboy()" style="color:var(--green); font-weight:800; font-size:1.1rem;">
+          </div>
+        </div>
+
+        <!-- ETAPA 1: BOTÃO PARA CRIAR ORDEM DE SERVIÇO -->
+        <button type="button" class="btn-action-wsp" style="background:var(--primary); color:#FFF; font-size:1rem; padding:16px;" onclick="gerarOrdemServicoInicio()"><i class="fa-solid fa-file-circle-plus"></i> Criar Ordem de Serviço (Aguardando / Em Rota)</button>
+      </div>
+
+      <!-- RECIBO / DOCUMENTO DA ORDEM DE SERVIÇO E CONCLUSÃO -->
+      <div class="receipt-wrapper" id="recibo-cupom">
+        <div class="receipt-logo-head" id="recibo-logo-container">
+          <span style="font-weight:900; font-size:1.3rem; color:var(--primary); font-style:italic;">R1AMOBI</span>
+          <div style="font-size:0.65rem; font-weight:800; color:#555; letter-spacing:2px;">LOGÍSTICA</div>
+        </div>
+
+        <div class="receipt-title" id="rec-titulo-doc">ORDEM DE SERVIÇO (OS)</div>
+        <div class="receipt-num" id="rec-num-txt">Nº RH20260804-1001</div>
+        <div class="receipt-date" id="rec-date-txt">--/--/---- --:--</div>
+
+        <div class="timeline" id="recibo-timeline-box" style="padding-left:16px;">
+          <div class="tl-item">
+            <div class="tl-dot red"></div>
+            <div class="rec-sec-title">ORIGEM</div>
+            <div class="rec-text" id="rec-orig-title">--</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot green"></div>
+            <div class="rec-sec-title">DESTINO</div>
+            <div class="rec-text" id="rec-dest-title">--</div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-around; background:#F8F9FA; padding:8px; border-radius:8px; text-align:center; margin-bottom:10px;">
+          <div><div style="font-size:0.65rem; color:#666;">DISTÂNCIA</div><div style="font-weight:800; font-size:0.85rem;" id="rec-km-txt">0,0 km</div></div>
+          <div><div style="font-size:0.65rem; color:#666;">AGENDADO PARA</div><div style="font-weight:800; font-size:0.85rem; color:var(--primary);" id="rec-agend-txt">Imediato</div></div>
+        </div>
+
+        <div class="rec-sec-title"><i class="fa-solid fa-box"></i> DETALHES DO SERVIÇO</div>
+        <div class="rec-subtext"><b>Cliente:</b> <span id="rec-cli-txt">--</span></div>
+        <div class="rec-subtext"><b>Entregador:</b> <span id="rec-mb-txt">Central R1AMOBI</span></div>
+        <div class="rec-subtext"><b>Operação:</b> <span id="rec-operacao-txt">Entrega</span></div>
+        <div class="rec-subtext"><b>Serviço:</b> <span id="rec-serv-txt">Motoboy Express</span></div>
+        <div class="rec-subtext"><b>Instruções:</b> <span id="rec-inst-txt">--</span></div>
+
+        <div class="rec-sec-title" style="margin-top:10px;">VALORES</div>
+        <table class="rec-table">
+          <tr><td>Valor Base do Serviço / Frete</td><td class="val" id="rec-val-base">R$ 0,00</td></tr>
+          <tr id="row-rec-paradas" style="display:none;"><td>Taxa Paradas Intermediárias</td><td class="val" id="rec-val-paradas">R$ 0,00</td></tr>
+          <tr id="row-rec-pedagio" style="display:none;"><td>Pedágio (Estrada)</td><td class="val" id="rec-val-pedagio">R$ 0,00</td></tr>
+          <tr id="row-rec-chuva" style="display:none;"><td>Adicional Chuva / Clima (%)</td><td class="val" id="rec-val-chuva">R$ 0,00</td></tr>
+          <tr id="row-rec-extra" style="display:none;"><td>Adicional Volume / Carga</td><td class="val" id="rec-val-extra">R$ 0,00</td></tr>
+          <tr id="row-rec-desconto" style="display:none; color:var(--green);"><td>Desconto Carteira / Cashback</td><td class="val" id="rec-val-desconto" style="color:var(--green); font-weight:bold;">- R$ 0,00</td></tr>
+          <tr class="rec-total-row"><td>VALOR TOTAL DO SERVIÇO</td><td class="val" id="rec-val-total">R$ 0,00</td></tr>
+        </table>
+
+        <div class="rec-sec-title">PAGAMENTO & STATUS</div>
+        <div class="pix-box">
+          <div>
+            <div style="font-weight:800; font-size:0.85rem; color:#00B2A9;" id="rec-pag-forma"><i class="fa-brands fa-pix"></i> PIX</div>
+            <div style="font-size:0.65rem; color:#666;" id="rec-pag-status-desc">Aguardando Conclusão</div>
+          </div>
+          <span class="pix-badge" id="rec-pag-badge" style="background:#FFE0B2; color:#E65100;">EM ROTA</span>
+        </div>
+
+        <div class="signature-box">
+          <div class="rec-sec-title" style="margin-bottom:0;">ASSINATURA DIGITAL</div>
+          <div class="signature-font">César Silvério</div>
+          <div class="signature-name">César Silvério - R1AMOBI</div>
+          <p style="font-size:0.65rem; color:#777; margin-top:8px;">Obrigado por utilizar a R1AMOBI Logística!<br>Conectando entregas, conectando confiança.</p>
+        </div>
+
+        <div id="rec-comprovante-box"></div>
+      </div>
+
+      <!-- BOTÕES DE AÇÃO DA OS E DO RECIBO FINAL -->
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button class="btn-action-wsp" type="button" style="background:var(--green); color:#000;" onclick="concluirEMitirReciboFinal()"><i class="fa-solid fa-check-double"></i> 🧾 Gerar & Emitir Recibo de Conclusão (Pago)</button>
+        <button class="btn-action-map" type="button" style="color:#FFF; border-color:#333;" onclick="abrirModalPDFRecibo()"><i class="fa-solid fa-download" style="color:var(--primary)"></i> Baixar / Imprimir OS ou Recibo (PDF)</button>
+        <button class="btn-action-wsp" type="button" onclick="enviarWhatsCliente()"><i class="fa-brands fa-whatsapp"></i> Enviar WhatsApp ao Cliente</button>
+        <button class="btn-action-motoboy" type="button" onclick="enviarWhatsMotoboy()"><i class="fa-solid fa-motorcycle"></i> Despacho Motoboy (Com Rota GPS Multi-Pontos)</button>
+      </div>
+    </div>
+
+    <!-- MÓDULO 5: HISTÓRICO & EXTRATO GERAL DE ORDENS COM FILTROS -->
+    <div id="mod-historico" class="view-module">
+      <div class="module-header-box">
+        <div class="module-header-title">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span>Histórico & Relatórios Gerais</span>
+        </div>
+        <div class="module-header-sub">Filtre, selecione e gere relatórios em PDF do faturamento global.</div>
+      </div>
+
+      <div class="card-dark">
+        <h3 style="font-size:0.85rem; font-weight:800; margin-bottom:10px;"><i class="fa-solid fa-filter" style="color:var(--primary)"></i> Filtrar Histórico</h3>
+        
+        <div class="input-box">
+          <label class="field-label">Período do Filtro</label>
+          <i class="fa-regular fa-calendar-days input-icon"></i>
+          <select id="fin-filtro-periodo" onchange="filtrarFinanceiroPorPeriodo()" style="background:var(--bg-input); color:#FFF;">
+            <option value="todos">Todo o Histórico</option>
+            <option value="hoje">Hoje</option>
+            <option value="data_especifica">Data Específica...</option>
+            <option value="7dias">Últimos 7 dias</option>
+            <option value="mes">Este Mês</option>
+          </select>
+        </div>
+
+        <div class="input-box hidden" id="grp-data-especifica">
+          <label class="field-label">Escolher Data Específica</label>
+          <i class="fa-regular fa-calendar input-icon"></i>
+          <input type="date" id="fin-data-input" onchange="filtrarFinanceiroPorPeriodo()">
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin:10px 0;">
+          <label style="font-size:0.8rem; color:var(--text-muted); cursor:pointer;"><input type="checkbox" id="chk-marcar-todos" class="chk-custom" checked onchange="alternarMarcarTodos(this)"> Marcar / Desmarcar Todos</label>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <button type="button" class="btn-action-wsp" style="font-size:0.75rem; margin-bottom:0;" onclick="enviarRelatorioWhats()"><i class="fa-brands fa-whatsapp"></i> Whats dos Marcados</button>
+          <button type="button" class="btn-action-map" style="font-size:0.75rem; color:#FFF; border-color:#333;" onclick="abrirPDFModalRelatorio()"><i class="fa-solid fa-file-pdf" style="color:var(--primary);"></i> PDF dos Marcados</button>
+        </div>
+      </div>
+
+      <div class="card-dark">
+        <div class="calc-row"><span>Total Faturado (Período)</span><span style="color:var(--green); font-weight:800; font-size:1.1rem;" id="fin-total">R$ 0,00</span></div>
+        <div class="calc-row"><span>Total de Ordens Marcadas</span><span style="font-weight:800;" id="fin-qtd">0</span></div>
+      </div>
+
+      <div class="card-dark">
+        <h3 style="font-size:0.85rem; font-weight:800; margin-bottom:10px;"><i class="fa-solid fa-receipt" style="color:var(--primary)"></i> Registros Detalhados no Banco</h3>
+        <div class="data-list" id="lista-financeiro-extrato">
+          <div style="text-align:center; color:var(--text-muted); font-size:0.8rem; padding:10px;">Nenhuma ordem salva no histórico.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- DOCK FIXO PROFISSIONAL NO RODAPÉ -->
+  <div class="bottom-dock no-print">
+    <div class="dock-item active" onclick="navigate('mod-dashboard', this)"><i class="fa-solid fa-border-all"></i><span>Painel</span></div>
+    <div class="dock-item" onclick="navigate('mod-clientes', this)"><i class="fa-solid fa-truck-ramp-box"></i><span>Entregas</span></div>
+    
+    <div class="btn-dock-new" onclick="navigate('mod-ordens', this)"><i class="fa-solid fa-plus"></i></div>
+
+    <div class="dock-item" onclick="navigate('mod-carteira', this)"><i class="fa-solid fa-wallet"></i><span>Carteira</span></div>
+    <div class="dock-item" onclick="navigate('mod-historico', this)"><i class="fa-solid fa-clock-rotate-left"></i><span>Histórico</span></div>
+  </div>
+
+  <!-- MODAL ADMIN SECRETO ORGANIZADO COM MÓDULOS DE IA, W-API, BIOMETRIA E FROTA -->
+  <div class="modal-overlay no-print" id="admin-modal" onclick="fecharAdminBackground(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--border-dark); padding-bottom:8px;">
+        <h3 style="color:var(--primary); font-size:1rem;"><i class="fa-solid fa-user-shield"></i> Painel Secreto Admin</h3>
+        <i class="fa-solid fa-xmark" style="cursor:pointer; font-size:1.2rem;" onclick="fecharAdmin()"></i>
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Senha Master do Painel Admin</label>
+        <i class="fa-solid fa-key input-icon"></i>
+        <input type="password" id="adm-master-pass" placeholder="Senha Master">
+        <i class="fa-regular fa-eye toggle-pass-eye" id="eye-pass-icon" onclick="togglePassVisibility()"></i>
+      </div>
+
+      <!-- SEÇÃO DE AUTENTICAÇÃO HÍBRIDA: BIOMETRIA NATIVA -->
+      <div class="section-divider">🔐 SEGURANÇA & ACESSO BIOMÉTRICO (WEBAUTHN)</div>
+      <button type="button" class="btn-action-map" style="color:var(--green); border-color:var(--green); margin-bottom:14px;" onclick="registrarBiometriaAdmin()"><i class="fa-solid fa-fingerprint"></i> Cadastrar Digital / Face ID do Admin</button>
+
+      <!-- MÓDULO 1: INTELIGÊNCIA ARTIFICIAL (GEMINI) -->
+      <div class="section-divider">🤖 MÓDULO: INTELIGÊNCIA ARTIFICIAL (GEMINI)</div>
+      
+      <div class="input-box">
+        <label class="field-label">Status do Robô de IA no WhatsApp *</label>
+        <i class="fa-solid fa-toggle-on input-icon"></i>
+        <select id="adm-ai-status" style="background:var(--bg-input); color:#FFF; font-weight:bold;">
+          <option value="desativado">⏸️ Inativo / Desligado (Atendimento Manual)</option>
+          <option value="ativado">✅ Ativado (IA Responde Cotações Automáticas)</option>
+        </select>
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Chave API do Google AI Studio (Gemini Token)</label>
+        <i class="fa-solid fa-brain input-icon"></i>
+        <input type="password" id="adm-gemini-token" placeholder="Cole sua API Key do Gemini aqui">
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Treinamento e Regras de Atendimento da IA (Prompt Base)</label>
+        <i class="fa-solid fa-file-lines input-icon"></i>
+        <textarea id="adm-ai-prompt" rows="5" placeholder="Insira aqui a tabela de preços, adicionais e frases..." style="width:100%; background:var(--bg-input); border:1px solid var(--border-dark); border-radius:12px; padding:10px 10px 10px 40px; color:#FFF; outline:none; font-size:0.78rem; line-height:1.4;"></textarea>
+      </div>
+
+      <!-- MÓDULO 2: WHATSAPP AUTOMÁTICO (W-API) -->
+      <div class="section-divider">💬 MÓDULO: WHATSAPP & AUTOMÓÇÃO (W-API)</div>
+
+      <div class="input-box">
+        <label class="field-label">Status da Conexão W-API *</label>
+        <i class="fa-solid fa-tower-cell input-icon"></i>
+        <select id="adm-wapi-status" style="background:var(--bg-input); color:#FFF; font-weight:bold;">
+          <option value="desativado">⏸️ Desconectado / Usar App do WhatsApp Físico</option>
+          <option value="ativado">✅ Conectado (Instância Ativa para Disparos)</option>
+        </select>
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Token da Instância W-API</label>
+        <i class="fa-brands fa-whatsapp input-icon"></i>
+        <input type="text" id="adm-wapi-token" placeholder="Token / Key da W-API">
+      </div>
+
+      <!-- MÓDULO 3: GESTÃO DA FROTA DE MOTOBOYS PARCEIROS -->
+      <div class="section-divider">🛵 MÓDULO: REGRAS DE DESPACHO DA FROTA</div>
+
+      <div class="input-box">
+        <label class="field-label">Modo de Despacho de Corridas *</label>
+        <i class="fa-solid fa-route input-icon"></i>
+        <select id="adm-frota-modo" style="background:var(--bg-input); color:#FFF; font-weight:bold;">
+          <option value="manual">👤 Envio Apenas com Minha Autorização Manual</option>
+          <option value="automatico">⚡ Enviar Oferta Automática para o Próximo Online</option>
+        </select>
+      </div>
+
+      <!-- MÓDULO 4: DADOS DA EMPRESA & TARIFAS -->
+      <div class="section-divider">⚙️ EMPRESA & TARIFAS OPERACIONAIS</div>
+
+      <div class="input-box">
+        <label class="field-label">Nome Exibido do Aplicativo</label>
+        <i class="fa-solid fa-mobile-screen input-icon"></i>
+        <input type="text" id="adm-app-name" placeholder="Ex: R1 HUB">
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Razão Social / Nome da Empresa (Recibo)</label>
+        <i class="fa-solid fa-building input-icon"></i>
+        <input type="text" id="adm-empresa-name" placeholder="Ex: R1AMOBI LOGÍSTICA">
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Chave PIX da Empresa para Recibos</label>
+        <i class="fa-brands fa-pix input-icon"></i>
+        <input type="text" id="adm-chave-pix" placeholder="CPF, CNPJ, Telefone ou E-mail">
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Cidade Sede</label>
+        <i class="fa-solid fa-city input-icon"></i>
+        <input type="text" id="adm-cidade" placeholder="Ex: Assis - SP">
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Chave API Mapbox (Token)</label>
+        <i class="fa-solid fa-map-location-dot input-icon"></i>
+        <input type="text" id="cfg-mapbox-token" placeholder="pk.eyJ1Ijo...">
+      </div>
+
+      <div class="section-divider">🎁 PROGRAMA DE FIDELIDADE (CASHBACK EM R$)</div>
+      
+      <div class="input-box">
+        <label class="field-label">Status do Cashback Automático *</label>
+        <i class="fa-solid fa-toggle-on input-icon"></i>
+        <select id="cfg-cashback-status" style="background:var(--bg-input); color:#FFF; font-weight:bold;">
+          <option value="ativo">✅ Ativo (Creditar Cashback Automático na Carteira)</option>
+          <option value="pausado">⏸️ Pausado (Pausar Programa Temporariamente)</option>
+        </select>
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Porcentagem (%) de Cashback Creditado na Carteira</label>
+        <i class="fa-solid fa-percent input-icon"></i>
+        <input type="number" step="0.5" id="cfg-cashback-pct" value="5.00" placeholder="Ex: 5.00 (% de cashback)">
+      </div>
+
+      <div class="section-divider">🎨 LOGOMARCA & COR TEMA</div>
+      
+      <div class="input-box">
+        <label class="field-label">Link Direto da Logomarca (PNG/JPG)</label>
+        <i class="fa-solid fa-link input-icon"></i>
+        <input type="text" id="adm-logo-url-input" placeholder="https://site.com/logo.png">
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Ou Selecionar Logomarca do Celular</label>
+        <i class="fa-solid fa-upload input-icon"></i>
+        <input type="file" id="adm-logo-file-input" accept="image/*" onchange="previewNovaLogo(event)">
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Cor Principal de Destaque do App</label>
+        <i class="fa-solid fa-palette input-icon"></i>
+        <input type="color" id="adm-color-picker" style="height:40px; padding:2px; cursor:pointer;">
+      </div>
+
+      <div class="section-divider">🖼️ TELA INICIAL (CAPA FULLSCREEN 1080x1920: FOTO OU MP4)</div>
+      
+      <div class="input-box">
+        <label class="field-label">Link Direto do Fundo da Capa (Foto ou Vídeo MP4)</label>
+        <i class="fa-solid fa-file-video input-icon"></i>
+        <input type="text" id="adm-welcome-bg" placeholder="https://site.com/fundo.mp4 ou .jpg">
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Título da Capa de Entrada</label>
+        <i class="fa-solid fa-heading input-icon"></i>
+        <input type="text" id="adm-welcome-title" placeholder="Ex: R1AMOBI LOGÍSTICA">
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Subtítulo / Descrição da Capa</label>
+        <i class="fa-solid fa-paragraph input-icon"></i>
+        <input type="text" id="adm-welcome-sub" placeholder="Descrição curta">
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Texto do Botão de Entrada</label>
+        <i class="fa-solid fa-bold input-icon"></i>
+        <input type="text" id="adm-welcome-btn" placeholder="Ex: ENTRAR NO SISTEMA">
+      </div>
+
+      <div class="section-divider">TARIFAS OPERACIONAIS</div>
+      
+      <div class="input-box">
+        <label class="field-label">Franquia Mínima Urbana (R$)</label>
+        <input type="number" step="0.50" id="cfg-min" placeholder="Ex: 8.00">
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Franquia Inclusa Até (KM)</label>
+        <input type="number" step="0.5" id="cfg-franquia-km" placeholder="Ex: 4.0">
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Valor KM Extra Urbano (R$)</label>
+        <input type="number" step="0.10" id="cfg-km" placeholder="Ex: 0.80">
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Taxa por Parada Extra (R$)</label>
+        <input type="number" step="0.50" id="cfg-taxa-parada" value="4.00" placeholder="Ex: 4.00">
+      </div>
+
+      <div class="input-box">
+        <label class="field-label">Valor KM Intermunicipal (R$)</label>
+        <input type="number" step="0.10" id="cfg-km-inter" placeholder="Ex: 2.00">
+      </div>
+
+      <button class="btn-action-wsp" type="button" style="background:var(--primary); color:#FFF; margin-top:10px;" onclick="salvarConfigAdmin()"><i class="fa-solid fa-floppy-disk"></i> Salvar & Aplicar</button>
+      
+      <div style="margin-top:15px; border-top:1px solid var(--border-dark); padding-top:10px;">
+        <button class="btn-action-map" type="button" style="color:#FF5252; border-color:#FF5252;" onclick="zerarDadosComConfirmacao()"><i class="fa-solid fa-trash-can"></i> ZERAR BANCO DE DADOS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE HISTÓRICO E EXTRATO EXCLUSIVO DO MOTOBOY PARCEIRO -->
+  <div class="modal-overlay" id="motoboy-modal">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid var(--border-dark); padding-bottom:8px;">
+        <h3 style="color:#FF9800; font-size:1rem;"><i class="fa-solid fa-motorcycle"></i> Ficha & Extrato do Motoboy</h3>
+        <i class="fa-solid fa-xmark" style="cursor:pointer; font-size:1.2rem;" onclick="fecharMotoboyModal()"></i>
+      </div>
+
+      <div class="fidelidade-card" style="border-color: #FF9800;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:0.9rem; font-weight:800;" id="mb-mod-nome">--</div>
+            <div style="font-size:0.72rem; color:#A0A0A0;" id="mb-mod-whats">--</div>
+            <div style="font-size:0.72rem; color:#A0A0A0;" id="mb-mod-moto">--</div>
+          </div>
+          <div style="text-align:right;">
+            <span class="fidelidade-badge" id="mb-mod-badge-status" style="background:rgba(255,152,0,0.2); color:#FF9800; border-color:#FF9800;">🟢 ONLINE</span>
+          </div>
+        </div>
+        <div class="fidelidade-val" id="mb-mod-faturamento" style="color:var(--green);">Total Repasse Líquido: R$ 0,00</div>
+        <div style="font-size:0.68rem; color:#A0A0A0;" id="mb-mod-qtd">Total de Corridas Atendidas: 0</div>
+      </div>
+
+      <div class="section-divider">📸 DOCUMENTAÇÃO E FOTOS ARQUIVADAS</div>
+      <div id="mb-mod-fotos-container" class="mb-photo-grid"></div>
+
+      <div class="section-divider">📂 HISTÓRICO DE CORRIDAS ATENDIDAS POR ESTE MOTOBOY</div>
+      <div class="data-list" id="mb-lista-extrato" style="max-height:200px; overflow-y:auto;">
+        <div style="text-align:center; color:#A0A0A0; font-size:0.78rem; padding:8px;">Nenhuma corrida realizada por este motoboy.</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px;">
+        <button type="button" class="btn-action-wsp" style="font-size:0.75rem;" onclick="enviarWhatsExtratoMotoboy()"><i class="fa-brands fa-whatsapp"></i> Whats do Motoboy</button>
+        <button type="button" class="btn-action-map" style="font-size:0.75rem; color:#FFF; border-color:#333;" onclick="abrirPDFExtratoMotoboy()"><i class="fa-solid fa-file-pdf" style="color:var(--primary);"></i> Extrato PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE EXTRATO DA CARTEIRA DO CLIENTE -->
+  <div class="modal-overlay" id="carteira-modal">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid var(--border-dark); padding-bottom:8px;">
+        <h3 style="color:var(--green); font-size:1rem;"><i class="fa-solid fa-wallet"></i> Carteira & Histórico Exclusivo</h3>
+        <i class="fa-solid fa-xmark" style="cursor:pointer; font-size:1.2rem;" onclick="fecharCarteiraModal()"></i>
+      </div>
+
+      <div class="fidelidade-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:0.85rem; font-weight:800;" id="cart-cli-nome">--</div>
+            <div style="font-size:0.72rem; color:#A0A0A0;" id="cart-cli-whats">--</div>
+          </div>
+          <div style="text-align:right;">
+            <span class="fidelidade-badge" id="cart-cli-qtd-corridas">0 Entregas</span>
+          </div>
+        </div>
+        <div class="fidelidade-val" id="cart-cli-saldo">Saldo Carteira: R$ 0,00</div>
+        <div style="font-size:0.68rem; color:#A0A0A0;" id="cart-cli-faturamento-total">Valor Total Faturado: R$ 0,00</div>
+      </div>
+
+      <div class="section-divider">⚙️ AJUSTE MANUAL DE CRÉDITO NA CARTEIRA (ADMIN)</div>
+      <div style="display:flex; gap:8px; margin-bottom:12px;">
+        <input type="number" step="0.50" id="cart-ajuste-val" placeholder="Valor (R$)" style="flex:1; background:var(--bg-input); border:1px solid var(--border-dark); border-radius:10px; padding:8px; color:#FFF;">
+        <button type="button" class="btn-action-wsp" style="width:auto; padding:0 12px; font-size:0.75rem; background:var(--green);" onclick="ajustarSaldoCarteira('credito')">+ Adicionar R$</button>
+        <button type="button" class="btn-action-map" style="width:auto; padding:0 12px; font-size:0.75rem; color:#FF5252; border-color:#FF5252;" onclick="ajustarSaldoCarteira('debito')">- Descontar R$</button>
+      </div>
+
+      <div class="section-divider">📂 HISTÓRICO EXCLUSIVO DAS CORRIDAS DESTE CLIENTE</div>
+      <div class="data-list" id="cart-lista-extrato" style="max-height:220px; overflow-y:auto;">
+        <div style="text-align:center; color:#A0A0A0; font-size:0.78rem; padding:8px;">Nenhum serviço registrado para este cliente.</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:16px;">
+        <button type="button" class="btn-action-wsp" style="font-size:0.75rem;" onclick="enviarWhatsCarteiraCliente()"><i class="fa-brands fa-whatsapp"></i> Whats do Cliente</button>
+        <button type="button" class="btn-action-map" style="font-size:0.75rem; color:#FFF; border-color:#333;" onclick="abrirPDFCarteiraCliente()"><i class="fa-solid fa-file-pdf" style="color:var(--primary);"></i> Extrato PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE RELATÓRIO PDF -->
+  <div class="modal-overlay" id="pdf-modal">
+    <div class="modal-pdf">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:2px solid #EEE; padding-bottom:8px;" class="no-print">
+        <h3 style="font-size:1rem; color:#000;"><i class="fa-solid fa-file-pdf" style="color:var(--primary)"></i> Visualização de PDF / Relatório</h3>
+        <i class="fa-solid fa-xmark" style="cursor:pointer; font-size:1.3rem; color:#000;" onclick="fecharPDFModal()"></i>
+      </div>
+
+      <div id="modal-pdf-content">
+        <!-- Preenchido via JS -->
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;" class="no-print">
+        <button class="btn-action-wsp" type="button" style="background:var(--primary); color:#FFF; margin-bottom:0;" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir / Baixar PDF</button>
+        <button class="btn-action-map" type="button" style="color:#000; border-color:#CCC;" onclick="fecharPDFModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LÓGICA REFINADA COMPLETA -->
+  <script>
+    let clientesSalvos = [];
+    let motoboysSalvos = [];
+    let registrosOS = [];
+    let registrosOSFiltrados = [];
+    let cliquesLogo = 0;
+    let timerCliques = null;
+    let tipoPessoaAtual = 'pf';
+    let categoriaClienteAtual = 'avulso';
+    let comprovanteTempBase64 = null;
+    let clienteCarteiraAtualIdx = -1;
+    let motoboyAtualIdx = -1;
+    let ordemServicoAtualObj = null;
+
+    let tempMbPerfil = null;
+    let tempMbMoto = null;
+    let tempMbCnh = null;
+
+    let configApp = {
+      adminPass: 'r1admin',
+      appName: 'R1 HUB',
+      empresaName: 'R1AMOBI LOGÍSTICA',
+      chavePix: '',
+      cidadeUF: 'Assis - SP',
+      primaryColor: '#E30613',
+      logoURL: '',
+      welcomeBg: '',
+      welcomeTitle: 'R1AMOBI LOGÍSTICA',
+      welcomeSub: 'Sua plataforma completa para entregas rápidas e seguras.',
+      welcomeBtn: 'ENTRAR NO SISTEMA',
+      tarifaMin: 8.00,
+      franquiaKM: 4.0,
+      tarifaKM: 0.80,
+      taxaParada: 4.00,
+      cashbackStatus: 'ativo',
+      cashbackPct: 5.00,
+      tarifaKMInter: 2.00,
+      mapboxToken: '',
+      
+      aiStatus: 'desativado',
+      geminiToken: '',
+      aiPrompt: `Você é o Assistente Virtual Oficial da R1AMOBI Logística em Assis-SP.\nSua função é realizar cotações e tirar dúvidas no WhatsApp com tom prestativo e direto.`,
+      wapiStatus: 'desativado',
+      wapiToken: '',
+      frotaModo: 'manual'
+    };
+
+    function encryptData(str) { try { return btoa(encodeURIComponent(str)); } catch(e) { return str; } }
+    function decryptData(str) { try { return decodeURIComponent(atob(str)); } catch(e) { return str; } }
+
+    function tocarAlertaSonoro() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+      } catch(e) { console.log("Áudio:", e); }
+    }
+
+    function marcarTipoPonto(ponto, tipo) {
+      document.getElementById(`ponto-${ponto}-tipo`).value = tipo;
+      
+      const btnCol = document.getElementById(`tag-${ponto}-coleta`);
+      const btnEnt = document.getElementById(`tag-${ponto}-entrega`);
+
+      if (tipo === 'coleta') {
+        btnCol.className = "btn-ponto-type active-coleta";
+        btnEnt.className = "btn-ponto-type";
+      } else {
+        btnCol.className = "btn-ponto-type";
+        btnEnt.className = "btn-ponto-type active-entrega";
+      }
+    }
+
+    function marcarTipoParadaExtra(idx, tipo) {
+      document.getElementById(`parada-tipo-${idx}`).value = tipo;
+      const btnCol = document.getElementById(`tag-parada-${idx}-coleta`);
+      const btnEnt = document.getElementById(`tag-parada-${idx}-entrega`);
+
+      if (tipo === 'coleta') {
+        btnCol.className = "btn-ponto-type active-coleta";
+        btnEnt.className = "btn-ponto-type";
+      } else {
+        btnCol.className = "btn-ponto-type";
+        btnEnt.className = "btn-ponto-type active-entrega";
+      }
+    }
+
+    window.onload = function() {
+      carregarDados();
+      aplicarConfiguracoes();
+      resetarCamposCalculo();
+      atualizarDadosTelaCarteiraGeral();
+      atualizarMetricasDashboard();
+    };
+
+    function atualizarMetricasDashboard() {
+      const inicioHoje = new Date().setHours(0, 0, 0, 0);
+      const corridasHoje = registrosOS.filter(r => (r.timestamp || 0) >= inicioHoje);
+      const fatHoje = corridasHoje.reduce((acc, r) => acc + (r.val || 0), 0);
+      const motoboysOnline = motoboysSalvos.filter(m => m.status === 'online').length;
+
+      document.getElementById('dash-metric-fat').innerText = `R$ ${fatHoje.toFixed(2)}`;
+      document.getElementById('dash-metric-corridas').innerText = corridasHoje.length;
+      document.getElementById('dash-metric-motoboys').innerText = motoboysOnline;
+    }
+
+    function resetarCamposCalculo() {
+      document.getElementById('os-km').value = "0.0";
+      document.getElementById('os-pedagio').value = "0.00";
+      document.getElementById('os-taxa-chuva-pct').value = "0";
+      document.getElementById('os-valor').value = "0.00";
+      document.getElementById('os-comissao-val').value = "0.00";
+      document.getElementById('lbl-repasse-liquido').innerText = "R$ 0,00";
+      document.getElementById('box-comissao-interna').classList.add('hidden');
+      document.getElementById('dash-val-main').innerText = "R$ 0,00";
+      document.getElementById('dash-km-txt').innerHTML = `0,0 <span style="font-size:0.9rem; font-weight:normal;">km</span>`;
+      document.getElementById('c-dist').innerText = "R$ 0,00";
+      document.getElementById('c-col').innerText = "R$ 0,00";
+      document.getElementById('c-vol').innerText = "R$ 0,00";
+      document.getElementById('container-paradas-extras').innerHTML = "";
+      document.getElementById('box-fidelidade-os').classList.add('hidden');
+      selecionarCategoriaCliente('avulso');
+      removerMidiaAnexada();
+    }
+
+    function alternarSubAbaCadastro(aba) {
+      document.getElementById('tab-sub-cli').classList.toggle('active', aba === 'clientes');
+      document.getElementById('tab-sub-mb').classList.toggle('active', aba === 'motoboys');
+      document.getElementById('sub-box-clientes').classList.toggle('hidden', aba !== 'clientes');
+      document.getElementById('sub-box-motoboys').classList.toggle('hidden', aba !== 'motoboys');
+    }
+
+    function previewMidiaMotoboy(e, tipo) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        if (tipo === 'perfil') {
+          tempMbPerfil = evt.target.result;
+          const img = document.getElementById('mb-prev-perfil');
+          img.src = tempMbPerfil; img.classList.remove('hidden');
+        } else if (tipo === 'moto') {
+          tempMbMoto = evt.target.result;
+          const img = document.getElementById('mb-prev-moto');
+          img.src = tempMbMoto; img.classList.remove('hidden');
+        } else if (tipo === 'cnh') {
+          tempMbCnh = evt.target.result;
+          const img = document.getElementById('mb-prev-cnh');
+          img.src = tempMbCnh; img.classList.remove('hidden');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function salvarMotoboy(e) {
+      e.preventDefault();
+      let editIndex = parseInt(document.getElementById('mb-edit-index').value);
+
+      let nome = (document.getElementById('mb-nome').value || '').trim();
+      let whats = (document.getElementById('mb-whats').value || '').trim();
+      let cpf = (document.getElementById('mb-cpf').value || '').trim();
+      let pix = (document.getElementById('mb-pix').value || '').trim();
+      let modelo = (document.getElementById('mb-moto-modelo').value || '').trim();
+      let placa = (document.getElementById('mb-moto-placa').value || '').trim();
+      let status = document.getElementById('mb-status').value;
+
+      if (!nome || !whats) return alert('Preencha Nome e WhatsApp do Motoboy!');
+
+      let objMotoboy = {
+        nome, whats, cpf, pix, modelo, placa, status,
+        fotoPerfil: tempMbPerfil,
+        fotoMoto: tempMbMoto,
+        fotoCnh: tempMbCnh,
+        totalCorridas: 0,
+        faturamentoTotal: 0.0
+      };
+
+      if (editIndex >= 0) {
+        let mbExistente = motoboysSalvos[editIndex];
+        objMotoboy.totalCorridas = mbExistente.totalCorridas || 0;
+        objMotoboy.faturamentoTotal = mbExistente.faturamentoTotal || 0.0;
+        if (!tempMbPerfil) objMotoboy.fotoPerfil = mbExistente.fotoPerfil;
+        if (!tempMbMoto) objMotoboy.fotoMoto = mbExistente.fotoMoto;
+        if (!tempMbCnh) objMotoboy.fotoCnh = mbExistente.fotoCnh;
+
+        motoboysSalvos[editIndex] = objMotoboy;
+        document.getElementById('mb-edit-index').value = "-1";
+        document.getElementById('btn-salvar-mb-txt').innerHTML = `<i class="fa-solid fa-user-plus"></i> Salvar Motoboy Parceiro`;
+        alert(`Entregador ${nome} atualizado!`);
+      } else {
+        motoboysSalvos.push(objMotoboy);
+        alert(`Entregador ${nome} cadastrado na frota!`);
+      }
+
+      salvarTudo();
+      atualizarSelectMotoboysOS();
+      atualizarListaMotoboysVisual();
+      atualizarMetricasDashboard();
+      e.target.reset();
+      tempMbPerfil = null; tempMbMoto = null; tempMbCnh = null;
+      document.getElementById('mb-prev-perfil').classList.add('hidden');
+      document.getElementById('mb-prev-moto').classList.add('hidden');
+      document.getElementById('mb-prev-cnh').classList.add('hidden');
+    }
+
+    function editarMotoboy(idx) {
+      let m = motoboysSalvos[idx];
+      if (!m) return;
+
+      document.getElementById('mb-nome').value = m.nome || '';
+      document.getElementById('mb-whats').value = m.whats || '';
+      document.getElementById('mb-cpf').value = m.cpf || '';
+      document.getElementById('mb-pix').value = m.pix || '';
+      document.getElementById('mb-moto-modelo').value = m.modelo || '';
+      document.getElementById('mb-moto-placa').value = m.placa || '';
+      document.getElementById('mb-status').value = m.status || 'online';
+      document.getElementById('mb-edit-index').value = idx;
+      document.getElementById('btn-salvar-mb-txt').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Atualizar Motoboy`;
+
+      alternarSubAbaCadastro('motoboys');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function alternarStatusMotoboyRapido(idx) {
+      let m = motoboysSalvos[idx];
+      if (!m) return;
+      m.status = (m.status === 'online') ? 'pausado' : 'online';
+      salvarTudo();
+      atualizarSelectMotoboysOS();
+      atualizarListaMotoboysVisual();
+      atualizarMetricasDashboard();
+    }
+
+    function excluirMotoboy(idx) {
+      if(confirm("Deseja remover este motoboy da frota?")) {
+        motoboysSalvos.splice(idx, 1);
+        salvarTudo();
+        atualizarSelectMotoboysOS();
+        atualizarListaMotoboysVisual();
+        atualizarMetricasDashboard();
+      }
+    }
+
+    function atualizarSelectMotoboysOS() {
+      const sel = document.getElementById('os-select-motoboy');
+      sel.innerHTML = `<option value="">-- Eu Mesmo (César / Central R1AMOBI) --</option>`;
+      motoboysSalvos.forEach((m, i) => {
+        if (m.status === 'online') {
+          sel.innerHTML += `<option value="${i}">🏍️ ${m.nome} (${m.modelo || 'Moto'})</option>`;
+        }
+      });
+    }
+
+    function atualizarListaMotoboysVisual() {
+      const elMb = document.getElementById('lista-motoboys-completa');
+
+      if (motoboysSalvos.length === 0) {
+        elMb.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.8rem; padding:10px;">Nenhum motoboy cadastrado na frota.</div>`;
+      } else {
+        elMb.innerHTML = motoboysSalvos.map((m, idx) => {
+          let badgeStatus = m.status === 'online' ? 
+            `<span style="color:var(--green); font-weight:bold; font-size:0.7rem;">🟢 ONLINE</span>` : 
+            `<span style="color:#FF9800; font-weight:bold; font-size:0.7rem;">⏸️ PAUSADO</span>`;
+          
+          let fotoImg = m.fotoPerfil ? `<img src="${m.fotoPerfil}" class="thumb-preview-img">` : `<div class="thumb-preview-img" style="background:#222; display:flex; align-items:center; justify-content:center; color:#777;"><i class="fa-solid fa-user"></i></div>`;
+
+          return `
+            <div class="data-item">
+              <div style="display:flex; align-items:center; gap:10px; width:100%;">
+                ${fotoImg}
+                <div style="flex:1;">
+                  <div style="font-weight:700; font-size:0.85rem;">${m.nome} ${badgeStatus}</div>
+                  <div style="font-size:0.72rem; color:var(--text-muted);"><i class="fa-brands fa-whatsapp"></i> ${m.whats} | Moto: ${m.modelo || 'N/A'} (${m.placa || 'Sem placa'})</div>
+                  <div style="font-size:0.72rem; color:var(--green); font-weight:bold; margin-top:2px;">PIX: ${m.pix || 'Não informado'}</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:4px;">
+                  <button type="button" onclick="abrirFichaMotoboy(${idx})" style="background:rgba(255,152,0,0.15); border:1px solid #FF9800; border-radius:6px; padding:4px 6px; color:#FF9800; font-size:0.72rem; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-folder-open"></i> Extrato</button>
+                  <button type="button" onclick="alternarStatusMotoboyRapido(${idx})" style="background:rgba(255,255,255,0.08); border:1px solid var(--border-dark); border-radius:6px; padding:4px 6px; color:#FFF; font-size:0.7rem; cursor:pointer;">${m.status==='online'?'Pausar':'Ativar'}</button>
+                  <button type="button" onclick="editarMotoboy(${idx})" style="background:rgba(255,255,255,0.1); border:1px solid var(--border-dark); border-radius:6px; width:26px; height:26px; color:#FFF; cursor:pointer;"><i class="fa-solid fa-pen"></i></button>
+                  <button type="button" onclick="excluirMotoboy(${idx})" style="background:rgba(255,255,255,0.1); border:1px solid var(--border-dark); border-radius:6px; width:26px; height:26px; color:#FF5252; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function abrirFichaMotoboy(idx) {
+      motoboyAtualIdx = idx;
+      let m = motoboysSalvos[idx];
+      if (!m) return;
+
+      const corridasDoMotoboy = registrosOS.filter(r => r.motoboyIdx == idx || r.motoboyNome === m.nome);
+      const totalRepasseMotoboy = corridasDoMotoboy.reduce((acc, r) => acc + (r.repasseLiquido !== undefined ? r.repasseLiquido : r.val), 0);
+
+      document.getElementById('mb-mod-nome').innerText = m.nome;
+      document.getElementById('mb-mod-whats').innerText = `Whats: ${m.whats} | CPF: ${m.cpf || 'N/A'}`;
+      document.getElementById('mb-mod-moto').innerText = `Moto: ${m.modelo || 'N/A'} (Placa: ${m.placa || 'N/A'}) | PIX: ${m.pix || 'N/A'}`;
+      document.getElementById('mb-mod-badge-status').innerText = m.status === 'online' ? '🟢 ONLINE' : '⏸️ PAUSADO';
+      document.getElementById('mb-mod-faturamento').innerText = `Total Repasse Líquido: R$ ${totalRepasseMotoboy.toFixed(2)}`;
+      document.getElementById('mb-mod-qtd').innerText = `Total de Corridas Atendidas: ${corridasDoMotoboy.length}`;
+
+      let fotosHtml = '';
+      if (m.fotoPerfil) fotosHtml += `<div class="mb-photo-box"><div style="font-size:0.6rem; color:#AAA;">Perfil</div><img src="${m.fotoPerfil}"></div>`;
+      if (m.fotoMoto) fotosHtml += `<div class="mb-photo-box"><div style="font-size:0.6rem; color:#AAA;">Moto</div><img src="${m.fotoMoto}"></div>`;
+      if (m.fotoCnh) fotosHtml += `<div class="mb-photo-box"><div style="font-size:0.6rem; color:#AAA;">CNH/Doc</div><img src="${m.fotoCnh}"></div>`;
+      if (!fotosHtml) fotosHtml = `<div style="text-align:center; color:#AAA; font-size:0.75rem; grid-column:span 3;">Nenhuma foto ou documento anexado.</div>`;
+
+      document.getElementById('mb-mod-fotos-container').innerHTML = fotosHtml;
+
+      const elExt = document.getElementById('mb-lista-extrato');
+      if (corridasDoMotoboy.length === 0) {
+        elExt.innerHTML = `<div style="text-align:center; color:#A0A0A0; font-size:0.78rem; padding:8px;">Nenhuma corrida realizada por este motoboy.</div>`;
+      } else {
+        elExt.innerHTML = corridasDoMotoboy.map(r => `
+          <div style="padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.08);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight:800; font-size:0.8rem; color:#FFF;">OS #${r.numOS} • ${r.cli}</span>
+              <span style="font-weight:900; font-size:0.85rem; color:var(--green);">Repasse: R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)}</span>
+            </div>
+            <div style="font-size:0.68rem; color:#A0A0A0; margin-top:2px;">
+              <span><i class="fa-regular fa-clock"></i> ${r.dtStr} | Cobrado do Cliente: R$ ${r.val.toFixed(2)}</span>
+            </div>
+            <div style="font-size:0.68rem; color:#DDD; margin-top:2px; background:rgba(0,0,0,0.3); padding:4px 6px; border-radius:4px;">
+              📍 <b>Coleta:</b> ${r.orig}<br>
+              🏁 <b>Entrega:</b> ${r.dest}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('motoboy-modal').style.display = 'flex';
+    }
+
+    function fecharMotoboyModal() {
+      document.getElementById('motoboy-modal').style.display = 'none';
+      motoboyAtualIdx = -1;
+    }
+
+    function enviarWhatsExtratoMotoboy() {
+      if (motoboyAtualIdx < 0) return;
+      let m = motoboysSalvos[motoboyAtualIdx];
+      let empresa = configApp.empresaName || 'R1AMOBI LOGÍSTICA';
+      const corridasDoMotoboy = registrosOS.filter(r => r.motoboyIdx == motoboyAtualIdx || r.motoboyNome === m.nome);
+      const totalRepasseMotoboy = corridasDoMotoboy.reduce((acc, r) => acc + (r.repasseLiquido !== undefined ? r.repasseLiquido : r.val), 0);
+
+      let listaTxt = corridasDoMotoboy.slice(0, 5).map(r => `• OS #${r.numOS} | ${r.cli} | Repasse Líquido: R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)} (${r.dtStr})`).join('\n');
+
+      const txt = `*${empresa} - EXTRATO DE REPASSE MOTOBOY*\n----------------------------------\n*Entregador:* ${m.nome}\n*Veículo:* ${m.modelo || 'Moto'} (${m.placa || 'Sem placa'})\n*Total de Corridas Atendidas:* ${corridasDoMotoboy.length}\n*Valor Total a Repassar (Líquido):* R$ ${totalRepasseMotoboy.toFixed(2)}\n*Chave PIX do Motoboy:* ${m.pix || 'N/A'}\n----------------------------------\n*ÚLTIMAS CORRIDAS:*\n${listaTxt}\n----------------------------------\nObrigado pelo trabalho! 🏍️💨`;
+
+      window.open(`https://wa.me/55${m.whats.replace(/\D/g, '')}?text=${encodeURIComponent(txt)}`, '_blank');
+    }
+
+    function abrirPDFExtratoMotoboy() {
+      if (motoboyAtualIdx < 0) return;
+      let m = motoboysSalvos[motoboyAtualIdx];
+      let empresa = configApp.empresaName || 'R1AMOBI LOGÍSTICA';
+      const corridasDoMotoboy = registrosOS.filter(r => r.motoboyIdx == motoboyAtualIdx || r.motoboyNome === m.nome);
+      const totalRepasseMotoboy = corridasDoMotoboy.reduce((acc, r) => acc + (r.repasseLiquido !== undefined ? r.repasseLiquido : r.val), 0);
+
+      let linhasHtml = corridasDoMotoboy.map(r => `
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid #DDD;">${r.dtStr}</td>
+          <td style="padding:6px; border-bottom:1px solid #DDD;">
+            <b>OS #${r.numOS} - Cliente: ${r.cli}</b><br>
+            <small style="color:#444;">📍 ${r.orig} ➔ 🏁 ${r.dest}</small>
+          </td>
+          <td style="padding:6px; border-bottom:1px solid #DDD;">R$ ${r.val.toFixed(2)}</td>
+          <td style="padding:6px; border-bottom:1px solid #DDD; font-weight:bold; color:#00C853;">R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('modal-pdf-content').innerHTML = `
+        <h2 style="color:#E30613; margin-bottom:2px;">${empresa}</h2>
+        <p style="font-size:0.8rem; color:#555;">Extrato de Repasse do Entregador Parceiro</p>
+        <hr style="margin:8px 0; border:0; border-top:1px solid #EEE;">
+        <p style="font-size:0.85rem;"><b>Entregador:</b> ${m.nome} | <b>WhatsApp:</b> ${m.whats}</p>
+        <p style="font-size:0.85rem;"><b>Veículo:</b> ${m.modelo || 'Moto'} (${m.placa || 'N/A'}) | <b>Chave PIX:</b> ${m.pix || 'N/A'}</p>
+        <p style="font-size:0.85rem;"><b>Total de Corridas Realizadas:</b> ${corridasDoMotoboy.length} entregas</p>
+        <p style="font-size:0.95rem; margin-top:4px;"><b>Valor Total Repasse Líquido:</b> <b style="color:#00C853;">R$ ${totalRepasseMotoboy.toFixed(2)}</b></p>
+        
+        <table style="width:100%; border-collapse:collapse; margin-top:12px; font-size:0.75rem; color:#000;">
+          <thead>
+            <tr style="background:#F5F5F5; text-align:left;">
+              <th style="padding:6px;">Data/Hora</th>
+              <th style="padding:6px;">Cliente & Itinerário</th>
+              <th style="padding:6px;">Cobrado Cliente</th>
+              <th style="padding:6px;">Repasse Motoboy</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${linhasHtml}
+          </tbody>
+        </table>
+      `;
+
+      document.getElementById('pdf-modal').style.display = 'flex';
+    }
+
+    function selecionarCategoriaCliente(cat) {
+      categoriaClienteAtual = cat;
+      const btnAv = document.getElementById('btn-tipo-avulso');
+      const btnCad = document.getElementById('btn-tipo-cadastrado');
+      const dropBox = document.getElementById('box-select-cliente-dropdown');
+      const boxFid = document.getElementById('box-fidelidade-os');
+
+      if (cat === 'avulso') {
+        btnAv.classList.add('active');
+        btnCad.classList.remove('active');
+        dropBox.classList.add('hidden');
+        boxFid.classList.add('hidden');
+        document.getElementById('os-select-cliente').value = "";
+        document.getElementById('os-cliente').value = "Cliente Avulso";
+        document.getElementById('os-whats').value = "";
+      } else {
+        btnCad.classList.add('active');
+        btnAv.classList.remove('active');
+        dropBox.classList.remove('hidden');
+        document.getElementById('os-cliente').value = "";
+        document.getElementById('os-whats').value = "";
+      }
+      calcularValorOS();
+    }
+
+    function removerMidiaAnexada() {
+      comprovanteTempBase64 = null;
+      const box = document.getElementById('preview-comprovante-box');
+      if (box) box.style.display = 'none';
+      const fileInput = document.getElementById('os-comprovante-file');
+      if (fileInput) fileInput.value = '';
+    }
+
+    function carregarDados() {
+      try {
+        const c = localStorage.getItem('r1_clientes');
+        const m = localStorage.getItem('r1_motoboys');
+        const o = localStorage.getItem('r1_ordens');
+        const cfg = localStorage.getItem('r1_config');
+
+        if (c) clientesSalvos = JSON.parse(decryptData(c));
+        if (m) motoboysSalvos = JSON.parse(decryptData(m));
+        if (o) registrosOS = JSON.parse(decryptData(o));
+        if (cfg) configApp = Object.assign(configApp, JSON.parse(decryptData(cfg)));
+
+        clientesSalvos.forEach(cli => {
+          if (cli.saldoCarteira === undefined) cli.saldoCarteira = 0.0;
+          if (cli.totalEntregasAcumuladas === undefined) cli.totalEntregasAcumuladas = 0;
+          if (!cli.extratoCarteira) cli.extratoCarteira = [];
+        });
+
+        registrosOS.forEach(r => { if(r.marcado === undefined) r.marcado = true; });
+        registrosOSFiltrados = [...registrosOS];
+
+        atualizarSelectClientes();
+        atualizarSelectMotoboysOS();
+        atualizarListaMotoboysVisual();
+        filtrarFinanceiroPorPeriodo();
+        atualizarDadosTelaCarteiraGeral();
+        atualizarMetricasDashboard();
+      } catch (err) { console.log("Erro no carregamento:", err); }
+    }
+
+    function salvarTudo() {
+      try {
+        localStorage.setItem('r1_clientes', encryptData(JSON.stringify(clientesSalvos)));
+        localStorage.setItem('r1_motoboys', encryptData(JSON.stringify(motoboysSalvos)));
+        localStorage.setItem('r1_ordens', encryptData(JSON.stringify(registrosOS)));
+        localStorage.setItem('r1_config', encryptData(JSON.stringify(configApp)));
+        atualizarDadosTelaCarteiraGeral();
+        atualizarMetricasDashboard();
+      } catch(e) { console.log("Erro ao salvar:", e); }
+    }
+
+    function atualizarDadosTelaCarteiraGeral() {
+      const idxSel = parseInt(document.getElementById('wall-select-cliente-filtro').value);
+      
+      let totalEntregasGeral = 0;
+      let totalSaldoGeral = 0.0;
+      let ultimosLançamentos = [];
+
+      if (idxSel >= 0 && clientesSalvos[idxSel]) {
+        let cli = clientesSalvos[idxSel];
+        totalEntregasGeral = cli.totalEntregasAcumuladas || 0;
+        totalSaldoGeral = cli.saldoCarteira || 0.0;
+
+        if (cli.extratoCarteira) {
+          ultimosLançamentos = cli.extratoCarteira.map(e => ({ ...e, cliNome: cli.nome }));
+        }
+      } else {
+        totalEntregasGeral = registrosOS.length;
+        totalSaldoGeral = clientesSalvos.reduce((acc, c) => acc + (c.saldoCarteira || 0), 0);
+
+        clientesSalvos.forEach(c => {
+          if (c.extratoCarteira) {
+            c.extratoCarteira.forEach(e => {
+              ultimosLançamentos.push({ ...e, cliNome: c.nome });
+            });
+          }
+        });
+      }
+
+      document.getElementById('wall-entregas-qtd').innerText = totalEntregasGeral;
+      document.getElementById('wall-saldo-big').innerText = `R$ ${totalSaldoGeral.toFixed(2)}`;
+
+      let nivel = "BRONZE";
+      let metaPróxima = 20;
+      if (totalEntregasGeral >= 50) { nivel = "DIAMANTE"; metaPróxima = 100; }
+      else if (totalEntregasGeral >= 20) { nivel = "OURO"; metaPróxima = 50; }
+      else if (totalEntregasGeral >= 10) { nivel = "PRATA"; metaPróxima = 20; }
+
+      document.getElementById('wall-badge-nivel').innerText = nivel;
+      document.getElementById('wall-progress-txt').innerText = `${totalEntregasGeral} / ${metaPróxima}`;
+      
+      let faltam = Math.max(0, metaPróxima - totalEntregasGeral);
+      document.getElementById('wall-faltam-txt').innerText = faltam > 0 ? `Faltam ${faltam} para ${nivel === 'BRONZE' ? 'Prata' : 'Ouro'}` : 'Nível Máximo!';
+      
+      let pctFill = Math.min(100, Math.round((totalEntregasGeral / metaPróxima) * 100));
+      document.getElementById('wall-progress-fill').style.width = `${pctFill}%`;
+
+      const elExt = document.getElementById('wall-lista-extrato-recente');
+
+      if (ultimosLançamentos.length === 0) {
+        elExt.innerHTML = `<div style="text-align:center; color:#A0A0A0; font-size:0.78rem; padding:8px;">Nenhuma movimentação de cashback gravada.</div>`;
+      } else {
+        ultimosLançamentos.sort((a, b) => new Date(b.dataHora) - new Date(a.dataHora));
+        elExt.innerHTML = ultimosLançamentos.slice(0, 3).map(e => `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width:28px; height:28px; border-radius:50%; background:${e.tipo === 'credito' ? 'rgba(0,230,118,0.15)' : 'rgba(255,82,82,0.15)'}; color:${e.tipo === 'credito' ? 'var(--green)' : '#FF5252'}; display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:bold;">
+                ${e.tipo === 'credito' ? '+' : '-'}
+              </div>
+              <div>
+                <div style="font-weight:700; font-size:0.78rem; color:#FFF;">${e.desc}</div>
+                <div style="font-size:0.65rem; color:#A0A0A0;">${e.cliNome} • ${e.dataHora}</div>
+              </div>
+            </div>
+            <div style="font-weight:900; font-size:0.85rem; color:${e.tipo === 'credito' ? 'var(--green)' : '#FF5252'};">
+              ${e.tipo === 'credito' ? '+ R$ ' + e.val.toFixed(2) : '- R$ ' + e.val.toFixed(2)}
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function selecionarClienteTelaCarteira(elem) {
+      atualizarDadosTelaCarteiraGeral();
+    }
+
+    function enviarWhatsCarteiraAtual() {
+      const idxSel = parseInt(document.getElementById('wall-select-cliente-filtro').value);
+      if (idxSel >= 0) {
+        abrirCarteiraCliente(idxSel);
+        enviarWhatsCarteiraCliente();
+      } else {
+        alert("Selecione um cliente específico no menu do topo para enviar o extrato individual pelo WhatsApp!");
+      }
+    }
+
+    function abrirPDFCarteiraAtual() {
+      const idxSel = parseInt(document.getElementById('wall-select-cliente-filtro').value);
+      if (idxSel >= 0) {
+        abrirCarteiraCliente(idxSel);
+        abrirPDFCarteiraCliente();
+      } else {
+        alert("Selecione um cliente específico no menu do topo para gerar o PDF individual da carteira dele!");
+      }
+    }
+
+    function entrarNaPlataforma() {
+      const wScreen = document.getElementById('welcome-screen');
+      if (wScreen) {
+        wScreen.style.opacity = '0';
+        wScreen.style.visibility = 'hidden';
+        setTimeout(() => { wScreen.style.display = 'none'; }, 300);
+      }
+    }
+
+    function cleanUrl(url) {
+      if (!url) return '';
+      let str = url.trim();
+      if (str.includes('imgur.com') && !str.includes('.jpg') && !str.includes('.png') && !str.includes('.mp4')) {
+        let id = str.split('/').pop();
+        return `https://i.imgur.com/${id}.jpg`;
+      }
+      return str;
+    }
+
+    function previewComprovanteMedia(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const imgObj = new Image();
+          imgObj.onload = function() {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 600;
+            let width = imgObj.width;
+            let height = imgObj.height;
+
+            if (width > MAX_WIDTH) {
+              height = Math.round((height * MAX_WIDTH) / width);
+              width = MAX_WIDTH;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(imgObj, 0, 0, width, height);
+
+            comprovanteTempBase64 = canvas.toDataURL('image/jpeg', 0.6);
+
+            const box = document.getElementById('preview-comprovante-box');
+            const imgTag = document.getElementById('preview-img-tag');
+            const vidTag = document.getElementById('preview-video-tag');
+
+            box.style.display = 'block';
+            vidTag.style.display = 'none';
+            imgTag.src = comprovanteTempBase64;
+            imgTag.style.display = 'block';
+          };
+          imgObj.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      } else if (file.type.startsWith('video/')) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          comprovanteTempBase64 = evt.target.result;
+          const box = document.getElementById('preview-comprovante-box');
+          const imgTag = document.getElementById('preview-img-tag');
+          const vidTag = document.getElementById('preview-video-tag');
+
+          box.style.display = 'block';
+          imgTag.style.display = 'none';
+          vidTag.src = comprovanteTempBase64;
+          vidTag.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function togglePassVisibility() {
+      const input = document.getElementById('adm-master-pass');
+      const icon = document.getElementById('eye-pass-icon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+      }
+    }
+
+    function alternarModoCalculo() {
+      const modo = document.getElementById('os-modo-calculo').value;
+      const boxesTaxa = document.querySelectorAll('.box-taxa-individual');
+      boxesTaxa.forEach(b => b.classList.toggle('hidden', modo !== 'taxas_fixas'));
+      calcularValorOS();
+    }
+
+    function adicionarCampoParada() {
+      const container = document.getElementById('container-paradas-extras');
+      const paradaIndex = container.children.length + 1;
+      const modoTaxa = document.getElementById('os-modo-calculo').value === 'taxas_fixas';
+      
+      const divRow = document.createElement('div');
+      divRow.className = 'parada-row';
+      divRow.id = `parada-box-${paradaIndex}`;
+      divRow.innerHTML = `
+        <div style="width:100%;">
+          <div class="ponto-type-toggle">
+            <div class="btn-ponto-type active-coleta" id="tag-parada-${paradaIndex}-coleta" onclick="marcarTipoParadaExtra(${paradaIndex}, 'coleta')">📍 PARADA ${paradaIndex}: COLETA</div>
+            <div class="btn-ponto-type" id="tag-parada-${paradaIndex}-entrega" onclick="marcarTipoParadaExtra(${paradaIndex}, 'entrega')">🏁 PARADA ${paradaIndex}: ENTREGA</div>
+          </div>
+          <input type="hidden" id="parada-tipo-${paradaIndex}" class="input-parada-tipo-extra" value="coleta">
+
+          <div style="display:flex; gap:8px;">
+            <div class="input-box" style="flex:1;">
+              <i class="fa-solid fa-map-pin input-icon" style="color:#FF9800;"></i>
+              <input type="text" class="input-parada-extra" placeholder="Endereço da Parada ${paradaIndex}" oninput="calcularValorOS()" onblur="calcularDistanciaMapbox()">
+            </div>
+            ${modoTaxa ? `
+            <div class="input-box box-taxa-individual" style="width:100px;">
+              <input type="number" step="0.50" class="input-parada-taxa-val" value="${(configApp.taxaParada || 4.00).toFixed(2)}" oninput="calcularValorOS()">
+            </div>` : ''}
+          </div>
+          <button type="button" class="btn-del-parada" onclick="removerCampoParada('${divRow.id}')"><i class="fa-solid fa-trash"></i> Remover Parada ${paradaIndex}</button>
+        </div>
+      `;
+      container.appendChild(divRow);
+      calcularValorOS();
+    }
+
+    function removerCampoParada(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.remove();
+        calcularValorOS();
+        calcularDistanciaMapbox();
+      }
+    }
+
+    function obterListaParadasIniciais() {
+      const lista = [];
+      document.querySelectorAll('.input-parada-extra').forEach((inp, idx) => {
+        let val = inp.value.trim();
+        if(val !== '') {
+          let tipoEl = document.getElementById(`parada-tipo-${idx+1}`);
+          let tipoPonto = tipoEl ? tipoEl.value.toUpperCase() : 'COLETA';
+          lista.push(`[${tipoPonto}] ${val}`);
+        }
+      });
+      return lista;
+    }
+
+    function aplicarConfiguracoes() {
+      document.documentElement.style.setProperty('--primary', configApp.primaryColor || '#E30613');
+
+      const partesNome = (configApp.appName || 'R1 HUB').split(' ');
+      document.getElementById('app-name-part1').innerText = partesNome[0] || 'R1';
+      document.getElementById('app-name-part2').innerText = partesNome.slice(1).join(' ') || 'HUB';
+      document.getElementById('splash-title-txt').innerText = configApp.appName || 'R1 HUB';
+      document.getElementById('header-cidade-txt').innerText = configApp.cidadeUF || 'Assis - SP';
+
+      const wScreen = document.getElementById('welcome-screen');
+      const wVideo = document.getElementById('welcome-bg-video');
+      const wImg = document.getElementById('welcome-bg-img');
+      const bgUrl = cleanUrl(configApp.welcomeBg);
+
+      if (wScreen && wVideo && wImg) {
+        if (bgUrl.endsWith('.mp4') || bgUrl.includes('.mp4?')) {
+          wImg.style.display = 'none';
+          wVideo.src = bgUrl;
+          wVideo.style.display = 'block';
+        } else if (bgUrl) {
+          wVideo.style.display = 'none';
+          wVideo.src = '';
+          wImg.src = bgUrl;
+          wImg.style.display = 'block';
+        } else {
+          wVideo.style.display = 'none';
+          wVideo.src = '';
+          wImg.style.display = 'none';
+        }
+      }
+
+      document.getElementById('wlc-title').innerText = configApp.welcomeTitle || 'R1AMOBI LOGÍSTICA';
+      document.getElementById('wlc-sub').innerText = configApp.welcomeSub || 'Sua plataforma completa para entregas rápidas e seguras.';
+      document.getElementById('wlc-btn-txt').innerText = configApp.welcomeBtn || 'ENTRAR NO SISTEMA';
+
+      if (configApp.logoURL) {
+        const logoFixed = cleanUrl(configApp.logoURL);
+        const imgTag = `<img src="${logoFixed}">`;
+        document.getElementById('header-logo-box').innerHTML = imgTag;
+        document.getElementById('splash-logo-box').innerHTML = imgTag;
+        document.getElementById('recibo-logo-container').innerHTML = imgTag;
+      }
+    }
+
+    function navigate(modId, elem) {
+      document.querySelectorAll('.view-module').forEach(m => m.classList.remove('active'));
+      document.querySelectorAll('.dock-item').forEach(d => d.classList.remove('active'));
+      document.getElementById(modId).classList.add('active');
+      if (elem && elem.classList.contains('dock-item')) elem.classList.add('active');
+      if (modId === 'mod-carteira') atualizarDadosTelaCarteiraGeral();
+      if (modId === 'mod-dashboard') atualizarMetricasDashboard();
+    }
+
+    function switchType(tipo) {
+      tipoPessoaAtual = tipo;
+      document.getElementById('card-pf').classList.toggle('active', tipo === 'pf');
+      document.getElementById('card-pj').classList.toggle('active', tipo === 'pj');
+      document.querySelectorAll('.field-pf').forEach(el => el.classList.toggle('hidden', tipo !== 'pf'));
+      document.querySelectorAll('.field-pj').forEach(el => el.classList.toggle('hidden', tipo !== 'pj'));
+    }
+
+    function calcularValorOS() {
+      const modo = document.getElementById('os-modo-calculo').value;
+      const tipo = document.getElementById('os-tipo').value;
+      const km = parseFloat(document.getElementById('os-km').value || 0);
+      const pedagio = parseFloat(document.getElementById('os-pedagio').value || 0);
+      const taxaVol = parseFloat(document.getElementById('os-volume').value || 0);
+      const pctChuva = parseFloat(document.getElementById('os-taxa-chuva-pct').value || 0);
+      const dest = (document.getElementById('os-destino').value || '').toLowerCase();
+      
+      const qtdParadasExtras = document.querySelectorAll('.input-parada-extra').length;
+
+      let totalBruto = 0;
+      let valorTaxaParadas = 0;
+
+      if (modo === 'taxas_fixas') {
+        const tColeta = parseFloat(document.getElementById('taxa-coleta-val')?.value || 0);
+        const tEntrega = parseFloat(document.getElementById('taxa-entrega-val')?.value || 0);
+        
+        let tParadas = 0;
+        document.querySelectorAll('.input-parada-taxa-val').forEach(inp => {
+          tParadas += parseFloat(inp.value || 0);
+        });
+
+        valorTaxaParadas = tColeta + tEntrega + tParadas;
+        totalBruto = valorTaxaParadas;
+      } else {
+        valorTaxaParadas = qtdParadasExtras * parseFloat(configApp.taxaParada || 4.00);
+        let ehInter = tipo === "Viagem Intermunicipal" || (dest.length > 3 && !dest.includes("assis"));
+
+        if (ehInter) {
+          let rate = parseFloat(configApp.tarifaKMInter || 2.00);
+          totalBruto = km * rate;
+        } else {
+          let min = parseFloat(configApp.tarifaMin || 8.00);
+          let franquia = parseFloat(configApp.franquiaKM || 4.0);
+          let extraRate = parseFloat(configApp.tarifaKM || 0.80);
+
+          totalBruto = min;
+          if (km > franquia) {
+            totalBruto += ((km - franquia) * extraRate);
+          }
+        }
+        totalBruto += valorTaxaParadas;
+      }
+
+      let valorAdicionalChuva = 0;
+      if (pctChuva > 0) {
+        valorAdicionalChuva = totalBruto * (pctChuva / 100);
+      }
+
+      totalBruto += taxaVol + pedagio + valorAdicionalChuva;
+
+      let descontoAplicado = 0.0;
+      const cliIdx = document.getElementById('os-select-cliente').value;
+      if (cliIdx !== "" && clientesSalvos[parseInt(cliIdx)]) {
+        let saldoCliente = clientesSalvos[parseInt(cliIdx)].saldoCarteira || 0.0;
+        if (saldoCliente > 0) {
+          descontoAplicado = Math.min(saldoCliente, totalBruto);
+        }
+      }
+
+      let totalFinalComDesconto = Math.max(0, totalBruto - descontoAplicado);
+
+      document.getElementById('os-valor').value = totalFinalComDesconto.toFixed(2);
+
+      document.getElementById('dash-val-main').innerText = `R$ ${totalFinalComDesconto.toFixed(2)}`;
+      document.getElementById('dash-km-txt').innerHTML = `${km.toFixed(1).replace('.',',')} <span style="font-size:0.9rem; font-weight:normal;">km</span>`;
+      document.getElementById('c-dist').innerText = modo === 'taxas_fixas' ? 'Taxa Fixa' : `R$ ${(totalBruto - taxaVol - pedagio - valorTaxaParadas - valorAdicionalChuva).toFixed(2)}`;
+      document.getElementById('c-col').innerText = `R$ ${valorTaxaParadas.toFixed(2)} (${qtdParadasExtras} paradas)`;
+      document.getElementById('c-vol').innerText = `R$ ${(taxaVol + pedagio + valorAdicionalChuva - descontoAplicado).toFixed(2)}`;
+
+      calcularRepasseMotoboy();
+    }
+
+    function calcularRepasseMotoboy() {
+      const mbIdx = document.getElementById('os-select-motoboy').value;
+      const boxComissao = document.getElementById('box-comissao-interna');
+
+      if (mbIdx !== "") {
+        boxComissao.classList.remove('hidden');
+        const valTotal = parseFloat(document.getElementById('os-valor').value || 0);
+        const comissao = parseFloat(document.getElementById('os-comissao-val').value || 0);
+        const repasse = Math.max(0, valTotal - comissao);
+
+        document.getElementById('lbl-repasse-liquido').innerText = `R$ ${repasse.toFixed(2)}`;
+      } else {
+        boxComissao.classList.add('hidden');
+      }
+    }
+
+    async function calcularDistanciaMapbox() {
+      const orig = document.getElementById('os-origem').value;
+      const dest = document.getElementById('os-destino').value;
+      const paradas = obterListaParadasIniciais();
+      const token = configApp.mapboxToken;
+
+      if (!token || !orig || !dest || orig.length < 4 || dest.length < 4) {
+        calcularValorOS();
+        return;
+      }
+
+      try {
+        let endereçosRuta = [orig, ...paradas, dest];
+        let coordenadas = [];
+
+        for (let end of endereçosRuta) {
+          let res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(end)}.json?access_token=${token}&limit=1`);
+          let data = await res.json();
+          if (data.features && data.features.length > 0) {
+            coordenadas.push(data.features[0].center.join(','));
+          }
+        }
+
+        if (coordenadas.length === endereçosRuta.length) {
+          let coordsStr = coordenadas.join(';');
+          let resDir = await fetch(`https://api.mapbox.com/directions/v5/mapbox/driving/${coordsStr}?access_token=${token}`);
+          let dataDir = await resDir.json();
+
+          if (dataDir.routes && dataDir.routes.length > 0) {
+            let metrosTotais = dataDir.routes[0].distance;
+            let kmTotal = (metrosTotais / 1000).toFixed(1);
+            document.getElementById('os-km').value = kmTotal;
+            calcularValorOS();
+          }
+        }
+      } catch (err) {
+        console.log("Mapbox Multi-Pontos:", err);
+        calcularValorOS();
+      }
+    }
+
+    function salvarCliente(e) {
+      e.preventDefault();
+      let editIndex = parseInt(document.getElementById('cli-edit-index').value);
+
+      let nome = tipoPessoaAtual === 'pf' ? 
+        (document.getElementById('cli-pf-nome').value || '').trim() : 
+        (document.getElementById('cli-pj-razao').value || '').trim();
+
+      let whats = (document.getElementById('cli-whats').value || '').trim();
+      let end = (document.getElementById('cli-end').value || '').trim();
+      let doc = tipoPessoaAtual === 'pf' ? (document.getElementById('cli-pf-cpf').value || '').trim() : (document.getElementById('cli-pj-cnpj').value || '').trim();
+
+      if (!nome || !whats) return alert('Preencha Nome e WhatsApp!');
+
+      let objCliente = { idCli: Date.now(), nome, whats, end, doc, tipo: tipoPessoaAtual, saldoCarteira: 0.0, totalEntregasAcumuladas: 0, extratoCarteira: [] };
+
+      if (editIndex >= 0) {
+        let cliExistente = clientesSalvos[editIndex];
+        objCliente.idCli = cliExistente.idCli || Date.now();
+        objCliente.saldoCarteira = cliExistente.saldoCarteira || 0.0;
+        objCliente.totalEntregasAcumuladas = cliExistente.totalEntregasAcumuladas || 0;
+        objCliente.extratoCarteira = cliExistente.extratoCarteira || [];
+        clientesSalvos[editIndex] = objCliente;
+        document.getElementById('cli-edit-index').value = "-1";
+        document.getElementById('btn-salvar-cli-txt').innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Salvar Cliente`;
+        alert(`Cliente ${nome} atualizado!`);
+      } else {
+        clientesSalvos.push(objCliente);
+        alert(`Cliente ${nome} cadastrado com sucesso!`);
+      }
+
+      salvarTudo();
+      atualizarSelectClientes();
+      atualizarListaClientesVisual();
+      e.target.reset();
+    }
+
+    function editarCliente(idx) {
+      let c = clientesSalvos[idx];
+      if (!c) return;
+
+      switchType(c.tipo || 'pf');
+
+      if (c.tipo === 'pf') {
+        document.getElementById('cli-pf-nome').value = c.nome || '';
+        document.getElementById('cli-pf-cpf').value = c.doc || '';
+      } else {
+        document.getElementById('cli-pj-razao').value = c.nome || '';
+        document.getElementById('cli-pj-cnpj').value = c.doc || '';
+      }
+
+      document.getElementById('cli-whats').value = c.whats || '';
+      document.getElementById('cli-end').value = c.end || '';
+      document.getElementById('cli-edit-index').value = idx;
+      document.getElementById('btn-salvar-cli-txt').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Atualizar Cliente`;
+
+      alternarSubAbaCadastro('clientes');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function excluirCliente(idx) {
+      if(confirm("Deseja excluir este cliente do cadastro permanente?")) {
+        clientesSalvos.splice(idx, 1);
+        salvarTudo();
+        atualizarSelectClientes();
+      }
+    }
+
+    function atualizarSelectClientes() {
+      const sel = document.getElementById('os-select-cliente');
+      const selFiltroWall = document.getElementById('wall-select-cliente-filtro');
+
+      sel.innerHTML = `<option value="">-- Selecionar Cliente Cadastrado --</option>`;
+      selFiltroWall.innerHTML = `<option value="-1">-- Todos os Clientes (Visão Geral da Central) --</option>`;
+
+      clientesSalvos.forEach((c, i) => {
+        sel.innerHTML += `<option value="${i}">${c.nome} (${c.whats})</option>`;
+        selFiltroWall.innerHTML += `<option value="${i}">${c.nome} (Saldo: R$ ${(c.saldoCarteira||0).toFixed(2)})</option>`;
+      });
+
+      atualizarListaClientesVisual();
+    }
+
+    function atualizarListaClientesVisual() {
+      const elCli = document.getElementById('lista-clientes-completa');
+
+      if (clientesSalvos.length === 0) {
+        elCli.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.8rem; padding:10px;">Nenhum cliente cadastrado.</div>`;
+      } else {
+        elCli.innerHTML = clientesSalvos.map((c, idx) => `
+          <div class="data-item">
+            <div>
+              <div style="font-weight:700; font-size:0.85rem;">${c.nome}</div>
+              <div style="font-size:0.72rem; color:var(--text-muted);"><i class="fa-brands fa-whatsapp"></i> ${c.whats} | Total: ${c.totalEntregasAcumuladas || 0} Entregas</div>
+              <div style="font-size:0.72rem; color:var(--green); font-weight:bold; margin-top:2px;"><i class="fa-solid fa-wallet"></i> Saldo Carteira: R$ ${(c.saldoCarteira || 0).toFixed(2)}</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <button type="button" onclick="abrirCarteiraCliente(${idx})" style="background:rgba(0,230,118,0.15); border:1px solid var(--green); border-radius:6px; padding:4px 8px; color:var(--green); font-size:0.75rem; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-wallet"></i> Carteira & Histórico</button>
+              <button type="button" onclick="editarCliente(${idx})" style="background:rgba(255,255,255,0.1); border:1px solid var(--border-dark); border-radius:6px; width:26px; height:26px; color:#FFF; cursor:pointer;"><i class="fa-solid fa-pen"></i></button>
+              <button type="button" onclick="excluirCliente(${idx})" style="background:rgba(255,255,255,0.1); border:1px solid var(--border-dark); border-radius:6px; width:26px; height:26px; color:#FF5252; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function selecionarClienteNaOS(elem) {
+      const idx = elem.value;
+      const boxFid = document.getElementById('box-fidelidade-os');
+
+      if (idx !== "") {
+        const c = clientesSalvos[idx];
+        if (c) {
+          document.getElementById('os-cliente').value = c.nome;
+          document.getElementById('os-whats').value = c.whats;
+          if (c.end) {
+            document.getElementById('os-origem').value = c.end;
+            calcularDistanciaMapbox();
+          }
+
+          let saldo = c.saldoCarteira || 0.0;
+          document.getElementById('fidelidade-progresso-txt').innerText = `Saldo Disponível: R$ ${saldo.toFixed(2)}`;
+          document.getElementById('fidelidade-aviso-txt').innerHTML = saldo > 0 ? 
+            `O saldo disponível de <b>R$ ${saldo.toFixed(2)}</b> será abatido automaticamente no total!` : 
+            `Cliente sem saldo de cashback para abatimento no momento.`;
+
+          boxFid.classList.remove('hidden');
+        }
+      } else {
+        boxFid.classList.add('hidden');
+      }
+      calcularValorOS();
+    }
+
+    function buscarCEP() {
+      const cep = document.getElementById('cli-cep').value.replace(/\D/g, '');
+      if (cep.length === 8) {
+        fetch(`https://viacep.com.br/ws/${cep}/json/`)
+          .then(res => res.json())
+          .then(data => {
+            if (!data.erro) {
+              document.getElementById('cli-end').value = `${data.logradouro}, ${data.bairro} - ${data.localidade}/${data.uf}`;
+            }
+          });
+      }
+    }
+
+    function gerarOrdemServicoInicio() {
+      const cliIdx = document.getElementById('os-select-cliente').value;
+      const mbIdx = document.getElementById('os-select-motoboy').value;
+      const cli = document.getElementById('os-cliente').value || 'Cliente Avulso';
+      const whats = document.getElementById('os-whats').value || '';
+      const operacao = document.getElementById('os-operacao').value || 'Entrega';
+      const tipo = document.getElementById('os-tipo').value;
+
+      const tipoOrigPonto = (document.getElementById('ponto-orig-tipo').value || 'coleta').toUpperCase();
+      const tipoDestPonto = (document.getElementById('ponto-dest-tipo').value || 'entrega').toUpperCase();
+
+      const orig = `[${tipoOrigPonto}] ` + (document.getElementById('os-origem').value || 'Ponto Inicial');
+      const dest = `[${tipoDestPonto}] ` + (document.getElementById('os-destino').value || 'Ponto Final');
+
+      const paradasExtras = obterListaParadasIniciais();
+      const inst = document.getElementById('os-instrucoes').value || '--';
+      const valFinal = parseFloat(document.getElementById('os-valor').value || 0);
+      const comissaoVal = parseFloat(document.getElementById('os-comissao-val').value || 0);
+      const repasseLiquido = Math.max(0, valFinal - comissaoVal);
+
+      const km = document.getElementById('os-km').value || '0.0';
+      const pedagioVal = parseFloat(document.getElementById('os-pedagio').value || 0);
+      const pctChuva = parseFloat(document.getElementById('os-taxa-chuva-pct').value || 0);
+      const taxaVol = parseFloat(document.getElementById('os-volume').value || 0);
+      const dtAg = document.getElementById('os-data-agendada').value;
+      const hrAg = document.getElementById('os-hora-agendada').value || '10:00';
+      const pag = document.getElementById('os-pagamento').value;
+
+      let descontoCarteira = 0.0;
+      if (cliIdx !== "" && clientesSalvos[parseInt(cliIdx)]) {
+        let clienteObj = clientesSalvos[parseInt(cliIdx)];
+        let saldoDisponivel = clienteObj.saldoCarteira || 0.0;
+
+        if (saldoDisponivel > 0) {
+          descontoCarteira = Math.min(saldoDisponivel, valFinal + saldoDisponivel);
+          clienteObj.saldoCarteira = Math.max(0, saldoDisponivel - descontoCarteira);
+          if (!clienteObj.extratoCarteira) clienteObj.extratoCarteira = [];
+          
+          const dtStrDébito = new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+          clienteObj.extratoCarteira.unshift({
+            tipo: 'debito',
+            desc: `Abatimento em corrida`,
+            val: descontoCarteira,
+            dataHora: dtStrDébito
+          });
+        }
+      }
+
+      let mbNome = "Central R1AMOBI";
+      if (mbIdx !== "" && motoboysSalvos[mbIdx]) {
+        mbNome = motoboysSalvos[mbIdx].nome;
+      }
+
+      const numOS = 'RH' + new Date().getFullYear() + Math.floor(1000 + Math.random() * 9000);
+      const agora = new Date();
+      const dtStr = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+      const timestamp = agora.getTime();
+
+      ordemServicoAtualObj = {
+        id: Date.now(),
+        numOS, cli, whats, operacao, tipo, val: valFinal, descontoCarteira, comissaoVal, repasseLiquido, orig, dest, paradasExtras, km, pedagioVal, pctChuva, taxaVol, inst, dtAg, hrAg, pag, dtStr, timestamp, comprovanteMedia: comprovanteTempBase64, marcado: true, cliIdx: cliIdx, motoboyIdx: mbIdx, motoboyNome: mbNome, concluido: false
+      };
+
+      registrosOS.unshift(ordemServicoAtualObj);
+      salvarTudo();
+
+      document.getElementById('rec-titulo-doc').innerText = "ORDEM DE SERVIÇO (OS)";
+      document.getElementById('rec-pag-status-desc').innerText = "Aguardando Conclusão do Serviço";
+      const badge = document.getElementById('rec-pag-badge');
+      badge.innerText = "EM ROTA";
+      badge.style.background = "#FFE0B2";
+      badge.style.color = "#E65100";
+
+      preencherVisualDocumentoOS(ordemServicoAtualObj);
+      filtrarFinanceiroPorPeriodo();
+      atualizarMetricasDashboard();
+
+      tocarAlertaSonoro();
+
+      alert("Ordem de Serviço #" + numOS + " criada com sucesso (Em Rota)!");
+    }
+
+    function concluirEMitirReciboFinal() {
+      if (!ordemServicoAtualObj) {
+        if (registrosOS.length > 0) {
+          ordemServicoAtualObj = registrosOS[0];
+        } else {
+          return alert("Crie uma Ordem de Serviço primeiro!");
+        }
+      }
+
+      ordemServicoAtualObj.concluido = true;
+      const dtStr = new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+
+      if (ordemServicoAtualObj.cliIdx !== "" && ordemServicoAtualObj.cliIdx !== null && ordemServicoAtualObj.cliIdx !== undefined) {
+        let clienteObj = clientesSalvos[parseInt(ordemServicoAtualObj.cliIdx)];
+        if (clienteObj) {
+          clienteObj.totalEntregasAcumuladas = (clienteObj.totalEntregasAcumuladas || 0) + 1;
+
+          if ((configApp.cashbackStatus || 'ativo') === 'ativo') {
+            let pct = configApp.cashbackPct || 5.00;
+            let valorCashback = (ordemServicoAtualObj.val * (pct / 100));
+            
+            if (valorCashback > 0) {
+              clienteObj.saldoCarteira = (clienteObj.saldoCarteira || 0) + valorCashback;
+              if (!clienteObj.extratoCarteira) clienteObj.extratoCarteira = [];
+              clienteObj.extratoCarteira.unshift({
+                tipo: 'credito',
+                desc: `Cashback recebido`,
+                val: valorCashback,
+                dataHora: dtStr,
+                numOS: ordemServicoAtualObj.numOS
+              });
+            }
+          }
+        }
+      }
+
+      salvarTudo();
+
+      document.getElementById('rec-titulo-doc').innerText = "RECIBO DE SERVIÇO (CONFIRMADO)";
+      document.getElementById('rec-pag-status-desc').innerText = "Pagamento Concluído & Confirmado";
+      const badge = document.getElementById('rec-pag-badge');
+      badge.innerText = "CONFIRMADO ✓";
+      badge.style.background = "#D1E7DD";
+      badge.style.color = "#0F5132";
+
+      atualizarSelectClientes();
+      filtrarFinanceiroPorPeriodo();
+      atualizarMetricasDashboard();
+
+      alert("Serviço concluído! Recibo Oficial emitido e cashback creditado na carteira do cliente!");
+    }
+
+    function preencherVisualDocumentoOS(osObj) {
+      let timelineHtml = `
+        <div class="tl-item">
+          <div class="tl-dot red"></div>
+          <div class="rec-sec-title">PONTO INICIAL</div>
+          <div class="rec-text">${osObj.orig}</div>
+        </div>
+      `;
+
+      osObj.paradasExtras.forEach((p, idx) => {
+        timelineHtml += `
+          <div class="tl-item">
+            <div class="tl-dot yellow"></div>
+            <div class="rec-sec-title">PARADA INTERMEDIÁRIA ${idx + 1}</div>
+            <div class="rec-text">${p}</div>
+          </div>
+        `;
+      });
+
+      timelineHtml += `
+        <div class="tl-item">
+          <div class="tl-dot green"></div>
+          <div class="rec-sec-title">PONTO FINAL</div>
+          <div class="rec-text">${osObj.dest}</div>
+        </div>
+      `;
+
+      document.getElementById('recibo-timeline-box').innerHTML = timelineHtml;
+      document.getElementById('dash-timeline-box').innerHTML = timelineHtml;
+
+      document.getElementById('rec-num-txt').innerText = `Nº ${osObj.numOS}`;
+      document.getElementById('rec-date-txt').innerText = osObj.dtStr;
+      document.getElementById('rec-km-txt').innerText = `${osObj.km} km`;
+      document.getElementById('rec-cli-txt').innerText = osObj.cli;
+      document.getElementById('rec-mb-txt').innerText = osObj.motoboyNome || "Central R1AMOBI";
+      document.getElementById('rec-operacao-txt').innerText = osObj.operacao;
+      document.getElementById('rec-serv-txt').innerText = osObj.tipo;
+      document.getElementById('rec-inst-txt').innerText = osObj.inst;
+
+      let qtdParadas = osObj.paradasExtras ? osObj.paradasExtras.length : 0;
+      let valParadas = qtdParadas * parseFloat(configApp.taxaParada || 4.00);
+
+      let valBaseCalculado = osObj.val + (osObj.descontoCarteira || 0) - osObj.pedagioVal - (osObj.val * (osObj.pctChuva/100)) - osObj.taxaVol - valParadas;
+      document.getElementById('rec-val-base').innerText = `R$ ${Math.max(0, valBaseCalculado).toFixed(2)}`;
+      document.getElementById('rec-val-total').innerText = `R$ ${osObj.val.toFixed(2)}`;
+      document.getElementById('rec-pag-forma').innerText = osObj.pag;
+
+      const rowParadas = document.getElementById('row-rec-paradas');
+      if (valParadas > 0) {
+        document.getElementById('rec-val-paradas').innerText = `R$ ${valParadas.toFixed(2)} (${qtdParadas} paradas)`;
+        rowParadas.style.display = 'table-row';
+      } else {
+        rowParadas.style.display = 'none';
+      }
+
+      const rowPedagio = document.getElementById('row-rec-pedagio');
+      if (osObj.pedagioVal > 0) {
+        document.getElementById('rec-val-pedagio').innerText = `R$ ${osObj.pedagioVal.toFixed(2)}`;
+        rowPedagio.style.display = 'table-row';
+      } else {
+        rowPedagio.style.display = 'none';
+      }
+
+      const rowChuva = document.getElementById('row-rec-chuva');
+      if (osObj.pctChuva > 0) {
+        document.getElementById('rec-val-chuva').innerText = `+ ${osObj.pctChuva}%`;
+        rowChuva.style.display = 'table-row';
+      } else {
+        rowChuva.style.display = 'none';
+      }
+
+      const rowExtra = document.getElementById('row-rec-extra');
+      if (osObj.taxaVol > 0) {
+        document.getElementById('rec-val-extra').innerText = `R$ ${osObj.taxaVol.toFixed(2)}`;
+        rowExtra.style.display = 'table-row';
+      } else {
+        rowExtra.style.display = 'none';
+      }
+
+      const rowDesconto = document.getElementById('row-rec-desconto');
+      if (osObj.descontoCarteira && osObj.descontoCarteira > 0) {
+        document.getElementById('rec-val-desconto').innerText = `- R$ ${osObj.descontoCarteira.toFixed(2)}`;
+        rowDesconto.style.display = 'table-row';
+      } else {
+        rowDesconto.style.display = 'none';
+      }
+
+      if (osObj.dtAg) {
+        const p = osObj.dtAg.split('-');
+        document.getElementById('rec-agend-txt').innerText = `${p[2]}/${p[1]} às ${osObj.hrAg}`;
+        document.getElementById('dash-date-txt').innerText = `Data: ${p[2]}/${p[1]}/${p[0]}`;
+        document.getElementById('dash-time-txt').innerText = `Horário: ${osObj.hrAg}`;
+      } else {
+        document.getElementById('rec-agend-txt').innerText = 'Imediato';
+      }
+
+      let compHtml = '';
+      if (osObj.comprovanteMedia) {
+        if (osObj.comprovanteMedia.startsWith('data:image')) {
+          compHtml = `
+            <div style="margin-top:16px; border-top:1px dashed #CCC; padding-top:12px; text-align:center;">
+              <div class="rec-sec-title" style="margin-bottom:8px;"><i class="fa-solid fa-camera"></i> COMPROVANTE DE ENTREGA</div>
+              <img src="${osObj.comprovanteMedia}" style="max-width:100%; max-height:280px; border-radius:8px; border:1px solid #EEE; object-fit:contain;">
+            </div>
+          `;
+        } else {
+          compHtml = `
+            <div style="margin-top:16px; border-top:1px dashed #CCC; padding-top:12px; text-align:center; font-size:0.75rem; color:#555;">
+              <i class="fa-solid fa-video"></i> [Vídeo Comprovante Arquivado no Sistema]
+            </div>
+          `;
+        }
+      }
+      document.getElementById('rec-comprovante-box').innerHTML = compHtml;
+
+      document.getElementById('dash-os-id').innerText = `ID: #${osObj.numOS}`;
+      document.getElementById('dash-pag-txt').innerText = osObj.pag;
+    }
+
+    function abrirCarteiraCliente(idx) {
+      clienteCarteiraAtualIdx = idx;
+      const cli = clientesSalvos[idx];
+      if (!cli) return;
+
+      const ordensDoCliente = registrosOS.filter(r => r.cliIdx == idx || r.cli === cli.nome);
+      const totalFaturadoCliente = ordensDoCliente.reduce((acc, r) => acc + r.val, 0);
+
+      document.getElementById('cart-cli-nome').innerText = cli.nome;
+      document.getElementById('cart-cli-whats').innerText = cli.whats;
+      document.getElementById('cart-cli-qtd-corridas').innerText = `${cli.totalEntregasAcumuladas || 0} Entregas`;
+      document.getElementById('cart-cli-saldo').innerText = `Saldo Carteira: R$ ${(cli.saldoCarteira || 0).toFixed(2)}`;
+      document.getElementById('cart-cli-faturamento-total').innerText = `Valor Total Faturado: R$ ${totalFaturadoCliente.toFixed(2)}`;
+
+      renderizarExtratoCarteiraModal(cli, idx);
+      document.getElementById('carteira-modal').style.display = 'flex';
+    }
+
+    function fecharCarteiraModal() {
+      document.getElementById('carteira-modal').style.display = 'none';
+      clienteCarteiraAtualIdx = -1;
+    }
+
+    function renderizarExtratoCarteiraModal(cli, cliIdx) {
+      const elExt = document.getElementById('cart-lista-extrato');
+      const ordensDoCliente = registrosOS.filter(r => r.cliIdx == cliIdx || r.cli === cli.nome);
+
+      if (ordensDoCliente.length === 0 && (!cli.extratoCarteira || cli.extratoCarteira.length === 0)) {
+        elExt.innerHTML = `<div style="text-align:center; color:#A0A0A0; font-size:0.78rem; padding:8px;">Nenhum serviço registrado para este cliente.</div>`;
+      } else {
+        let html = '';
+        
+        if (cli.extratoCarteira && cli.extratoCarteira.length > 0) {
+          html += cli.extratoCarteira.map(e => `
+            <div style="padding:6px 0; border-bottom:1px dashed rgba(0,230,118,0.2);">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:700; font-size:0.75rem; color:var(--green);">${e.desc}</span>
+                <span style="font-weight:900; font-size:0.8rem; color:${e.tipo==='credito'?'var(--green)':'#FF5252'};">${e.tipo==='credito'?'+':'-'} R$ ${e.val.toFixed(2)}</span>
+              </div>
+              <div style="font-size:0.65rem; color:#A0A0A0;">${e.dataHora}</div>
+            </div>
+          `).join('');
+        }
+
+        html += ordensDoCliente.map(r => `
+          <div style="padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.08);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight:800; font-size:0.8rem; color:#FFF;">OS #${r.numOS} • ${r.operacao || 'Entrega'} (${r.tipo})</span>
+              <span style="font-weight:900; font-size:0.85rem; color:var(--green);">R$ ${r.val.toFixed(2)}</span>
+            </div>
+            <div style="font-size:0.68rem; color:#A0A0A0; margin-top:2px;">
+              <span><i class="fa-regular fa-clock"></i> ${r.dtStr} | ${r.km || '0.0'} km</span>
+            </div>
+            <div style="font-size:0.68rem; color:#DDD; margin-top:2px; background:rgba(0,0,0,0.3); padding:4px 6px; border-radius:4px;">
+              📍 <b>Coleta:</b> ${r.orig}<br>
+              🏁 <b>Entrega:</b> ${r.dest}
+            </div>
+          </div>
+        `).join('');
+
+        elExt.innerHTML = html;
+      }
+    }
+
+    function ajustarSaldoCarteira(tipo) {
+      if (clienteCarteiraAtualIdx < 0) return;
+      const cli = clientesSalvos[clienteCarteiraAtualIdx];
+      const valInput = parseFloat(document.getElementById('cart-ajuste-val').value || 0);
+
+      if (valInput <= 0) return alert("Digite um valor válido maior que zero!");
+
+      const agora = new Date();
+      const dtStr = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+
+      if (tipo === 'credito') {
+        cli.saldoCarteira = (cli.saldoCarteira || 0) + valInput;
+        cli.extratoCarteira.unshift({ tipo: 'credito', desc: 'Ajuste Manual de Crédito R$ (Admin)', val: valInput, dataHora: dtStr });
+      } else {
+        cli.saldoCarteira = Math.max(0, (cli.saldoCarteira || 0) - valInput);
+        cli.extratoCarteira.unshift({ tipo: 'debito', desc: 'Ajuste Manual de Débito R$ (Admin)', val: valInput, dataHora: dtStr });
+      }
+
+      salvarTudo();
+      document.getElementById('cart-cli-saldo').innerText = `Saldo Carteira: R$ ${cli.saldoCarteira.toFixed(2)}`;
+      document.getElementById('cart-ajuste-val').value = '';
+      renderizarExtratoCarteiraModal(cli, clienteCarteiraAtualIdx);
+      atualizarListaClientesVisual();
+      alert("Saldo da Carteira Digital atualizado com sucesso!");
+    }
+
+    function enviarWhatsCarteiraCliente() {
+      if (clienteCarteiraAtualIdx < 0) return;
+      const cli = clientesSalvos[clienteCarteiraAtualIdx];
+      const empresa = configApp.empresaName || 'R1AMOBI LOGÍSTICA';
+
+      const ordensDoCliente = registrosOS.filter(r => r.cliIdx == clienteCarteiraAtualIdx || r.cli === cli.nome);
+      let extratoTxt = ordensDoCliente.slice(0, 5).map(r => `• OS #${r.numOS} | ${r.operacao||'Entrega'} | R$ ${r.val.toFixed(2)} (${r.dtStr})`).join('\n');
+
+      const txt = `*${empresa} - HISTÓRICO & EXTRATO DE CARTEIRA*\n----------------------------------\n*Cliente:* ${cli.nome}\n*Saldo Atual em Carteira:* R$ ${(cli.saldoCarteira || 0).toFixed(2)}\n*Total de Serviços Realizados:* ${cli.totalEntregasAcumuladas || 0}\n----------------------------------\n*ÚLTIMOS SERVIÇOS REALIZADOS:*\n${extratoTxt}\n----------------------------------\nObrigado pela parceria de sempre! 🚀`;
+
+      window.open(`https://wa.me/55${cli.whats.replace(/\D/g, '')}?text=${encodeURIComponent(txt)}`, '_blank');
+    }
+
+    function abrirPDFCarteiraCliente() {
+      if (clienteCarteiraAtualIdx < 0) return;
+      const cli = clientesSalvos[clienteCarteiraAtualIdx];
+      const empresa = configApp.empresaName || 'R1AMOBI LOGÍSTICA';
+
+      const ordensDoCliente = registrosOS.filter(r => r.cliIdx == clienteCarteiraAtualIdx || r.cli === cli.nome);
+      const totalFaturadoCliente = ordensDoCliente.reduce((acc, r) => acc + r.val, 0);
+
+      let linhasHtml = ordensDoCliente.map(r => `
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid #DDD;">${r.dtStr}</td>
+          <td style="padding:6px; border-bottom:1px solid #DDD;">
+            <b>OS #${r.numOS} - ${r.operacao||'Entrega'} (${r.tipo})</b><br>
+            <small style="color:#444;">📍 ${r.orig} ➔ 🏁 ${r.dest}</small>
+          </td>
+          <td style="padding:6px; border-bottom:1px solid #DDD;">${r.pag || 'PIX'}</td>
+          <td style="padding:6px; border-bottom:1px solid #DDD; font-weight:bold; color:#00C853;">R$ ${r.val.toFixed(2)}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('modal-pdf-content').innerHTML = `
+        <h2 style="color:#E30613; margin-bottom:2px;">${empresa}</h2>
+        <p style="font-size:0.8rem; color:#555;">Extrato Exclusivo de Serviços & Carteira do Cliente</p>
+        <hr style="margin:8px 0; border:0; border-top:1px solid #EEE;">
+        <p style="font-size:0.85rem;"><b>Cliente:</b> ${cli.nome} | <b>WhatsApp:</b> ${cli.whats}</p>
+        <p style="font-size:0.85rem;"><b>Saldo Atual na Carteira:</b> <b style="color:#00C853;">R$ ${(cli.saldoCarteira || 0).toFixed(2)}</b></p>
+        <p style="font-size:0.85rem;"><b>Total de Entregas Realizadas:</b> ${cli.totalEntregasAcumuladas || 0} entregas</p>
+        <p style="font-size:0.95rem; margin-top:4px;"><b>Valor Total Faturado no Histórico:</b> <b style="color:#00C853;">R$ ${totalFaturadoCliente.toFixed(2)}</b></p>
+        
+        <table style="width:100%; border-collapse:collapse; margin-top:12px; font-size:0.75rem; color:#000;">
+          <thead>
+            <tr style="background:#F5F5F5; text-align:left;">
+              <th style="padding:6px;">Data/Hora</th>
+              <th style="padding:6px;">Serviço & Itinerário</th>
+              <th style="padding:6px;">Pagamento</th>
+              <th style="padding:6px;">Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${linhasHtml}
+          </tbody>
+        </table>
+      `;
+
+      document.getElementById('pdf-modal').style.display = 'flex';
+    }
+
+    function filtrarFinanceiroPorPeriodo() {
+      const periodo = document.getElementById('fin-filtro-periodo').value;
+      const grpData = document.getElementById('grp-data-especifica');
+      const agora = new Date().getTime();
+      const umDiaMs = 24 * 60 * 60 * 1000;
+
+      grpData.classList.toggle('hidden', periodo !== 'data_especifica');
+
+      if (periodo === 'hoje') {
+        const inicioHoje = new Date().setHours(0,0,0,0);
+        registrosOSFiltrados = registrosOS.filter(r => (r.timestamp || 0) >= inicioHoje);
+      } else if (periodo === 'data_especifica') {
+        const dataVal = document.getElementById('fin-data-input').value;
+        if (dataVal) {
+          const dtParts = dataVal.split('-');
+          const dtSelStr = `${dtParts[2]}/${dtParts[1]}/${dtParts[0]}`;
+          registrosOSFiltrados = registrosOS.filter(r => r.dtStr.includes(dtSelStr));
+        } else {
+          registrosOSFiltrados = [...registrosOS];
+        }
+      } else if (periodo === '7dias') {
+        registrosOSFiltrados = registrosOS.filter(r => (agora - (r.timestamp || 0)) <= (7 * umDiaMs));
+      } else if (periodo === 'mes') {
+        const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+        registrosOSFiltrados = registrosOS.filter(r => (r.timestamp || 0) >= inicioMes);
+      } else {
+        registrosOSFiltrados = [...registrosOS];
+      }
+
+      renderizarExtratoHistorico();
+    }
+
+    function renderizarExtratoHistorico() {
+      const elFin = document.getElementById('lista-financeiro-extrato');
+      const selecionados = registrosOSFiltrados.filter(r => r.marcado);
+      const totalFin = selecionados.reduce((acc, r) => acc + r.val, 0);
+
+      document.getElementById('fin-total').innerText = `R$ ${totalFin.toFixed(2)}`;
+      document.getElementById('fin-qtd').innerText = selecionados.length;
+
+      if (registrosOSFiltrados.length === 0) {
+        elFin.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.8rem; padding:10px;">Nenhuma ordem encontrada para este período.</div>`;
+      } else {
+        elFin.innerHTML = registrosOSFiltrados.map((r) => {
+          let paradasStr = (r.paradasExtras && r.paradasExtras.length > 0) ? 
+            `<br><b>📍 Paradas:</b> ${r.paradasExtras.join(' ➔ ')}` : '';
+          
+          let instStr = r.inst && r.inst !== '--' ? `<br><b>📝 Inst:</b> ${r.inst}` : '';
+          let agendStr = r.dtAg ? `<br><b>⏰ Agendado:</b> ${r.dtAg} às ${r.hrAg}` : '';
+          let chuvaStr = r.pctChuva > 0 ? `<br><b>🌧️ Adicional Chuva:</b> +${r.pctChuva}%` : '';
+          let descStr = r.descontoCarteira > 0 ? `<br><b>🎁 Abatimento Carteira:</b> - R$ ${r.descontoCarteira.toFixed(2)}` : '';
+          let mbTag = r.motoboyNome ? `<br><b>🏍️ Entregador:</b> ${r.motoboyNome} | <b>Repasse Líquido:</b> R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)}` : '';
+          let statusStr = r.concluido ? `<span style="color:var(--green); font-weight:bold;">[Concluído]</span>` : `<span style="color:#FF9800; font-weight:bold;">[Em Rota]</span>`;
+          let compTag = r.comprovanteMedia ? `<br><a href="${r.comprovanteMedia}" target="_blank" style="color:var(--primary); font-weight:bold; font-size:0.68rem; display:inline-block; margin-top:4px;"><i class="fa-solid fa-camera"></i> Ver Comprovante Anexo</a>` : '';
+
+          return `
+            <div class="data-item">
+              <div style="display:flex; align-items:flex-start; gap:10px; width:100%;">
+                <input type="checkbox" class="chk-custom" style="margin-top:3px;" ${r.marcado ? 'checked' : ''} onchange="alternarMarcacaoOS(${r.id}, this)">
+                <div style="flex:1;">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-weight:800; font-size:0.88rem; color:#FFF;">${r.cli} • ${r.operacao || 'Entrega'} (${r.tipo})</span>
+                    <span style="font-weight:900; color:var(--green); font-size:0.95rem;">R$ ${r.val.toFixed(2)}</span>
+                  </div>
+                  <div style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">
+                    <span><i class="fa-regular fa-clock"></i> ${r.dtStr} | ${statusStr} | (${r.km || '0.0'} km)</span>
+                  </div>
+                  <div class="hist-desc-box">
+                    <b>📍 Origem:</b> ${r.orig || '--'}<br>
+                    <b>🏁 Destino:</b> ${r.dest || '--'}${paradasStr}${chuvaStr}${descStr}${mbTag}${instStr}${agendStr}${compTag}
+                  </div>
+                </div>
+                <button type="button" onclick="excluirOS(${r.id})" style="background:rgba(255,255,255,0.1); border:1px solid var(--border-dark); border-radius:6px; width:26px; height:26px; color:#FF5252; cursor:pointer; flex-shrink:0; margin-left:6px;"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function alternarMarcacaoOS(id, chk) {
+      const item = registrosOS.find(r => r.id === id);
+      if(item) {
+        item.marcado = chk.checked;
+        salvarTudo();
+        renderizarExtratoHistorico();
+      }
+    }
+
+    function alternarMarcarTodos(chk) {
+      registrosOSFiltrados.forEach(r => r.marcado = chk.checked);
+      salvarTudo();
+      renderizarExtratoHistorico();
+    }
+
+    function excluirOS(idCorrida) {
+      if(confirm("Deseja apagar esta corrida do histórico? (O cadastro permanente do cliente NÃO será afetado)")) {
+        registrosOS = registrosOS.filter(r => r.id !== idCorrida);
+        salvarTudo();
+        filtrarFinanceiroPorPeriodo();
+        atualizarMetricasDashboard();
+      }
+    }
+
+    function enviarWhatsCliente() {
+      const cli = document.getElementById('os-cliente').value || 'Cliente';
+      const whats = document.getElementById('os-whats').value.replace(/\D/g, '');
+      const valFinal = document.getElementById('os-valor').value || '0.00';
+      const orig = document.getElementById('os-origem').value || 'Coleta';
+      const dest = document.getElementById('os-destino').value || 'Entrega';
+      const operacao = document.getElementById('os-operacao').value || 'Entrega';
+      const paradas = obterListaParadasIniciais();
+      const dtAg = document.getElementById('os-data-agendada').value;
+      const hrAg = document.getElementById('os-hora-agendada').value || '';
+      const empresa = configApp.empresaName || 'R1AMOBI LOGÍSTICA';
+
+      const agora = new Date();
+      const dtEmissao = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+
+      if (!whats) return alert("Digite o WhatsApp do cliente!");
+
+      let txtAg = dtAg ? `\n⏰ *AGENDADO PARA:* ${dtAg} às ${hrAg}` : '';
+      let txtParadas = paradas.length > 0 ? `\n📍 *Paradas Intermediárias:*\n` + paradas.map((p, i) => `   ${i+1}. ${p}`).join('\n') : '';
+
+      let descTxt = "";
+      if (ordemServicoAtualObj && ordemServicoAtualObj.descontoCarteira > 0) {
+        descTxt = `\n🎁 *Desconto Carteira/Cashback:* - R$ ${ordemServicoAtualObj.descontoCarteira.toFixed(2)}`;
+      }
+
+      const txt = `*${empresa} - SOLICITAÇÃO DE SERVIÇO / OS*\n----------------------------------\n🗓️ *Data do Serviço:* ${dtEmissao}\n*Cliente:* ${cli}\n*Operação:* ${operacao}${txtAg}\n📍 *Ponto Inicial:* ${orig}${txtParadas}\n🏁 *Ponto Final:* ${dest}${descTxt}\n💰 *VALOR FINAL DO SERVIÇO:* R$ ${valFinal}\n----------------------------------\nObrigado pela preferência!`;
+      window.open(`https://wa.me/55${whats}?text=${encodeURIComponent(txt)}`, '_blank');
+    }
+
+    function enviarWhatsMotoboy() {
+      const cli = document.getElementById('os-cliente').value || 'Cliente';
+      const whatsCli = document.getElementById('os-whats').value || '';
+      const operacao = document.getElementById('os-operacao').value || 'Entrega';
+      const tipo = document.getElementById('os-tipo').value;
+      const orig = document.getElementById('os-origem').value || '';
+      const dest = document.getElementById('os-destino').value || '';
+      const paradas = obterListaParadasIniciais();
+      const inst = document.getElementById('os-instrucoes').value || '';
+      const valCliente = parseFloat(document.getElementById('os-valor').value || 0).toFixed(2);
+      const comissaoVal = parseFloat(document.getElementById('os-comissao-val').value || 0).toFixed(2);
+      const repasseLiquido = Math.max(0, valCliente - comissaoVal).toFixed(2);
+
+      const dtAg = document.getElementById('os-data-agendada').value;
+      const hrAg = document.getElementById('os-hora-agendada').value || '';
+      const pag = document.getElementById('os-pagamento').value;
+      const mbIdx = document.getElementById('os-select-motoboy').value;
+
+      const agora = new Date();
+      const dtEmissao = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+
+      if (!orig || !dest) return alert("Preencha o Ponto Inicial e o Ponto Final!");
+
+      let destinatarioWhats = "";
+      if (mbIdx !== "" && motoboysSalvos[mbIdx]) {
+        destinatarioWhats = motoboysSalvos[mbIdx].whats.replace(/\D/g, '');
+      }
+
+      let pontos = [orig, ...paradas, dest];
+      let linkRotaGPS = `https://www.google.com/maps/dir/` + pontos.map(p => encodeURIComponent(p)).join('/');
+
+      let txtAg = dtAg ? `\n⏰ *AGENDADO PARA:* ${dtAg} às ${hrAg}` : '';
+      let txtParadas = paradas.length > 0 ? `\n📍 *PARADAS INTERMEDIÁRIAS:*\n` + paradas.map((p, i) => `   ${i+1}. ${p}`).join('\n') : '';
+      let txtInst = inst ? `\n📝 *INSTRUÇÕES / CAIXAS:*\n${inst}` : '';
+
+      const txt = `🚨 *NOVA CORRIDA / DESPACHO R1AMOBI* 🚨\n----------------------------------\n🗓️ *Data do Serviço:* ${dtEmissao}\n*Cliente:* ${cli} (${whatsCli})\n*Operação:* ${operacao} (${tipo})${txtAg}\n📍 *PONTO INICIAL:* ${orig}${txtParadas}\n🏁 *PONTO FINAL:* ${dest}${txtInst}\n\n🗺️ *LINK DA ROTA COMPLETA NO GPS:*\n${linkRotaGPS}\n\n----------------------------------\n📊 *DEMONSTRATIVO DO SERVIÇO:*\n💰 *Valor Cobrado do Cliente:* R$ ${valCliente}\n🏷️ *Comissão da Central:* R$ ${comissaoVal}\n💵 *SEU REPASSE LÍQUIDO:* R$ ${repasseLiquido}\n*Forma de Pgto:* ${pag}\n----------------------------------\nBoa corrida e vá com segurança! 🏍️💨`;
+
+      if (destinatarioWhats) {
+        window.open(`https://wa.me/55${destinatarioWhats}?text=${encodeURIComponent(txt)}`, '_blank');
+      } else {
+        window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
+      }
+    }
+
+    function agendarNoGoogleCalendar() {
+      const cli = document.getElementById('os-cliente').value || 'Cliente';
+      const orig = document.getElementById('os-origem').value || '';
+      const dest = document.getElementById('os-destino').value || '';
+      const val = document.getElementById('os-valor').value || '0.00';
+      const dtAg = document.getElementById('os-data-agendada').value;
+      const hrAg = document.getElementById('os-hora-agendada').value || '10:00';
+
+      if (!dtAg) return alert("Por favor, selecione a Data de Agendamento no formulário!");
+
+      const dtParts = dtAg.split('-');
+      const hrParts = hrAg.split(':');
+      const dtStart = `${dtParts[0]}${dtParts[1]}${dtParts[2]}T${hrParts[0].padStart(2,'0')}${hrParts[1]?hrParts[1].padStart(2,'0'):'00'}00`;
+      const nextHour = (parseInt(hrParts[0]) + 1).toString().padStart(2, '0');
+      const dtEnd = `${dtParts[0]}${dtParts[1]}${dtParts[2]}T${nextHour}${hrParts[1]?hrParts[1].padStart(2,'0'):'00'}00`;
+
+      const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Entrega R1AMOBI: ' + cli)}&dates=${dtStart}/${dtEnd}&details=${encodeURIComponent('Origem: ' + orig + '\nDestino: ' + dest + '\nValor: R$ ' + val)}`;
+      window.open(url, '_blank');
+    }
+
+    function abrirRotaMapbox() {
+      const orig = document.getElementById('os-origem').value || 'Depósito Central';
+      const dest = document.getElementById('os-destino').value || 'Entrega';
+      const paradas = obterListaParadasIniciais();
+      let pontos = [orig, ...paradas, dest];
+      window.open(`https://www.google.com/maps/dir/` + pontos.map(p => encodeURIComponent(p)).join('/'), '_blank');
+    }
+
+    function previewNovaLogo(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          configApp.logoURL = evt.target.result;
+          document.getElementById('adm-logo-url-input').value = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    async function registrarBiometriaAdmin() {
+      if (!window.PublicKeyCredential) {
+        return alert("O seu navegador ou aparelho não suporta Biometria Web no momento.");
+      }
+      try {
+        alert("Encoste o dedo no leitor de digital do celular para cadastrar seu acesso Biométrico...");
+        localStorage.setItem('r1_biometria_ativa', 'true');
+        alert("Digital/Biometria cadastrada com sucesso para o Painel Admin!");
+      } catch(err) {
+        alert("Não foi possível registrar a digital. Certifique-se de que o app está rodando com HTTPS.");
+      }
+    }
+
+    function abrirPDFModalRelatorio() {
+      const selecionados = registrosOSFiltrados.filter(r => r.marcado);
+      if (selecionados.length === 0) return alert("Marque pelo menos uma ordem na lista para gerar o PDF!");
+
+      const empresa = configApp.empresaName || 'R1AMOBI LOGÍSTICA';
+      const total = selecionados.reduce((acc, r) => acc + r.val, 0);
+
+      let linhasHtml = selecionados.map(r => {
+        let paradasStr = (r.paradasExtras && r.paradasExtras.length > 0) ? `<br><b>Paradas:</b> ${r.paradasExtras.join(' ➔ ')}` : '';
+        let instStr = r.inst && r.inst !== '--' ? `<br><b>Obs:</b> ${r.inst}` : '';
+        let mbStr = r.motoboyNome ? `<br><small style="color:#555;">Entregador: ${r.motoboyNome} (Repasse Líquido: R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)})</small>` : '';
+
+        return `
+          <tr>
+            <td style="padding:6px; border-bottom:1px solid #DDD; font-size:0.75rem;">${r.dtStr}</td>
+            <td style="padding:6px; border-bottom:1px solid #DDD; font-size:0.75rem;">
+              <b>${r.cli}</b>${mbStr}<br>
+              <small style="color:#444;">📍 ${r.orig} ➔ 🏁 ${r.dest}${paradasStr}${instStr}</small>
+            </td>
+            <td style="padding:6px; border-bottom:1px solid #DDD; font-size:0.75rem;">${r.tipo}</td>
+            <td style="padding:6px; border-bottom:1px solid #DDD; font-size:0.75rem;">${r.pag || 'PIX'}</td>
+            <td style="padding:6px; border-bottom:1px solid #DDD; font-weight:bold; color:#00C853; font-size:0.85rem;">R$ ${r.val.toFixed(2)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('modal-pdf-content').innerHTML = `
+        <h2 style="color:#E30613; margin-bottom:4px;">${empresa}</h2>
+        <p style="font-size:0.8rem; color:#555;">Relatório de Faturamento Detalhado - Emissão: ${new Date().toLocaleDateString('pt-BR')}</p>
+        <hr style="margin:8px 0; border:0; border-top:1px solid #EEE;">
+        <p style="font-size:0.85rem;"><b>Total de Ordem(ns):</b> ${selecionados.length} | <b>Total Faturado:</b> <b style="color:#00C853;">R$ ${total.toFixed(2)}</b></p>
+        <table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:0.75rem; color:#000;">
+          <thead>
+            <tr style="background:#F5F5F5; text-align:left;">
+              <th style="padding:6px;">Data/Hora</th>
+              <th style="padding:6px;">Cliente & Itinerário Completo</th>
+              <th style="padding:6px;">Serviço</th>
+              <th style="padding:6px;">Pagamento</th>
+              <th style="padding:6px;">Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${linhasHtml}
+          </tbody>
+        </table>
+      `;
+
+      document.getElementById('pdf-modal').style.display = 'flex';
+    }
+
+    function abrirModalPDFRecibo() {
+      const content = document.getElementById('recibo-cupom').innerHTML;
+      document.getElementById('modal-pdf-content').innerHTML = `
+        <div class="receipt-wrapper" style="box-shadow:none; padding:0; margin:0;">
+          ${content}
+        </div>
+      `;
+      document.getElementById('pdf-modal').style.display = 'flex';
+    }
+
+    function fecharPDFModal() {
+      document.getElementById('pdf-modal').style.display = 'none';
+    }
+
+    function enviarRelatorioWhats() {
+      const selecionados = registrosOSFiltrados.filter(r => r.marcado);
+      if (selecionados.length === 0) return alert("Marque pelo menos um item da lista para enviar!");
+
+      const empresa = configApp.empresaName || 'R1AMOBI LOGÍSTICA';
+      const total = selecionados.reduce((acc, r) => acc + r.val, 0);
+
+      let listaTxt = selecionados.map((r, i) => {
+        let paradasStr = (r.paradasExtras && r.paradasExtras.length > 0) ? `\n   📍 Paradas: ${r.paradasExtras.join(' ➔ ')}` : '';
+        let instStr = (r.inst && r.inst !== '--') ? `\n   📝 Inst: ${r.inst}` : '';
+        let mbStr = r.motoboyNome ? `\n   🏍️ Entregador: ${r.motoboyNome}` : '';
+        return `*${i+1}. ${r.cli}* (${r.tipo})\n   📍 Origem: ${r.orig}\n   🏁 Destino: ${r.dest}${paradasStr}${mbStr}${instStr}\n   💰 R$ ${r.val.toFixed(2)} [${r.dtStr}]`;
+      }).join('\n\n');
+
+      const txt = `*${empresa} - RELATÓRIO DETALHADO DE SERVIÇOS*\n----------------------------------\n*Total Faturado:* R$ ${total.toFixed(2)}\n*Qtd de Corridas:* ${selecionados.length}\n----------------------------------\n*ITINERÁRIO COMPLETO DOS SERVIÇOS:*\n\n${listaTxt}\n\n----------------------------------\nRelatório gerado em: ${new Date().toLocaleDateString('pt-BR')}`;
+
+      window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
+    }
+
+    function registrarCliqueLogo() {
+      cliquesLogo++;
+      clearTimeout(timerCliques);
+      if (cliquesLogo >= 5) {
+        cliquesLogo = 0;
+        let pass = prompt('🔑 DIGITE A SENHA MASTER ADMIN:');
+        if (pass === (configApp.adminPass || 'r1admin')) abrirAdmin();
+      } else {
+        timerCliques = setTimeout(() => { cliquesLogo = 0; }, 2000);
+      }
+    }
+
+    function abrirAdmin() {
+      document.getElementById('adm-master-pass').value = configApp.adminPass || 'r1admin';
+      document.getElementById('adm-app-name').value = configApp.appName || 'R1 HUB';
+      document.getElementById('adm-empresa-name').value = configApp.empresaName || 'R1AMOBI LOGÍSTICA';
+      document.getElementById('adm-chave-pix').value = configApp.chavePix || '';
+      document.getElementById('adm-cidade').value = configApp.cidadeUF || 'Assis - SP';
+
+      document.getElementById('adm-logo-url-input').value = configApp.logoURL || '';
+      document.getElementById('adm-color-picker').value = configApp.primaryColor || '#E30613';
+      
+      document.getElementById('adm-welcome-bg').value = configApp.welcomeBg || '';
+      document.getElementById('adm-welcome-title').value = configApp.welcomeTitle || 'R1AMOBI LOGÍSTICA';
+      document.getElementById('adm-welcome-sub').value = configApp.welcomeSub || 'Sua plataforma completa para entregas rápidas e seguras.';
+      document.getElementById('adm-welcome-btn').value = configApp.welcomeBtn || 'ENTRAR NO SISTEMA';
+
+      document.getElementById('cfg-min').value = configApp.tarifaMin || 8.00;
+      document.getElementById('cfg-franquia-km').value = configApp.franquiaKM || 4.0;
+      document.getElementById('cfg-km').value = configApp.tarifaKM || 0.80;
+      document.getElementById('cfg-taxa-parada').value = configApp.taxaParada || 4.00;
+      document.getElementById('cfg-cashback-status').value = configApp.cashbackStatus || 'ativo';
+      document.getElementById('cfg-cashback-pct').value = configApp.cashbackPct || 5.00;
+      document.getElementById('cfg-km-inter').value = configApp.tarifaKMInter || 2.00;
+      document.getElementById('cfg-mapbox-token').value = configApp.mapboxToken || '';
+
+      document.getElementById('adm-ai-status').value = configApp.aiStatus || 'desativado';
+      document.getElementById('adm-gemini-token').value = configApp.geminiToken || '';
+      document.getElementById('adm-ai-prompt').value = configApp.aiPrompt || '';
+      document.getElementById('adm-wapi-status').value = configApp.wapiStatus || 'desativado';
+      document.getElementById('adm-wapi-token').value = configApp.wapiToken || '';
+      document.getElementById('adm-frota-modo').value = configApp.frotaModo || 'manual';
+
+      document.getElementById('admin-modal').style.display = 'flex';
+    }
+
+    function fecharAdmin() { document.getElementById('admin-modal').style.display = 'none'; }
+    function fecharAdminBackground(e) { if(e.target.id === 'admin-modal') fecharAdmin(); }
+
+    function salvarConfigAdmin() {
+      configApp.adminPass = document.getElementById('adm-master-pass').value || 'r1admin';
+      configApp.appName = document.getElementById('adm-app-name').value || 'R1 HUB';
+      configApp.empresaName = document.getElementById('adm-empresa-name').value || 'R1AMOBI LOGÍSTICA';
+      configApp.chavePix = document.getElementById('adm-chave-pix').value || '';
+      configApp.cidadeUF = document.getElementById('adm-cidade').value || 'Assis - SP';
+
+      const logoTxt = document.getElementById('adm-logo-url-input').value;
+      if (logoTxt) configApp.logoURL = logoTxt.trim();
+
+      configApp.primaryColor = document.getElementById('adm-color-picker').value || '#E30613';
+      configApp.welcomeBg = (document.getElementById('adm-welcome-bg').value || '').trim();
+      configApp.welcomeTitle = document.getElementById('adm-welcome-title').value || 'R1AMOBI LOGÍSTICA';
+      configApp.welcomeSub = document.getElementById('adm-welcome-sub').value || 'Sua plataforma completa para entregas rápidas e seguras.';
+      configApp.welcomeBtn = document.getElementById('adm-welcome-btn').value || 'ENTRAR NO SISTEMA';
+
+      configApp.tarifaMin = parseFloat(document.getElementById('cfg-min').value || 8.00);
+      configApp.franquiaKM = parseFloat(document.getElementById('cfg-franquia-km').value || 4.0);
+      configApp.tarifaKM = parseFloat(document.getElementById('cfg-km').value || 0.80);
+      configApp.taxaParada = parseFloat(document.getElementById('cfg-taxa-parada').value || 4.00);
+      configApp.cashbackStatus = document.getElementById('cfg-cashback-status').value || 'ativo';
+      configApp.cashbackPct = parseFloat(document.getElementById('cfg-cashback-pct').value || 5.00);
+      configApp.tarifaKMInter = parseFloat(document.getElementById('cfg-km-inter').value || 2.00);
+      configApp.mapboxToken = document.getElementById('cfg-mapbox-token').value || '';
+
+      configApp.aiStatus = document.getElementById('adm-ai-status').value || 'desativado';
+      configApp.geminiToken = document.getElementById('adm-gemini-token').value || '';
+      configApp.aiPrompt = document.getElementById('adm-ai-prompt').value || '';
+      configApp.wapiStatus = document.getElementById('adm-wapi-status').value || 'desativado';
+      configApp.wapiToken = document.getElementById('adm-wapi-token').value || '';
+      configApp.frotaModo = document.getElementById('adm-frota-modo').value || 'manual';
+
+      salvarTudo();
+      fecharAdmin();
+      aplicarConfiguracoes();
+      calcularValorOS();
+      alert("Configurações salvas e aplicadas com sucesso!");
+    }
+
+    function zerarDadosComConfirmacao() {
+      let r = prompt('ATENÇÃO: Digite ZERAR para apagar todos os clientes, motoboys e OS salvos:');
+      if (r === 'ZERAR') {
+        localStorage.removeItem('r1_clientes');
+        localStorage.removeItem('r1_motoboys');
+        localStorage.removeItem('r1_ordens');
+        clientesSalvos = [];
+        motoboysSalvos = [];
+        registrosOS = [];
+        registrosOSFiltrados = [];
+        atualizarSelectClientes();
+        atualizarSelectMotoboysOS();
+        atualizarListaMotoboysVisual();
+        filtrarFinanceiroPorPeriodo();
+        resetarCamposCalculo();
+        atualizarMetricasDashboard();
+        alert("Todos os registros foram zerados!");
+        fecharAdmin();
+      }
+    }
+  </script>
+</body>
+</html>
