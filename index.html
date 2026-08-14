@@ -5,8 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>R1 HUB - LOGÍSTICA</title>
 
-  <!-- FontAwesome & Fonts -->
+  <!-- PWA MANIFEST & CONFIGS -->
+  <link rel="manifest" href="manifest.json">
   <meta name="theme-color" id="theme-color-meta" content="#E30613">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="R1 HUB">
+
+  <!-- FontAwesome & Fonts -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
@@ -361,13 +367,13 @@
         <div class="timeline" id="dash-timeline-box">
           <div class="tl-item">
             <div class="tl-dot red"></div>
-            <div class="tl-title">Coleta</div>
+            <div class="rec-sec-title">PONTO INICIAL</div>
             <div class="tl-sub" id="dash-orig-title">R1 HUB - Depósito Central</div>
             <div class="tl-sub" id="dash-orig-sub">Assis/SP</div>
           </div>
           <div class="tl-item">
             <div class="tl-dot green"></div>
-            <div class="tl-title">Entrega</div>
+            <div class="rec-sec-title">PONTO FINAL</div>
             <div class="tl-sub" id="dash-dest-title">Supermercado Bom Preço</div>
             <div class="tl-sub" id="dash-dest-sub">Assis/SP</div>
           </div>
@@ -695,9 +701,7 @@
           <i class="fa-solid fa-clock-rotate-left" style="color:var(--primary);"></i>
         </h3>
 
-        <div class="data-list" id="wall-lista-extrato-recente">
-          <!-- Renderizado via JS -->
-        </div>
+        <div class="data-list" id="wall-lista-extrato-recente"></div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;">
           <button class="btn-action-wsp" type="button" style="font-size:0.78rem;" onclick="enviarWhatsCarteiraAtual()"><i class="fa-brands fa-whatsapp"></i> Enviar Whats</button>
@@ -706,7 +710,7 @@
       </div>
     </div>
 
-    <!-- MÓDULO 4: GERAR OS COM SELETORES DE TIPO DE PONTO (COLETA E ENTREGA INDIVIDUAIS) -->
+    <!-- MÓDULO 4: GERAR OS COM SELETORES DE TIPO DE PONTO -->
     <div id="mod-ordens" class="view-module">
       <div class="module-header-box">
         <div class="module-header-title">
@@ -760,7 +764,7 @@
               <span style="font-size:0.75rem; color:#A0A0A0;" id="fidelidade-status-txt">Cashback / Abatimento</span>
             </div>
             <div class="fidelidade-val" id="fidelidade-progresso-txt">Saldo Disponível: R$ 0,00</div>
-            <div style="font-size:0.75rem; color:#FFF;" id="fidelidade-aviso-txt">O saldo disponível do cliente é abativo automaticamente no total desta corrida.</div>
+            <div style="font-size:0.75rem; color:#FFF;" id="fidelidade-aviso-txt">O saldo disponível do cliente é abatido automaticamente no total desta corrida.</div>
           </div>
 
           <div class="input-box">
@@ -850,7 +854,7 @@
         <div class="form-section-block">
           <div class="form-section-title"><i class="fa-solid fa-map-location-dot"></i> 4. ITINERÁRIO E MARCAÇÃO DE PONTOS</div>
           
-          <!-- PONTO INICIAL (ORIGEM) -->
+          <!-- PONTO INICIAL -->
           <div class="ponto-type-toggle">
             <div class="btn-ponto-type active-coleta" id="tag-orig-coleta" onclick="marcarTipoPonto('orig', 'coleta')">📍 1. COLETA / RETIRADA</div>
             <div class="btn-ponto-type" id="tag-orig-entrega" onclick="marcarTipoPonto('orig', 'entrega')">🏁 1. ENTREGA</div>
@@ -874,7 +878,7 @@
 
           <button type="button" class="btn-add-parada" onclick="adicionarCampoParada()"><i class="fa-solid fa-plus-circle"></i> + Adicionar Parada Intermediária</button>
 
-          <!-- PONTO FINAL (DESTINO) -->
+          <!-- PONTO FINAL -->
           <div class="ponto-type-toggle" style="margin-top:10px;">
             <div class="btn-ponto-type" id="tag-dest-coleta" onclick="marcarTipoPonto('dest', 'coleta')">📍 PONTO FINAL: COLETA</div>
             <div class="btn-ponto-type active-entrega" id="tag-dest-entrega" onclick="marcarTipoPonto('dest', 'entrega')">🏁 PONTO FINAL: ENTREGA</div>
@@ -1324,7 +1328,7 @@
     </div>
   </div>
 
-  <!-- MODAL DE HISTÓRICO E EXTRATO EXCLUSIVO DO MOTOBOY PARCEIRO -->
+  <!-- MODAL DE HISTÓRICO E EXTRATO DO MOTOBOY PARCEIRO -->
   <div class="modal-overlay" id="motoboy-modal">
     <div class="modal-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid var(--border-dark); padding-bottom:8px;">
@@ -1411,9 +1415,7 @@
         <i class="fa-solid fa-xmark" style="cursor:pointer; font-size:1.3rem; color:#000;" onclick="fecharPDFModal()"></i>
       </div>
 
-      <div id="modal-pdf-content">
-        <!-- Preenchido via JS -->
-      </div>
+      <div id="modal-pdf-content"></div>
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;" class="no-print">
         <button class="btn-action-wsp" type="button" style="background:var(--primary); color:#FFF; margin-bottom:0;" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir / Baixar PDF</button>
@@ -1422,7 +1424,7 @@
     </div>
   </div>
 
-  <!-- LÓGICA REFINADA COMPLETA -->
+  <!-- LÓGICA PRINCIPAL COM MANIFEST E SERVICE WORKER REGISTRADOS -->
   <script>
     let clientesSalvos = [];
     let motoboysSalvos = [];
@@ -1491,7 +1493,6 @@
 
     function marcarTipoPonto(ponto, tipo) {
       document.getElementById(`ponto-${ponto}-tipo`).value = tipo;
-      
       const btnCol = document.getElementById(`tag-${ponto}-coleta`);
       const btnEnt = document.getElementById(`tag-${ponto}-entrega`);
 
@@ -1524,7 +1525,16 @@
       resetarCamposCalculo();
       atualizarDadosTelaCarteiraGeral();
       atualizarMetricasDashboard();
+      registrarServiceWorkerPWA();
     };
+
+    function registrarServiceWorkerPWA() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Service Worker PWA Registrado!', reg))
+          .catch(err => console.log('Service Worker falhou:', err));
+      }
+    }
 
     function atualizarMetricasDashboard() {
       const inicioHoje = new Date().setHours(0, 0, 0, 0);
@@ -1756,8 +1766,8 @@
               <span><i class="fa-regular fa-clock"></i> ${r.dtStr} | Cobrado do Cliente: R$ ${r.val.toFixed(2)}</span>
             </div>
             <div style="font-size:0.68rem; color:#DDD; margin-top:2px; background:rgba(0,0,0,0.3); padding:4px 6px; border-radius:4px;">
-              📍 <b>Coleta:</b> ${r.orig}<br>
-              🏁 <b>Entrega:</b> ${r.dest}
+              📍 <b>Origem:</b> ${r.orig}<br>
+              🏁 <b>Destino:</b> ${r.dest}
             </div>
           </div>
         `).join('');
@@ -2185,7 +2195,7 @@
 
       if (configApp.logoURL) {
         const logoFixed = cleanUrl(configApp.logoURL);
-        const imgTag = `<img src="${logoFixed}">`;
+        const imgTag = `<img src="${logoFixed}" style="width:100%; height:100%; object-fit:cover;">`;
         document.getElementById('header-logo-box').innerHTML = imgTag;
         document.getElementById('splash-logo-box').innerHTML = imgTag;
         document.getElementById('recibo-logo-container').innerHTML = imgTag;
@@ -2794,8 +2804,8 @@
               <span><i class="fa-regular fa-clock"></i> ${r.dtStr} | ${r.km || '0.0'} km</span>
             </div>
             <div style="font-size:0.68rem; color:#DDD; margin-top:2px; background:rgba(0,0,0,0.3); padding:4px 6px; border-radius:4px;">
-              📍 <b>Coleta:</b> ${r.orig}<br>
-              🏁 <b>Entrega:</b> ${r.dest}
+              📍 <b>Origem:</b> ${r.orig}<br>
+              🏁 <b>Destino:</b> ${r.dest}
             </div>
           </div>
         `).join('');
@@ -3109,7 +3119,7 @@
 
     async function registrarBiometriaAdmin() {
       if (!window.PublicKeyCredential) {
-        return alert("O seu navegador ou aparelho não suporta Biometria Web no momento.");
+        return alert("O seu aparelho não suporta Biometria Web no momento.");
       }
       try {
         alert("Encoste o dedo no leitor de digital do celular para cadastrar seu acesso Biométrico...");
