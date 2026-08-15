@@ -225,7 +225,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
   <script>
-    // CONFIGURAÇÃO DIRETA INTEGRADA (SEM DEPENDÊNCIA DE ARQUIVOS EXTERNOS)
     const firebaseConfig = {
       apiKey: "AIzaSyCzz7FIZgB3EQVCw8CD4HQVMTehU11fXfg",
       authDomain: "r1oservico-hub.firebaseapp.com",
@@ -240,7 +239,6 @@
     let db = null;
     let auth = null; 
 
-    // Alternar visualização da senha
     function alternarVisibilidadeSenha(inputId, iconEl) {
       const input = document.getElementById(inputId);
       if (!input) return;
@@ -255,7 +253,6 @@
       }
     }
 
-    // Alternar entre tela de Login e tela de Cadastro
     function alternarTelaAuth(tela) {
       if (tela === 'cadastro') {
         document.getElementById('box-login').classList.add('hidden');
@@ -276,16 +273,14 @@
         
         auth.onAuthStateChanged((user) => {
           if (user) {
-            buscarDadosMotoboy(user.uid);
+            buscarOuCriarDadosMotoboy(user);
           }
         });
       } catch(e) {
         console.error(e);
-        alert("Erro na inicialização: " + e.message);
       }
     };
 
-    // Função de Cadastro
     function realizarCadastro() {
       const nome = document.getElementById('cad-nome').value.trim();
       const whats = document.getElementById('cad-whats').value.trim();
@@ -307,29 +302,34 @@
       auth.createUserWithEmailAndPassword(email, senha)
         .then((cred) => {
           const uid = cred.user.uid;
-          const novoMotoboy = {
+          const dados = {
             uid: uid,
             nome: nome,
             whats: whats,
             modelo: moto,
             status: 'online',
-            criadoEm: firebase.database.ServerValue.TIMESTAMP
+            email: email
           };
-
-          return db.ref('motoboys/' + uid).set(novoMotoboy).then(() => {
-            motoboyLogado = novoMotoboy;
-            motoboyLogado.idFB = uid;
-            carregarPainel();
-          });
+          localStorage.setItem('r1_dados_locais', JSON.stringify(dados));
+          
+          db.ref('motoboys/' + uid).set(dados).catch(() => {});
+          motoboyLogado = dados;
+          motoboyLogado.idFB = uid;
+          carregarPainel();
         })
         .catch((err) => {
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-check"></i> Concluir Cadastro';
-          alert("Erro no cadastro: " + err.message);
+          if (err.code === 'auth/email-already-in-use') {
+            alert("Este e-mail já possui cadastro. Faça o login.");
+            alternarTelaAuth('login');
+            document.getElementById('login-email').value = email;
+          } else {
+            alert("Erro no cadastro: " + err.message);
+          }
         });
     }
 
-    // Função de Login
     function realizarLogin() {
       const email = document.getElementById('login-email').value.trim();
       const senha = document.getElementById('login-senha').value.trim();
@@ -344,36 +344,59 @@
 
       auth.signInWithEmailAndPassword(email, senha)
         .then((cred) => {
-          buscarDadosMotoboy(cred.user.uid);
+          buscarOuCriarDadosMotoboy(cred.user);
         })
         .catch((err) => {
           btn.disabled = false;
           btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Entrar no Painel';
-          alert("Erro no acesso: Verifique e-mail e senha digitados.");
+          alert("Erro no acesso: " + (err.message.includes('invalid-credential') ? "E-mail ou senha incorretos." : err.message));
         });
     }
 
-    function buscarDadosMotoboy(uid) {
+    function buscarOuCriarDadosMotoboy(user) {
+      const uid = user.uid;
+      let timeoutId = setTimeout(() => {
+        // Se a busca no DB demorar, entra com fallback imediato
+        usarPerfilFallback(user);
+      }, 2500);
+
       db.ref('motoboys/' + uid).once('value').then((snap) => {
+        clearTimeout(timeoutId);
         if (snap.exists()) {
           motoboyLogado = snap.val();
           motoboyLogado.idFB = uid;
           carregarPainel();
         } else {
-          db.ref('motoboys').orderByChild('uid').equalTo(uid).once('value').then((subSnap) => {
-            if (subSnap.exists()) {
-              subSnap.forEach((c) => {
-                motoboyLogado = c.val();
-                motoboyLogado.idFB = c.key;
-              });
-              carregarPainel();
-            } else {
-              alert("Cadastro não localizado no banco de dados.");
-              sairConta();
-            }
-          });
+          usarPerfilFallback(user);
         }
+      }).catch(() => {
+        clearTimeout(timeoutId);
+        usarPerfilFallback(user);
       });
+    }
+
+    function usarPerfilFallback(user) {
+      let salvo = localStorage.getItem('r1_dados_locais');
+      if (salvo) {
+        try {
+          motoboyLogado = JSON.parse(salvo);
+          motoboyLogado.idFB = user.uid;
+        } catch(e) {}
+      }
+      
+      if (!motoboyLogado) {
+        const nomeFormatado = user.email.split('@')[0].toUpperCase();
+        motoboyLogado = {
+          uid: user.uid,
+          idFB: user.uid,
+          nome: nomeFormatado,
+          modelo: 'Moto R1AMOBI',
+          status: 'online',
+          email: user.email
+        };
+        db.ref('motoboys/' + user.uid).set(motoboyLogado).catch(() => {});
+      }
+      carregarPainel();
     }
 
     function carregarPainel() {
@@ -382,7 +405,7 @@
       document.getElementById('tela-painel').classList.remove('hidden');
       document.getElementById('header-user-status').classList.remove('hidden');
 
-      document.getElementById('mb-nome-display').innerText = motoboyLogado.nome;
+      document.getElementById('mb-nome-display').innerText = motoboyLogado.nome || 'Entregador R1';
       document.getElementById('mb-moto-display').innerText = motoboyLogado.modelo || 'Moto Cadastrada';
 
       db.ref('motoboys/' + motoboyLogado.idFB + '/status').on('value', (snap) => {
@@ -421,7 +444,7 @@
           }
         }
         processarOrdens(ordens);
-      });
+      }).catch(() => {});
     }
 
     function processarOrdens(todas) {
@@ -489,6 +512,7 @@
 
     function sairConta() {
       if (auth) auth.signOut();
+      localStorage.removeItem('r1_dados_locais');
       location.reload();
     }
   </script>
