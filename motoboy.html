@@ -68,7 +68,9 @@
     .metric-val { font-size: 1.3rem; font-weight: 900; margin-top: 4px; }
 
     /* CARDS DE CHAMADOS */
-    .card-oferta { background: #161922; border: 2px solid var(--primary); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; }
+    .card-oferta { background: #161922; border: 2px solid var(--primary); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; animation: pulseAlert 1.5s infinite alternate; }
+    @keyframes pulseAlert { from { box-shadow: 0 0 10px rgba(227,6,19,0.3); } to { box-shadow: 0 0 25px rgba(227,6,19,0.8); } }
+    
     .btn-aceitar { background: var(--green); color: #000; border: none; border-radius: 12px; padding: 16px; font-weight: 900; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem; }
 
     /* HISTÓRICO */
@@ -86,7 +88,7 @@
     .empty-box { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 30px 16px; border-radius: 12px; border: 1px solid var(--border-dark); }
   </style>
 </head>
-<body>
+<body onclick="desbloquearAudio()">
 
   <header>
     <div class="brand">
@@ -139,7 +141,7 @@
       
       <div class="input-group">
         <label class="input-label">Nome Completo</label>
-        <input type="text" id="cad-nome" class="input-control" placeholder="Ex: Carlos Silva">
+        <input type="text" id="cad-nome" class="input-control" placeholder="Ex: César Alberto">
       </div>
 
       <div class="input-group">
@@ -149,7 +151,7 @@
 
       <div class="input-group">
         <label class="input-label">Modelo da Moto / Placa</label>
-        <input type="text" id="cad-moto" class="input-control" placeholder="Ex: Fan 160 - ABC1D23">
+        <input type="text" id="cad-moto" class="input-control" placeholder="Ex: FZ25 - ABC1D23">
       </div>
 
       <div class="input-group">
@@ -207,7 +209,7 @@
           <span><i class="fa-solid fa-file-invoice-dollar" style="color:var(--green);"></i> HISTÓRICO DE REPASSES</span>
           <span style="font-size:0.7rem; color:var(--text-muted);" id="lbl-total-historico-corridas">0 registradas</span>
         </div>
-        <select id="mb-filtro-periodo" class="filter-select" onchange="atualizarEntregasEMetricas()">
+        <select id="mb-filtro-periodo" class="filter-select" onchange="processarOrdensCache()">
           <option value="hoje">📅 Hoje (Faturamento do Dia)</option>
           <option value="todos">📂 Todo o Histórico</option>
         </select>
@@ -225,6 +227,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
   <script>
+    // CONFIGURAÇÃO REALTIME SYNCHRONIZED
     const firebaseConfig = {
       apiKey: "AIzaSyCzz7FIZgB3EQVCw8CD4HQVMTehU11fXfg",
       authDomain: "r1oservico-hub.firebaseapp.com",
@@ -232,12 +235,58 @@
       storageBucket: "r1oservico-hub.firebasestorage.app",
       messagingSenderId: "1080136865646",
       appId: "1:1080136865646:web:568dbfc6971054d08137f",
-      databaseURL: "https://r1oservico-hub-default-rtdb.firebaseio.com"
+      databaseURL: "https://r1oservico-hub.firebaseio.com"
     };
 
     let motoboyLogado = null;
     let db = null;
     let auth = null; 
+    let audioContext = null;
+    let somInterval = null;
+    let cacheOrdens = [];
+
+    // Desbloqueia Web Audio ao toque
+    function desbloquearAudio() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioContext && audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+    }
+
+    // Alerta Sonoro R1
+    function dispararAlertaSonoro() {
+      desbloquearAudio();
+      try {
+        if (!audioContext) return;
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(800, audioContext.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.6, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start();
+        osc.stop(audioContext.currentTime + 0.3);
+      } catch(e) {}
+    }
+
+    function iniciarLoopSom() {
+      if (!somInterval) {
+        dispararAlertaSonoro();
+        somInterval = setInterval(dispararAlertaSonoro, 3000);
+      }
+    }
+
+    function pararLoopSom() {
+      if (somInterval) {
+        clearInterval(somInterval);
+        somInterval = null;
+      }
+    }
 
     function alternarVisibilidadeSenha(inputId, iconEl) {
       const input = document.getElementById(inputId);
@@ -355,23 +404,31 @@
 
     function buscarOuCriarDadosMotoboy(user) {
       const uid = user.uid;
-      let timeoutId = setTimeout(() => {
-        // Se a busca no DB demorar, entra com fallback imediato
-        usarPerfilFallback(user);
+      let fallbackExecutado = false;
+
+      const timeoutId = setTimeout(() => {
+        if (!fallbackExecutado) {
+          fallbackExecutado = true;
+          usarPerfilFallback(user);
+        }
       }, 2500);
 
       db.ref('motoboys/' + uid).once('value').then((snap) => {
         clearTimeout(timeoutId);
-        if (snap.exists()) {
-          motoboyLogado = snap.val();
-          motoboyLogado.idFB = uid;
-          carregarPainel();
-        } else {
-          usarPerfilFallback(user);
+        if (!fallbackExecutado) {
+          if (snap.exists()) {
+            motoboyLogado = snap.val();
+            motoboyLogado.idFB = uid;
+            carregarPainel();
+          } else {
+            usarPerfilFallback(user);
+          }
         }
       }).catch(() => {
         clearTimeout(timeoutId);
-        usarPerfilFallback(user);
+        if (!fallbackExecutado) {
+          usarPerfilFallback(user);
+        }
       });
     }
 
@@ -408,6 +465,7 @@
       document.getElementById('mb-nome-display').innerText = motoboyLogado.nome || 'Entregador R1';
       document.getElementById('mb-moto-display').innerText = motoboyLogado.modelo || 'Moto Cadastrada';
 
+      // Sincronização em tempo real de status
       db.ref('motoboys/' + motoboyLogado.idFB + '/status').on('value', (snap) => {
         const st = snap.val() || 'online';
         const btn = document.getElementById('btn-status');
@@ -417,11 +475,23 @@
         } else {
           btn.className = "btn-status-toggle offline";
           document.getElementById('status-txt').innerText = "PAUSADO";
+          pararLoopSom();
         }
       });
 
-      atualizarEntregasEMetricas();
-      setInterval(atualizarEntregasEMetricas, 5000);
+      // Listener Ativo em Tempo Real para Novas Ordens
+      db.ref('ordens').on('value', (snap) => {
+        const data = snap.val();
+        cacheOrdens = [];
+        if (data) {
+          for (let k in data) {
+            let o = data[k];
+            o.idFB = k;
+            cacheOrdens.push(o);
+          }
+        }
+        processarOrdensCache();
+      });
     }
 
     function alternarDisponibilidade() {
@@ -431,27 +501,29 @@
       db.ref('motoboys/' + motoboyLogado.idFB).update({ status: novo });
     }
 
-    function atualizarEntregasEMetricas() {
-      if (!motoboyLogado || !db) return;
-      db.ref('ordens').once('value').then((snap) => {
-        const data = snap.val();
-        let ordens = [];
-        if (data) {
-          for (let k in data) {
-            let o = data[k];
-            o.idFB = k;
-            ordens.push(o);
-          }
-        }
-        processarOrdens(ordens);
-      }).catch(() => {});
-    }
+    function processarOrdensCache() {
+      if (!motoboyLogado) return;
+      
+      const meuNomeNorm = (motoboyLogado.nome || '').trim().toLowerCase();
 
-    function processarOrdens(todas) {
-      const minhas = todas.filter(r => r.motoboyNome === motoboyLogado.nome);
+      // Compatibilidade: Corrida para este motoboy ou geral da fila
+      const minhas = cacheOrdens.filter(r => {
+        const ordemMotoboyNorm = (r.motoboyNome || r.motoboy || '').trim().toLowerCase();
+        return ordemMotoboyNorm === meuNomeNorm || ordemMotoboyNorm === 'todos' || ordemMotoboyNorm === '';
+      });
+
       const pendentes = minhas.filter(r => !r.concluido && !r.motoboyAceitou && !r.motoboyRecusou);
       const concluidas = minhas.filter(r => r.concluido);
 
+      // Gestão de Áudio
+      const isOnline = document.getElementById('status-txt').innerText === 'ONLINE';
+      if (pendentes.length > 0 && isOnline) {
+        iniciarLoopSom();
+      } else {
+        pararLoopSom();
+      }
+
+      // Renderiza Chamados
       const boxChamados = document.getElementById('box-chamados-dinamicos');
       if (pendentes.length === 0) {
         boxChamados.innerHTML = `<div class="empty-box">Aguardando novos chamados da Central R1...</div>`;
@@ -461,25 +533,27 @@
             <div style="font-size:0.95rem; font-weight:900; margin-bottom:6px;">🚨 NOVO CHAMADO DISPONÍVEL!</div>
             <div style="background:rgba(0,230,118,0.1); padding:10px; border-radius:10px; margin:10px 0; text-align:center;">
               <div style="font-size:0.65rem; color:var(--text-muted);">Repasse Final</div>
-              <div style="font-size:1.8rem; font-weight:900; color:var(--green);">R$ ${(r.val || 0).toFixed(2)}</div>
+              <div style="font-size:1.8rem; font-weight:900; color:var(--green);">R$ ${parseFloat(r.val || r.valor || 0).toFixed(2)}</div>
             </div>
             <div class="tl-box">
-              <div class="tl-row"><div class="tl-bullet" style="background:var(--primary);"></div><div style="font-size:0.85rem;">Coleta: ${r.orig || '---'}</div></div>
-              <div class="tl-row"><div class="tl-bullet" style="background:var(--green);"></div><div style="font-size:0.85rem;">Entrega: ${r.dest || '---'}</div></div>
+              <div class="tl-row"><div class="tl-bullet" style="background:var(--primary);"></div><div style="font-size:0.85rem;">Coleta: ${r.orig || r.origem || '---'}</div></div>
+              <div class="tl-row"><div class="tl-bullet" style="background:var(--green);"></div><div style="font-size:0.85rem;">Entrega: ${r.dest || r.destino || '---'}</div></div>
             </div>
             <button class="btn-aceitar" onclick="aceitarChamado('${r.idFB}')"><i class="fa-solid fa-check"></i> ACEITAR CHAMADO</button>
           </div>
         `).join('');
       }
 
+      // Métricas de Hoje
       const inicioHoje = new Date().setHours(0,0,0,0);
       const concluidasHoje = concluidas.filter(r => (r.timestamp || 0) >= inicioHoje);
-      const totalHoje = concluidasHoje.reduce((acc, r) => acc + (r.val || 0), 0);
+      const totalHoje = concluidasHoje.reduce((acc, r) => acc + parseFloat(r.val || r.valor || 0), 0);
 
       document.getElementById('mb-faturamento-total').innerText = `R$ ${totalHoje.toFixed(2)}`;
       document.getElementById('mb-entregas-qtd').innerText = concluidasHoje.length;
       document.getElementById('lbl-total-historico-corridas').innerText = `${concluidas.length} finalizadas`;
 
+      // Histórico
       const filtro = document.getElementById('mb-filtro-periodo').value;
       let lista = filtro === 'hoje' ? concluidasHoje : concluidas;
       const histEl = document.getElementById('lista-historico-motoboy');
@@ -494,8 +568,8 @@
               <span class="hist-data">${r.dtStr || ''}</span>
             </div>
             <div class="hist-body">
-              <div><span style="font-size:0.85rem; font-weight:700;">${r.cli || 'Entrega'}</span></div>
-              <div class="hist-val">R$ ${(r.val || 0).toFixed(2)}</div>
+              <div><span style="font-size:0.85rem; font-weight:700;">${r.cli || r.cliente || 'Entrega'}</span></div>
+              <div class="hist-val">R$ ${parseFloat(r.val || r.valor || 0).toFixed(2)}</div>
             </div>
           </div>
         `).join('');
@@ -504,13 +578,18 @@
 
     function aceitarChamado(idFB) {
       if (!db || !idFB) return;
-      db.ref('ordens/' + idFB).update({ motoboyAceitou: true, status: 'a_caminho' }).then(() => {
+      pararLoopSom();
+      db.ref('ordens/' + idFB).update({
+        motoboyAceitou: true,
+        motoboyNome: motoboyLogado.nome,
+        status: 'a_caminho'
+      }).then(() => {
         alert("Chamado aceito com sucesso!");
-        atualizarEntregasEMetricas();
       });
     }
 
     function sairConta() {
+      pararLoopSom();
       if (auth) auth.signOut();
       localStorage.removeItem('r1_dados_locais');
       location.reload();
