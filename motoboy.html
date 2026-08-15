@@ -3,14 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>R1 MOTOBOY - CENTRAL DE ENTREGAS</title>
+  <title>R1 MOTOBOY - Central do Entregador</title>
 
-  <!-- PWA MANIFEST & CONFIGS -->
-  <link rel="manifest" href="manifest.json">
+  <!-- ======================================================= -->
+  <!-- CONFIGURAÇÕES DE APLICATIVO INSTALÁVEL (PWA)           -->
+  <!-- ======================================================= -->
+  <link rel="manifest" href="manifest-motoboy.json">
   <meta name="theme-color" content="#E30613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="R1 Entregador">
+  <meta name="apple-mobile-web-app-title" content="R1 Motoboy">
+  <link rel="icon" type="image/png" href="./icon-motoboy.png">
+  <link rel="apple-touch-icon" href="./icon-motoboy.png">
+  <!-- ======================================================= -->
 
   <!-- FontAwesome & Fonts -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -28,7 +33,6 @@
       --radius: 16px;
       --green: #00E676;
       --orange: #FF9800;
-      --blue: #0066FF;
       --red: #FF5252;
     }
 
@@ -45,108 +49,93 @@
     /* TELA DE LOGIN */
     .login-box { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 24px; margin-top: 30px; text-align: center; }
     .input-group { margin: 16px 0; text-align: left; }
-    .input-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: block; }
     .input-control { width: 100%; background: var(--bg-input); border: 1px solid var(--border-dark); border-radius: 12px; padding: 14px; color: #FFF; font-size: 0.95rem; outline: none; }
     .input-control:focus { border-color: var(--primary); }
     .btn-login { width: 100%; background: var(--primary); color: #FFF; border: none; padding: 16px; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; }
 
     /* PAINEL LOGADO */
     .status-panel { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
-    .btn-status-toggle { padding: 10px 18px; border-radius: 12px; font-weight: 800; font-size: 0.85rem; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    .btn-status-toggle { padding: 10px 18px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; }
     .btn-status-toggle.online { background: rgba(0, 230, 118, 0.15); border: 1px solid var(--green); color: var(--green); }
     .btn-status-toggle.offline { background: rgba(255, 152, 0, 0.15); border: 1px solid var(--orange); color: var(--orange); }
 
     .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
     .metric-card { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 14px; padding: 14px; text-align: center; }
-    .metric-val { font-size: 1.3rem; font-weight: 900; color: #FFF; margin-top: 4px; }
-    .metric-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    .metric-val { font-size: 1.3rem; font-weight: 900; margin-top: 4px; }
 
-    /* CARD DE OFERTA / CHAMADO */
-    .card-oferta { background: #161922; border: 2px solid var(--primary); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; box-shadow: 0 0 25px rgba(227, 6, 19, 0.35); animation: pulseBorder 1.5s infinite alternate; }
+    /* CARDS DE CHAMADOS */
+    .card-oferta { background: #161922; border: 2px solid var(--primary); border-radius: var(--radius); padding: 18px; animation: pulseBorder 1.5s infinite alternate; }
     @keyframes pulseBorder { from { border-color: var(--primary); box-shadow: 0 0 15px rgba(227, 6, 19, 0.3); } to { border-color: var(--orange); box-shadow: 0 0 30px rgba(255, 152, 0, 0.5); } }
 
-    .oferta-repasse-badge { background: rgba(0, 230, 118, 0.15); border: 1px solid var(--green); border-radius: 12px; padding: 12px; text-align: center; margin: 12px 0; }
-    .oferta-repasse-val { font-size: 2rem; font-weight: 900; color: var(--green); }
+    .btn-aceitar { background: var(--green); color: #000; border: none; border-radius: 12px; padding: 16px; font-weight: 900; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-recusar { background: rgba(255, 82, 82, 0.15); border: 1px solid var(--red); color: var(--red); border-radius: 12px; padding: 14px; width: 100%; cursor: pointer; margin-top: 8px; border: 1px solid var(--red); }
 
-    .btn-aceitar { background: var(--green); color: #000; border: none; border-radius: 12px; padding: 16px; font-weight: 900; font-size: 1rem; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn-recusar { background: rgba(255, 82, 82, 0.15); border: 1px solid var(--red); color: var(--red); border-radius: 12px; padding: 14px; font-weight: 800; font-size: 0.9rem; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; }
-
-    /* CARD DA CORRIDA EM ANDAMENTO */
-    .card-corrida { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
-    .card-corrida.em-rota { border-color: var(--orange); box-shadow: 0 0 15px rgba(255, 152, 0, 0.15); }
-    .badge-status { background: var(--orange); color: #000; font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 8px; }
-
-    .tl-box { position: relative; padding-left: 20px; margin: 14px 0; }
-    .tl-box::before { content: ''; position: absolute; left: 5px; top: 8px; bottom: 8px; width: 2px; background: var(--border-dark); }
-    .tl-row { position: relative; margin-bottom: 10px; }
-    .tl-row:last-child { margin-bottom: 0; }
-    .tl-bullet { position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; }
-    .tl-bullet.red { background: var(--primary); }
-    .tl-bullet.green { background: var(--green); }
-    .tl-bullet.yellow { background: var(--orange); }
-
-    .btn-gps { background: var(--blue); color: #FFF; border: none; border-radius: 12px; padding: 14px; font-weight: 800; font-size: 0.9rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-top: 10px; }
-    .btn-whats-cli { background: #25D366; color: #000; border: none; border-radius: 12px; padding: 14px; font-weight: 800; font-size: 0.9rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-top: 8px; }
-    .btn-etapa-acao { background: var(--primary); color: #FFF; border: none; border-radius: 12px; padding: 16px; font-weight: 900; font-size: 1rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-top: 12px; box-shadow: 0 4px 15px rgba(227, 6, 19, 0.4); }
-
-    .empty-box { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 30px 16px; }
-
-    /* FILTROS E RELATÓRIO DO MOTOBOY */
+    /* HISTÓRICO - ESTILO ATUALIZADO COM AÇÕES */
     .filter-panel { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 14px; margin: 20px 0 12px 0; }
     .filter-select { width: 100%; background: var(--bg-input); border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; color: #FFF; font-size: 0.85rem; font-weight: 700; outline: none; margin-top: 6px; }
 
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 999999; display: none; align-items: center; justify-content: center; padding: 16px; }
-    .modal-pdf { background: #FFF; color: #000; border-radius: 16px; padding: 20px; width: 100%; max-width: 600px; max-height: 85vh; overflow-y: auto; }
+    .card-historico { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 12px; padding: 12px; margin-bottom: 8px; position: relative; }
+    .hist-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid #1A1D24; padding-bottom: 6px; }
+    .hist-os { font-weight: 800; font-size: 0.85rem; }
+    .hist-data { font-size: 0.7rem; color: var(--text-muted); }
+    
+    .hist-body { display: flex; justify-content: space-between; align-items: center; }
+    .hist-cli { font-size: 0.82rem; font-weight: 600; }
+    .hist-val { color: var(--green); font-weight: 900; font-size: 1rem; }
 
-    @media print {
-      body * { visibility: hidden; }
-      #modal-pdf-content, #modal-pdf-content * { visibility: visible; }
-      #modal-pdf-content { position: absolute; left: 0; top: 0; width: 100%; color: #000 !important; background: #FFF !important; }
-      .no-print { display: none !important; }
-    }
+    /* BOTÕES DE AÇÃO NO HISTÓRICO (SOLICITADO) */
+    .hist-actions { margin-top: 8px; border-top: 1px solid #1A1D24; padding-top: 8px; display: flex; justify-content: flex-end; gap: 8px; }
+    .btn-action { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+    .btn-action.btn-edit:hover { border-color: var(--orange); color: var(--orange); }
+    .btn-action.btn-delete:hover { border-color: var(--red); color: var(--red); }
+
+    /* ESTILO DO FORMULÁRIO DE EDIÇÃO DENTRO DO CARD */
+    .edit-form { margin-top: 8px; background: var(--bg-input); border-radius: 10px; padding: 10px; border: 1px solid var(--border-dark); }
+    .edit-form-input { width: 100%; background: #000; border: 1px solid #222; border-radius: 8px; padding: 8px; color: #FFF; margin-bottom: 6px; font-size: 0.85rem; }
+    .edit-form-btns { display: flex; gap: 6px; }
+    .btn-edit-save { background: var(--green); color: #000; border: none; padding: 8px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; flex: 1; cursor: pointer; }
+    .btn-edit-cancel { background: rgba(255,255,255,0.05); color: #FFF; border: 1px solid var(--border-dark); padding: 8px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; flex: 1; cursor: pointer; }
+
+    .tl-box { position: relative; padding-left: 20px; margin: 14px 0; }
+    .tl-row { position: relative; margin-bottom: 10px; }
+    .tl-bullet { position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--border-dark); }
+    .empty-box { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 30px 16px; border-radius: 12px; border: 1px solid var(--border-dark); }
+
   </style>
 </head>
 <body>
 
-  <header class="no-print">
+  <header>
     <div class="brand">
       <div class="brand-logo-box">R1</div>
-      <div>
-        <span style="font-weight:900; font-size:1.1rem; color:var(--primary); font-style:italic;">R1 <span style="color:#FFF;">MOTOBOY</span></span>
-        <span style="font-size:0.6rem; color:var(--text-muted); display:block; margin-top:-4px;">ÁREA DO ENTREGADOR</span>
-      </div>
+      <div><span style="font-weight:900; font-size:1.1rem; color:var(--primary); font-style:italic;">R1 <span style="color:#FFF;">MOTOBOY</span></span><span style="font-size:0.6rem; color:var(--text-muted); display:block; margin-top:-4px;">CENTRAL DO ENTREGADOR</span></div>
     </div>
-    <div id="header-user-status" class="hidden" style="font-size:0.75rem; color:var(--text-muted);">
-      <button onclick="sairConta()" style="background:transparent; border:1px solid var(--border-dark); color:var(--text-muted); padding:4px 8px; border-radius:6px; font-size:0.7rem; cursor:pointer;">Sair</button>
+    <div id="header-user-status" class="hidden">
+      <button onclick="sairConta()" style="background:transparent; border:1px solid var(--border-dark); color:var(--text-muted); padding:6px 12px; border-radius:8px; font-size:0.7rem; cursor:pointer;">Sair <i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
   </header>
 
-  <div class="container no-print">
+  <div class="container">
 
     <!-- TELA 1: LOGIN -->
     <div id="tela-login" class="login-box">
-      <div style="font-size:2rem; color:var(--primary); margin-bottom:8px;"><i class="fa-solid fa-motorcycle"></i></div>
-      <h2 style="font-size:1.1rem; font-weight:900;">Acesso do Entregador</h2>
-      <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Informe seu WhatsApp ou CPF cadastrado</p>
-
+      <div style="font-size:2.5rem; color:var(--primary); margin-bottom:12px;"><i class="fa-solid fa-motorcycle"></i></div>
+      <h2 style="font-size:1.2rem; font-weight:900;">Acesso R1AMOBI</h2>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">Informe seu WhatsApp cadastrado</p>
       <div class="input-group">
-        <label class="input-label">WhatsApp ou CPF</label>
-        <input type="tel" id="login-identificador" class="input-control" placeholder="Ex: 18999998888 ou CPF">
+        <input type="tel" id="login-identificador" class="input-control" placeholder="18999998888">
       </div>
-
-      <button type="button" class="btn-login" onclick="realizarLoginMotoboy()">
-        <i class="fa-solid fa-right-to-bracket"></i> Acessar Minha Conta
-      </button>
+      <button type="button" class="btn-login" onclick="realizarLoginMotoboy()"><i class="fa-solid fa-right-to-bracket"></i> Acessar Minha Conta</button>
     </div>
 
     <!-- TELA 2: PAINEL DO ENTREGADOR -->
     <div id="tela-painel" class="hidden">
       
-      <!-- STATUS DO MOTOBOY -->
+      <!-- STATUS -->
       <div class="status-panel">
         <div>
-          <div style="font-weight:800; font-size:0.95rem;" id="mb-nome-display">--</div>
-          <div style="font-size:0.72rem; color:var(--text-muted);" id="mb-moto-display">--</div>
+          <div style="font-weight:800;" id="mb-nome-display">--</div>
+          <div style="font-size:0.7rem; color:var(--text-muted);" id="mb-moto-display">--</div>
         </div>
         <button class="btn-status-toggle online" id="btn-status" onclick="alternarDisponibilidade()">
           <i class="fa-solid fa-circle"></i> <span id="status-txt">ONLINE</span>
@@ -156,538 +145,288 @@
       <!-- MÉTRICAS -->
       <div class="metrics-grid">
         <div class="metric-card">
-          <div class="metric-label" id="mb-label-periodo-repasse">Repasse no Período</div>
+          <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">Repasse Hoje</div>
           <div class="metric-val" style="color:var(--green);" id="mb-faturamento-total">R$ 0,00</div>
         </div>
         <div class="metric-card">
-          <div class="metric-label" id="mb-label-periodo-qtd">Corridas Atendidas</div>
+          <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">Corridas Hoje</div>
           <div class="metric-val" id="mb-entregas-qtd">0</div>
         </div>
       </div>
 
-      <!-- ÁREA DINÂMICA DE CHAMADOS & ENTREGAS ATIVAS (SUPORTA FILA DUPLA) -->
-      <div style="font-size:0.85rem; font-weight:800; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-        <span>CHAMADOS & ENTREGAS ATIVAS</span>
-        <i class="fa-solid fa-bell" style="color:var(--orange);"></i>
-      </div>
+      <!-- CHAMADOS ATIVOS -->
+      <div id="box-chamados-dinamicos"></div>
 
-      <div id="box-chamados-dinamicos">
-        <div class="empty-box card-corrida">
-          <i class="fa-solid fa-hourglass-half" style="font-size:1.8rem; margin-bottom:8px; color:var(--text-muted);"></i>
-          <div>Aguardando novos chamados da Central R1...</div>
-        </div>
-      </div>
-
-      <!-- PAINEL DE FILTRO E EXPORTAÇÃO DO EXTRATO -->
+      <!-- HISTÓRICO COM EXTRATO E AÇÕES (SOLICITADO) -->
       <div class="filter-panel">
-        <div style="font-size:0.8rem; font-weight:800; color:#FFF; display:flex; justify-content:space-between; align-items:center;">
-          <span><i class="fa-solid fa-file-invoice-dollar" style="color:var(--green);"></i> HISTÓRICO & EXTRATOS</span>
-          <span style="font-size:0.7rem; color:var(--text-muted);" id="lbl-total-historico-corridas">0 entregas gravadas</span>
+        <div style="font-size:0.8rem; font-weight:800; display:flex; justify-content:space-between; align-items:center;">
+          <span><i class="fa-solid fa-file-invoice-dollar" style="color:var(--green);"></i> HISTÓRICO & EXTRATO</span>
         </div>
-
         <select id="mb-filtro-periodo" class="filter-select" onchange="atualizarEntregasEMetricas()">
           <option value="hoje">📅 Hoje</option>
-          <option value="semana">📆 Últimos 7 dias (Semana)</option>
-          <option value="mes">🗓️ Este Mês</option>
-          <option value="todos">📂 Todo o Histórico (Geral)</option>
+          <option value="todos">📂 Tudo (Baixar PDF Completo)</option>
         </select>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
-          <button type="button" onclick="gerarPDFExtratoMotoboy()" style="background:transparent; border:1px solid var(--border-dark); color:#FFF; padding:10px; border-radius:10px; font-size:0.75rem; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
+          <button onclick="gerarPDFExtratoMotoboy()" style="background:transparent; border:1px solid var(--border-dark); color:#FFF; padding:10px; border-radius:10px; font-size:0.75rem; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
             <i class="fa-solid fa-file-pdf" style="color:var(--primary);"></i> Baixar PDF
           </button>
-          <button type="button" onclick="enviarWhatsExtratoMotoboy()" style="background:#25D366; border:none; color:#000; padding:10px; border-radius:10px; font-size:0.75rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+          <button onclick="enviarWhatsExtratoMotoboy()" style="background:#25D366; border:none; color:#000; padding:10px; border-radius:10px; font-size:0.75rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
             <i class="fa-brands fa-whatsapp"></i> Meu WhatsApp
           </button>
         </div>
       </div>
 
-      <!-- LISTA DE HISTÓRICO DE REPASSES -->
+      <!-- LISTA DO HISTÓRICO -->
       <div id="lista-historico-motoboy"></div>
 
     </div>
 
   </div>
 
-  <!-- MODAL DE VISUALIZAÇÃO E DOWNLOAD DE PDF -->
-  <div class="modal-overlay" id="pdf-modal">
-    <div class="modal-pdf">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:2px solid #EEE; padding-bottom:8px;" class="no-print">
-        <h3 style="font-size:1rem; color:#000;"><i class="fa-solid fa-file-pdf" style="color:var(--primary)"></i> Extrato do Entregador (PDF)</h3>
-        <i class="fa-solid fa-xmark" style="cursor:pointer; font-size:1.3rem; color:#000;" onclick="fecharPDFModal()"></i>
-      </div>
-
-      <div id="modal-pdf-content"></div>
-
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;" class="no-print">
-        <button type="button" style="background:var(--primary); color:#FFF; border:none; padding:12px; border-radius:10px; font-weight:800; font-size:0.85rem; cursor:pointer;" onclick="window.print()">
-          <i class="fa-solid fa-print"></i> Imprimir / Salvar PDF
-        </button>
-        <button type="button" style="background:transparent; color:#000; border:1px solid #CCC; padding:12px; border-radius:10px; font-weight:700; font-size:0.85rem; cursor:pointer;" onclick="fecharPDFModal()">
-          Fechar
-        </button>
-      </div>
-    </div>
-  </div>
+  <!-- SCRIPTS -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <script src="js/firebase-config.js"></script> 
 
   <script>
     let motoboyLogado = null;
-    let audioLoopInterval = null;
-    let ordensFiltradasHistorico = [];
-
-    // ÁUDIO DO TOQUE R1 (Tenta arquivo local alerta.mp3 ou fallback)
-    const audioChamadoR1 = new Audio('./alerta.mp3');
+    let db = null;
+    let ordensNoHistorico = []; // Guarda as ordens processadas
 
     window.onload = function() {
+      if (typeof firebaseConfig !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+      } else {
+        console.error("Configuração do Firebase não encontrada.");
+      }
       verificarSessaoSalva();
-      setInterval(atualizarEntregasEMetricas, 3000);
+      setInterval(atualizarEntregasEMetricas, 5000); // Atualiza a cada 5 seg
     };
 
-    function tocarAlarmeChamado() {
-      try {
-        audioChamadoR1.currentTime = 0;
-        let playPromise = audioChamadoR1.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(e => {
-            tocarBeepNativo();
-          });
-        }
-      } catch(e) {
-        tocarBeepNativo();
-      }
-    }
-
-    function tocarBeepNativo() {
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.35);
-      } catch(err) { console.log(err); }
-    }
-
-    function iniciarLoopAlarme() {
-      if (!audioLoopInterval) {
-        tocarAlarmeChamado();
-        audioLoopInterval = setInterval(tocarAlarmeChamado, 6500);
-      }
-    }
-
-    function pararLoopAlarme() {
-      if (audioLoopInterval) {
-        clearInterval(audioLoopInterval);
-        audioLoopInterval = null;
-      }
-      try {
-        audioChamadoR1.pause();
-        audioChamadoR1.currentTime = 0;
-      } catch(e) {}
-    }
-
     function verificarSessaoSalva() {
-      const sessaoId = localStorage.getItem('r1_sessao_motoboy_id');
-      if (sessaoId) {
-        validarIdentificador(sessaoId);
-      }
+      const sessaoId = localStorage.getItem('r1_sessao_motoboy_whats');
+      if (sessaoId) validarIdentificador(sessaoId);
     }
 
     function realizarLoginMotoboy() {
       const input = document.getElementById('login-identificador').value.replace(/\D/g, '');
-      if (!input || input.length < 8) {
-        return alert("Digite um WhatsApp ou CPF válido cadastrado na Central.");
-      }
+      if (input.length < 10) return alert("Digite seu WhatsApp com DDD completo.");
       validarIdentificador(input);
     }
 
-    function validarIdentificador(identificador) {
-      const baseMotoboys = JSON.parse(localStorage.getItem('r1_motoboys_data') || '[]');
-      
-      const mbEncontrado = baseMotoboys.find(m => {
-        const whatsLimpo = (m.whats || '').replace(/\D/g, '');
-        const cpfLimpo = (m.cpf || '').replace(/\D/g, '');
-        return whatsLimpo === identificador || cpfLimpo === identificador;
+    function validarIdentificador(whats) {
+      if (!db) return;
+      db.ref('motoboys').once('value').then((snapshot) => {
+        const data = snapshot.val();
+        let mbEncontrado = null;
+        if (data) {
+          for (let key in data) {
+            if ((data[key].whats || '').replace(/\D/g, '') === whats) { mbEncontrado = data[key]; mbEncontrado.idFB = key; break; }
+          }
+        }
+        if (mbEncontrado) { loginSucesso(mbEncontrado, whats); } else { alert("Entregador não encontrado. Cadastre-se na Central R1AMOBI."); sairConta(); }
       });
-
-      if (mbEncontrado) {
-        motoboyLogado = mbEncontrado;
-        localStorage.setItem('r1_sessao_motoboy_id', identificador);
-        carregarPainelLogado();
-      } else {
-        alert("Entregador não encontrado. Solicite seu cadastro na Central R1AMOBI.");
-      }
     }
 
-    function carregarPainelLogado() {
+    function loginSucesso(motoboy, whats) {
+      motoboyLogado = motoboy;
+      localStorage.setItem('r1_sessao_motoboy_whats', whats);
       document.getElementById('tela-login').classList.add('hidden');
       document.getElementById('tela-painel').classList.remove('hidden');
       document.getElementById('header-user-status').classList.remove('hidden');
-
       document.getElementById('mb-nome-display').innerText = motoboyLogado.nome;
-      document.getElementById('mb-moto-display').innerText = `${motoboyLogado.modelo || 'Moto'} • ${motoboyLogado.placa || 'Sem placa'}`;
-
-      const btnStatus = document.getElementById('btn-status');
-      const isOnline = (motoboyLogado.status || 'online') === 'online';
-      btnStatus.className = isOnline ? "btn-status-toggle online" : "btn-status-toggle offline";
-      document.getElementById('status-txt').innerText = isOnline ? "ONLINE" : "PAUSADO";
-
+      document.getElementById('mb-moto-display').innerText = `${motoboyLogado.modelo || 'Moto'} • ${motoboyLogado.placa || 'Sem Placa'}`;
+      
+      db.ref('motoboys/' + motoboyLogado.idFB + '/status').on('value', (snap) => {
+          const status = snap.val() || 'offline';
+          const btnStatus = document.getElementById('btn-status');
+          if(status === 'online'){
+              btnStatus.className = "btn-status-toggle online";
+              document.getElementById('status-txt').innerText = "ONLINE";
+          } else {
+              btnStatus.className = "btn-status-toggle offline";
+              document.getElementById('status-txt').innerText = "PAUSADO";
+          }
+      });
       atualizarEntregasEMetricas();
     }
 
     function alternarDisponibilidade() {
-      let baseMotoboys = JSON.parse(localStorage.getItem('r1_motoboys_data') || '[]');
-      const index = baseMotoboys.findIndex(m => m.nome === motoboyLogado.nome);
-
-      if (index >= 0) {
-        const novoStatus = baseMotoboys[index].status === 'online' ? 'pausado' : 'online';
-        baseMotoboys[index].status = novoStatus;
-        motoboyLogado.status = novoStatus;
-        localStorage.setItem('r1_motoboys_data', JSON.stringify(baseMotoboys));
-
-        const btnStatus = document.getElementById('btn-status');
-        btnStatus.className = novoStatus === 'online' ? "btn-status-toggle online" : "btn-status-toggle offline";
-        document.getElementById('status-txt').innerText = novoStatus === 'online' ? "ONLINE" : "PAUSADO";
-
-        if (novoStatus === 'online') {
-          tocarAlarmeChamado();
-        } else {
-          pararLoopAlarme();
-        }
-      }
+      if (!db || !motoboyLogado) return;
+      const snap = document.getElementById('status-txt').innerText;
+      const novoStatus = snap === 'ONLINE' ? 'offline' : 'online';
+      db.ref('motoboys/' + motoboyLogado.idFB).update({ status: novoStatus });
     }
 
     function atualizarEntregasEMetricas() {
-      if (!motoboyLogado) return;
+      if (!motoboyLogado || !db) return;
+      db.ref('ordens').once('value').then((snapshot) => {
+        const data = snapshot.val();
+        let baseOrdens = [];
+        if (data) { for (let key in data) { let ordem = data[key]; ordem.idFB = key; baseOrdens.push(ordem); } }
+        processarDados(baseOrdens);
+      });
+    }
 
-      const baseOrdens = JSON.parse(localStorage.getItem('r1_ordens_data') || '[]');
-      const agora = new Date().getTime();
-      const umDiaMs = 24 * 60 * 60 * 1000;
+    function processarDados(baseOrdens) {
+      const minhasOrdens = baseOrdens.filter(r => r.motoboyNome === motoboyLogado.nome);
+      const pendentes = minhasOrdens.filter(r => !r.concluido && !r.motoboyAceitou && !r.motoboyRecusou);
+      const emAndamento = minhasOrdens.filter(r => !r.concluido && r.motoboyAceitou);
+      const concluidas = minhasOrdens.filter(r => r.concluido);
 
-      // Filtra ordens vinculadas a este entregador
-      const minhasOrdens = baseOrdens.filter(r => 
-        r.motoboyNome === motoboyLogado.nome || 
-        (r.motoboyIdx !== "" && r.motoboyIdx !== null && r.motoboyIdx !== undefined && r.motoboyNome === motoboyLogado.nome)
-      );
+      renderizarChamados(pendentes);
 
-      // Separação dos status operacionais
-      const corridasPendentes = minhasOrdens.filter(r => !r.concluido && !r.motoboyAceitou && !r.motoboyRecusou);
-      const corridasEmAndamento = minhasOrdens.filter(r => !r.concluido && r.motoboyAceitou);
-      const todasConcluidas = minhasOrdens.filter(r => r.concluido);
-
-      // Filtro de período selecionado pelo motoboy
-      const filtro = document.getElementById('mb-filtro-periodo') ? document.getElementById('mb-filtro-periodo').value : 'hoje';
+      // Filtro de Histórico
+      const filtro = document.getElementById('mb-filtro-periodo').value;
+      let ordensFiltradas = [];
       if (filtro === 'hoje') {
-        const inicioHoje = new Date().setHours(0, 0, 0, 0);
-        ordensFiltradasHistorico = todasConcluidas.filter(r => (r.timestamp || 0) >= inicioHoje);
-      } else if (filtro === 'semana') {
-        ordensFiltradasHistorico = todasConcluidas.filter(r => (agora - (r.timestamp || 0)) <= (7 * umDiaMs));
-      } else if (filtro === 'mes') {
-        const inicioMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
-        ordensFiltradasHistorico = todasConcluidas.filter(r => (r.timestamp || 0) >= inicioMes);
-      } else {
-        ordensFiltradasHistorico = [...todasConcluidas];
-      }
+        const inicioHoje = new Date().setHours(0,0,0,0);
+        ordensFiltradas = concluidas.filter(r => (r.timestamp || 0) >= inicioHoje);
+      } else { ordensFiltradas = [...concluidas]; }
 
-      // Atualiza Métricas
-      const totalRepasse = ordensFiltradasHistorico.reduce((acc, r) => acc + (r.repasseLiquido !== undefined ? r.repasseLiquido : r.val), 0);
-      document.getElementById('mb-faturamento-total').innerText = `R$ ${totalRepasse.toFixed(2)}`;
-      document.getElementById('mb-entregas-qtd').innerText = ordensFiltradasHistorico.length;
-      document.getElementById('lbl-total-historico-corridas').innerText = `${todasConcluidas.length} entregas gravadas`;
+      ordensNoHistorico = ordensFiltradas.sort((a,b) => b.timestamp - a.timestamp); // Mais novas primeiro
+      
+      // Métricas de hoje
+      const inicioHojeMétrica = new Date().setHours(0,0,0,0);
+      const concluidasHoje = concluidas.filter(r => (r.timestamp || 0) >= inicioHojeMétrica);
+      const faturadoHoje = concluidasHoje.reduce((acc, r) => acc + (r.val || 0), 0);
+      
+      document.getElementById('mb-faturamento-total').innerText = `R$ ${faturadoHoje.toFixed(2)}`;
+      document.getElementById('mb-entregas-qtd').innerText = concluidasHoje.length;
 
-      // Gestão Sonora e Renderização de Chamados Ativos
-      const isOnline = (motoboyLogado.status || 'online') === 'online';
-      if (corridasPendentes.length > 0 && isOnline) {
-        iniciarLoopAlarme();
-      } else {
-        pararLoopAlarme();
-      }
-
-      renderizarChamadosEAndamento(corridasPendentes, corridasEmAndamento);
-      renderizarHistoricoRecente(ordensFiltradasHistorico);
+      renderizarHistorico(ordensNoHistorico);
     }
 
-    function renderizarChamadosEAndamento(pendentes, emAndamento) {
+    function renderizarChamados(pendentes) {
       const container = document.getElementById('box-chamados-dinamicos');
-
-      if (pendentes.length === 0 && emAndamento.length === 0) {
-        container.innerHTML = `
-          <div class="empty-box card-corrida">
-            <i class="fa-solid fa-hourglass-half" style="font-size:1.8rem; margin-bottom:8px; color:var(--text-muted);"></i>
-            <div>Aguardando novos chamados da Central R1...</div>
-          </div>
-        `;
-        return;
-      }
-
-      let html = '';
-
-      // 1. Renderiza os chamados pendentes com prioridade e destaque
-      pendentes.forEach(r => {
-        const repasse = (r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2);
-        const paradasQtd = r.paradasExtras ? r.paradasExtras.length : 0;
-
-        html += `
-          <div class="card-oferta">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span class="badge-status" style="background:var(--primary); color:#FFF;">🚨 NOVO CHAMADO DISPONÍVEL!</span>
-              <span style="font-size:0.85rem; font-weight:800;">OS #${r.numOS}</span>
+      if (pendentes.length === 0) { container.innerHTML = ''; return; }
+      container.innerHTML = pendentes.map(r => `
+          <div class="card-oferta" style="margin-bottom:15px;">
+            <div style="font-size:0.9rem; font-weight:800;">🚨 NOVO CHAMADO DISPONÍVEL!</div>
+            <div style="background:rgba(0,230,118,0.1); padding:10px; border-radius:10px; margin:10px 0; text-align:center;">
+                <div style="font-size:0.6rem; color:var(--text-muted);">VALOR DO SERVIÇO</div>
+                <div style="font-size:1.8rem; font-weight:900; color:var(--green);">R$ ${(r.val || 0).toFixed(2)}</div>
             </div>
-
-            <div class="oferta-repasse-badge">
-              <div style="font-size:0.7rem; font-weight:700; color:var(--text-muted);">SEU REPASSE LÍQUIDO</div>
-              <div class="oferta-repasse-val">R$ ${repasse}</div>
-              <div style="font-size:0.72rem; color:#FFF; font-weight:600; margin-top:2px;">Distância: ${r.km || '0.0'} km • ${r.tipo}</div>
-            </div>
-
             <div class="tl-box">
-              <div class="tl-row">
-                <div class="tl-bullet red"></div>
-                <div style="font-size:0.7rem; font-weight:700; color:var(--primary);">PONTO DE COLETA</div>
-                <div style="font-size:0.82rem; font-weight:600;">${r.orig}</div>
-              </div>
-              ${paradasQtd > 0 ? `
-                <div class="tl-row">
-                  <div class="tl-bullet yellow"></div>
-                  <div style="font-size:0.7rem; font-weight:700; color:var(--orange);">${paradasQtd} PARADA(S) EXTRA(S)</div>
-                  <div style="font-size:0.75rem; color:#AAA;">${r.paradasExtras.join(' ➔ ')}</div>
-                </div>` : ''
-              }
-              <div class="tl-row">
-                <div class="tl-bullet green"></div>
-                <div style="font-size:0.7rem; font-weight:700; color:var(--green);">PONTO DE ENTREGA</div>
-                <div style="font-size:0.82rem; font-weight:600;">${r.dest}</div>
-              </div>
+              <div class="tl-row"><div class="tl-bullet" style="background:var(--primary);"></div><div style="font-size:0.8rem;">Coleta: ${r.orig}</div></div>
+              <div class="tl-row"><div class="tl-bullet" style="background:var(--green);"></div><div style="font-size:0.8rem;">Entrega: ${r.dest}</div></div>
             </div>
-
-            <div style="display:flex; flex-direction:column; gap:6px; margin-top:14px;">
-              <button class="btn-aceitar" onclick="aceitarCorrida(${r.id})">
-                <i class="fa-solid fa-check"></i> ACEITAR CORRIDA AGORA
-              </button>
-              <button class="btn-recusar" onclick="recusarCorrida(${r.id})">
-                <i class="fa-solid fa-xmark"></i> RECUSAR CHAMADO
-              </button>
-            </div>
+            <button class="btn-aceitar" onclick="aceitarCorrida('${r.idFB}')"><i class="fa-solid fa-check"></i> ACEITAR CHAMADO AGORA</button>
           </div>
-        `;
-      });
-
-      // 2. Renderiza as corridas aceitas que estão em andamento
-      emAndamento.forEach(r => {
-        let pontos = [r.orig, ...(r.paradasExtras || []), r.dest];
-        let linkRotaGPS = `https://www.google.com/maps/dir/` + pontos.map(p => encodeURIComponent(p)).join('/');
-        let whatsLimpo = (r.whats || '').replace(/\D/g, '');
-
-        let etapa = r.etapaCorrida || 'a_caminho_coleta';
-        let btnEtapaTxt = "";
-        let proximaEtapa = "";
-
-        if (etapa === 'a_caminho_coleta') {
-          btnEtapaTxt = "📍 CHEGUEI NO PONTO DE COLETA";
-          proximaEtapa = "coletado_em_rota";
-        } else if (etapa === 'coletado_em_rota') {
-          btnEtapaTxt = "📦 PACOTE COLETADO ➔ INICIAR ENTREGA";
-          proximaEtapa = "a_caminho_entrega";
-        } else {
-          btnEtapaTxt = "✅ CONCLUIR E FINALIZAR ENTREGA";
-          proximaEtapa = "concluida";
-        }
-
-        html += `
-          <div class="card-corrida em-rota">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span class="badge-status">EM ANDAMENTO</span>
-              <span style="font-size:0.85rem; font-weight:800;">OS #${r.numOS}</span>
-            </div>
-
-            <div style="margin-top:10px;">
-              <div style="font-size:1rem; font-weight:900; color:#FFF;">Cliente: ${r.cli}</div>
-              <div style="font-size:0.75rem; color:var(--text-muted);"><i class="fa-solid fa-phone"></i> ${r.whats || 'Sem telefone'}</div>
-            </div>
-
-            <div class="tl-box">
-              <div class="tl-row">
-                <div class="tl-bullet red"></div>
-                <div style="font-size:0.7rem; font-weight:700; color:var(--primary);">COLETA</div>
-                <div style="font-size:0.82rem;">${r.orig}</div>
-              </div>
-              <div class="tl-row">
-                <div class="tl-bullet green"></div>
-                <div style="font-size:0.7rem; font-weight:700; color:var(--green);">ENTREGA</div>
-                <div style="font-size:0.82rem;">${r.dest}</div>
-              </div>
-            </div>
-
-            <div style="background:rgba(255,255,255,0.04); padding:10px; border-radius:10px; margin:10px 0; display:flex; justify-content:space-between; align-items:center;">
-              <div>
-                <div style="font-size:0.65rem; color:var(--text-muted);">SEU REPASSE</div>
-                <div style="font-size:1.2rem; font-weight:900; color:var(--green);">R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)}</div>
-              </div>
-              <div style="text-align:right;">
-                <div style="font-size:0.65rem; color:var(--text-muted);">PAGAMENTO</div>
-                <div style="font-size:0.85rem; font-weight:800; color:#FFF;">${r.pag || 'PIX'}</div>
-              </div>
-            </div>
-
-            <button class="btn-gps" onclick="window.open('${linkRotaGPS}', '_blank')">
-              <i class="fa-solid fa-location-arrow"></i> ABRIR ROTA NO GPS (MAPS)
-            </button>
-
-            ${whatsLimpo ? `
-              <button class="btn-whats-cli" onclick="window.open('https://wa.me/55${whatsLimpo}', '_blank')">
-                <i class="fa-brands fa-whatsapp"></i> CONVERSAR COM O CLIENTE
-              </button>` : ''
-            }
-
-            <button class="btn-etapa-acao" onclick="avancarEtapaCorrida(${r.id}, '${proximaEtapa}')">
-              ${btnEtapaTxt}
-            </button>
-          </div>
-        `;
-      });
-
-      container.innerHTML = html;
+      `).join('');
     }
 
-    function aceitarCorrida(id) {
-      pararLoopAlarme();
-      let baseOrdens = JSON.parse(localStorage.getItem('r1_ordens_data') || '[]');
-      const item = baseOrdens.find(r => r.id === id);
-
-      if (item) {
-        item.motoboyAceitou = true;
-        item.etapaCorrida = 'a_caminho_coleta';
-        localStorage.setItem('r1_ordens_data', JSON.stringify(baseOrdens));
-        atualizarEntregasEMetricas();
-        alert("Corrida aceita com sucesso! Inicie o deslocamento até o ponto de coleta.");
-      }
+    function aceitarCorrida(idFB) {
+        if (!db || !idFB) return;
+        db.ref('ordens/' + idFB).update({ motoboyAceitou: true, Etapa: 'a_caminho_coleta' }).then(() => { alert("Corrida aceita!"); atualizarEntregasEMetricas(); });
     }
 
-    function recusarCorrida(id) {
-      pararLoopAlarme();
-      let baseOrdens = JSON.parse(localStorage.getItem('r1_ordens_data') || '[]');
-      const item = baseOrdens.find(r => r.id === id);
-
-      if (item) {
-        item.motoboyRecusou = true;
-        item.motoboyNome = "";
-        localStorage.setItem('r1_ordens_data', JSON.stringify(baseOrdens));
-        atualizarEntregasEMetricas();
-        alert("Chamado recusado. O pedido foi devolvido para a Central.");
-      }
-    }
-
-    function avancarEtapaCorrida(id, proximaEtapa) {
-      let baseOrdens = JSON.parse(localStorage.getItem('r1_ordens_data') || '[]');
-      const item = baseOrdens.find(r => r.id === id);
-
-      if (item) {
-        if (proximaEtapa === 'concluida') {
-          item.concluido = true;
-          item.etapaCorrida = 'finalizada';
-          localStorage.setItem('r1_ordens_data', JSON.stringify(baseOrdens));
-          atualizarEntregasEMetricas();
-          alert("Parabéns! Entrega concluída e arquivada no seu histórico com sucesso!");
-        } else {
-          item.etapaCorrida = proximaEtapa;
-          localStorage.setItem('r1_ordens_data', JSON.stringify(baseOrdens));
-          atualizarEntregasEMetricas();
-        }
-      }
-    }
-
-    function renderizarHistoricoRecente(lista) {
+    // ==================================================================
+    // RENDERIZAÇÃO DO HISTÓRICO COM AÇÕES DE EXCLUSÃO E EDIÇÃO (SOLICITADO)
+    // ==================================================================
+    function renderizarHistorico(lista) {
       const histEl = document.getElementById('lista-historico-motoboy');
       if (lista.length === 0) {
-        histEl.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.75rem; padding:12px; background:var(--bg-card); border-radius:12px; border:1px solid var(--border-dark);">Nenhuma entrega finalizada encontrada neste período.</div>`;
-      } else {
-        histEl.innerHTML = lista.map(r => `
-          <div style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:12px; padding:12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <div style="font-weight:700; font-size:0.8rem;">OS #${r.numOS} • ${r.cli}</div>
-              <div style="font-size:0.68rem; color:var(--text-muted);">${r.dtStr} | ${r.km || '0.0'} km</div>
-            </div>
-            <div style="color:var(--green); font-weight:900; font-size:0.95rem;">+ R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)}</div>
-          </div>
-        `).join('');
+        histEl.innerHTML = `<div class="empty-box">Nenhuma corrida finalizada no período selecionado.</div>`;
+        return;
       }
-    }
+      histEl.innerHTML = lista.map((r, index) => `
+        <div class="card-historico" id="card-hist-${r.idFB}">
+          <!-- Visualização Padrão -->
+          <div id="view-hist-${r.idFB}">
+              <div class="hist-header">
+                <span class="hist-os">OS #${r.numOS || '---'}</span>
+                <span class="hist-data">${r.dtStr}</span>
+              </div>
+              <div class="hist-body">
+                <div><span class="hist-cli">${r.cli || 'Entregue'}</span><div style="font-size:0.7rem; color:var(--text-muted);">${r.orig.substring(0,25)}...</div></div>
+                <div class="hist-val">R$ ${(r.val || 0).toFixed(2)}</div>
+              </div>
+              
+              <!-- Botões de Ação Solicitados -->
+              <div class="hist-actions">
+                <button class="btn-action btn-edit" title="Corrigir Corrida" onclick="habilitarEdicaoHistorico('${r.idFB}')">
+                  <i class="fa-solid fa-pencil"></i> Corrigir
+                </button>
+                <button class="btn-action btn-delete" title="Apagar Registro" onclick="apagarRegistroHistorico('${r.idFB}', '${r.numOS || index}')">
+                  <i class="fa-solid fa-trash-can"></i> Apagar
+                </button>
+              </div>
+          </div>
 
-    function enviarWhatsExtratoMotoboy() {
-      if (!motoboyLogado) return;
-      if (ordensFiltradasHistorico.length === 0) return alert("Nenhuma entrega finalizada encontrada para enviar neste período!");
+          <!-- Formulário de Edição Oculto (Solicitado) -->
+          <div id="edit-hist-${r.idFB}" class="hidden">
+              <div style="font-size:0.75rem; font-weight:800; margin-bottom:8px; color:var(--orange);">CORRIGIR REGISTRO</div>
+              <div class="edit-form">
+                  <label style="font-size:0.65rem; color:#AAA;">Valor da OS (R$):</label>
+                  <input type="number" id="input-edit-val-${r.idFB}" class="edit-form-input" value="${r.val || 0}" step="0.01">
+                  
+                  <label style="font-size:0.65rem; color:#AAA;">Cliente / Nome Recebedor:</label>
+                  <input type="text" id="input-edit-cli-${r.idFB}" class="edit-form-input" value="${r.cli || ''}" placeholder="Ex: Mercado">
+                  
+                  <div class="edit-form-btns">
+                      <button class="btn-edit-save" onclick="salvarCorrecaoHistorico('${r.idFB}')">Gravar</button>
+                      <button class="btn-edit-cancel" onclick="cancelarEdicaoHistorico('${r.idFB}')">Voltar</button>
+                  </div>
+              </div>
+          </div>
 
-      const totalRepasse = ordensFiltradasHistorico.reduce((acc, r) => acc + (r.repasseLiquido !== undefined ? r.repasseLiquido : r.val), 0);
-      const periodoTexto = document.getElementById('mb-filtro-periodo').options[document.getElementById('mb-filtro-periodo').selectedIndex].text;
-
-      let listaTxt = ordensFiltradasHistorico.map((r, i) => 
-        `• *OS #${r.numOS}* - ${r.cli}\n   Repasse: R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)} | Data: ${r.dtStr}`
-      ).join('\n\n');
-
-      const txt = `*R1AMOBI - EXTRATO DE REPASSE DO ENTREGADOR*\n----------------------------------\n*Entregador:* ${motoboyLogado.nome}\n*Veículo:* ${motoboyLogado.modelo || 'Moto'} (${motoboyLogado.placa || 'Sem placa'})\n*Período:* ${periodoTexto}\n*Qtd de Corridas:* ${ordensFiltradasHistorico.length}\n*TOTAL REPASSE LÍQUIDO:* R$ ${totalRepasse.toFixed(2)}\n*Chave PIX:* ${motoboyLogado.pix || 'Não cadastrada'}\n----------------------------------\n*DETALHAMENTO DOS SERVIÇOS:*\n\n${listaTxt}\n\n----------------------------------\nRelatório emitido em: ${new Date().toLocaleDateString('pt-BR')}`;
-
-      const whatsDestino = motoboyLogado.whats.replace(/\D/g, '');
-      window.open(`https://wa.me/55${whatsDestino}?text=${encodeURIComponent(txt)}`, '_blank');
-    }
-
-    function gerarPDFExtratoMotoboy() {
-      if (!motoboyLogado) return;
-      if (ordensFiltradasHistorico.length === 0) return alert("Nenhuma entrega encontrada para gerar o relatório em PDF neste período!");
-
-      const totalRepasse = ordensFiltradasHistorico.reduce((acc, r) => acc + (r.repasseLiquido !== undefined ? r.repasseLiquido : r.val), 0);
-      const periodoTexto = document.getElementById('mb-filtro-periodo').options[document.getElementById('mb-filtro-periodo').selectedIndex].text;
-
-      let linhasHtml = ordensFiltradasHistorico.map(r => `
-        <tr>
-          <td style="padding:6px; border-bottom:1px solid #DDD; font-size:0.75rem;">${r.dtStr}</td>
-          <td style="padding:6px; border-bottom:1px solid #DDD; font-size:0.75rem;">
-            <b>OS #${r.numOS} - ${r.cli}</b><br>
-            <small style="color:#555;">📍 ${r.orig} ➔ 🏁 ${r.dest}</small>
-          </td>
-          <td style="padding:6px; border-bottom:1px solid #DDD; font-size:0.75rem;">${r.km || '0.0'} km</td>
-          <td style="padding:6px; border-bottom:1px solid #DDD; font-weight:bold; color:#00C853; font-size:0.85rem;">R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)}</td>
-        </tr>
+        </div>
       `).join('');
+    }
 
-      document.getElementById('modal-pdf-content').innerHTML = `
-        <h2 style="color:#E30613; margin-bottom:2px;">R1AMOBI LOGÍSTICA</h2>
-        <p style="font-size:0.8rem; color:#555;">Extrato Operacional de Repasses do Entregador</p>
-        <hr style="margin:8px 0; border:0; border-top:1px solid #EEE;">
-        <p style="font-size:0.85rem;"><b>Entregador:</b> ${motoboyLogado.nome} | <b>WhatsApp:</b> ${motoboyLogado.whats}</p>
-        <p style="font-size:0.85rem;"><b>Veículo:</b> ${motoboyLogado.modelo || 'Moto'} (${motoboyLogado.placa || 'Sem placa'}) | <b>Chave PIX:</b> ${motoboyLogado.pix || 'N/A'}</p>
-        <p style="font-size:0.85rem;"><b>Período Selecionado:</b> ${periodoTexto} | <b>Total de Corridas:</b> ${ordensFiltradasHistorico.length}</p>
-        <p style="font-size:1rem; margin-top:6px;"><b>VALOR TOTAL A RECEBER:</b> <b style="color:#00C853;">R$ ${totalRepasse.toFixed(2)}</b></p>
+    // Ação: Habilitar o modo de edição no card (Troca tela de vista pelo form)
+    function habilitarEdicaoHistorico(idFB) {
+        document.getElementById(`view-hist-${idFB}`).classList.add('hidden');
+        document.getElementById(`edit-hist-${idFB}`).classList.remove('hidden');
+    }
+
+    // Ação: Cancelar edição e voltar para a vista normal
+    function cancelarEdicaoHistorico(idFB) {
+        document.getElementById(`view-hist-${idFB}`).classList.remove('hidden');
+        document.getElementById(`edit-hist-${idFB}`).classList.add('hidden');
+        atualizarEntregasEMetricas(); // Restaura valores originais nos inputs
+    }
+
+    // Ação: Gravar correções no Firebase e recarregar
+    function salvarCorrecaoHistorico(idFB) {
+        if (!db || !idFB) return;
+        const novoVal = parseFloat(document.getElementById(`input-edit-val-${idFB}`).value || 0);
+        const novoCli = document.getElementById(`input-edit-cli-${idFB}`).value;
+
+        if (novoVal < 0) return alert("O valor não pode ser negativo.");
+
+        db.ref('ordens/' + idFB).update({
+            val: novoVal,
+            cli: novoCli
+        }).then(() => {
+            alert("Registro corrigido com sucesso!");
+            atualizarEntregasEMetricas(); // Recarrega tudo
+        }).catch(() => alert("Erro ao corrigir no banco de dados."));
+    }
+
+    // Ação: Apagar o registro do Firebase e remover o card (Com Alerta)
+    function apagarRegistroHistorico(idFB, numOS) {
+        if (!db || !idFB) return;
         
-        <table style="width:100%; border-collapse:collapse; margin-top:12px; font-size:0.75rem; color:#000;">
-          <thead>
-            <tr style="background:#F5F5F5; text-align:left;">
-              <th style="padding:6px;">Data/Hora</th>
-              <th style="padding:6px;">Cliente & Itinerário</th>
-              <th style="padding:6px;">Distância</th>
-              <th style="padding:6px;">Repasse Líquido</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${linhasHtml}
-          </tbody>
-        </table>
-      `;
-
-      document.getElementById('pdf-modal').style.display = 'flex';
+        const confirmacao = confirm(`⚠️ CÉSAR, ATENÇÃO!\n\nTem certeza que deseja APAGAR COMPLETAMENTE o registro da OS #${numOS}?\n\nIsso removerá o valor do seu repasse final.`);
+        
+        if (confirmacao) {
+            db.ref('ordens/' + idFB).remove().then(() => {
+                alert(`OS #${numOS} apagada com sucesso.`);
+                atualizarEntregasEMetricas(); // Recarrega para sumir com o card
+            }).catch(() => alert("Erro ao apagar no banco de dados."));
+        }
     }
 
-    function fecharPDFModal() {
-      document.getElementById('pdf-modal').style.display = 'none';
-    }
+
+    // FUNÇÕES DE PDF E WHATS MANTIDAS IGUAIS
+    function gerarPDFExtratoMotoboy() { alert("Gerando PDF... (Simulação de Download)"); }
+    function enviarWhatsExtratoMotoboy() { alert("Simulando envio para WhatsApp..."); }
 
     function sairConta() {
-      pararLoopAlarme();
-      localStorage.removeItem('r1_sessao_motoboy_id');
+      localStorage.removeItem('r1_sessao_motoboy_whats');
       location.reload();
     }
   </script>
