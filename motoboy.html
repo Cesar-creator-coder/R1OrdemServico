@@ -3,16 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>R1AMOBI - App do Entregador</title>
+  <title>R1 MOTOBOY - PAINEL DO ENTREGADOR</title>
 
-  <!-- FontAwesome & Fonts -->
-  <meta name="theme-color" id="theme-color-meta" content="#E30613">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#E30613">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --primary: #E3061324;
+      --primary: #E30613;
       --bg-main: #090A0C;
       --bg-card: #121418;
       --bg-input: #0A0B0E;
@@ -25,324 +28,279 @@
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; padding-bottom: 90px; overflow-x: hidden; }
+    body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; padding-bottom: 30px; }
 
-    /* HEADER MOTOBOY */
-    header {
-      background: var(--bg-main); border-bottom: 1px solid var(--border-dark);
-      padding: 14px 16px; position: sticky; top: 0; z-index: 1000;
-      display: flex; justify-content: space-between; align-items: center;
-    }
+    header { background: var(--bg-main); border-bottom: 1px solid var(--border-dark); padding: 14px 16px; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
     .brand { display: flex; align-items: center; gap: 10px; }
-    .brand-logo-box { width: 36px; height: 36px; border-radius: 10px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 900; color: #FFF; font-size: 1.1rem; }
-    .driver-info { display: flex; flex-direction: column; }
-    .driver-name { font-weight: 800; font-size: 0.95rem; color: #FFF; }
-    .driver-vehicle { font-size: 0.7rem; color: var(--text-muted); }
+    .brand-logo-box { width: 34px; height: 34px; border-radius: 8px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; }
 
     .container { padding: 16px; max-width: 600px; margin: 0 auto; }
 
-    /* MÓDULOS DE NAVEGAÇÃO */
-    .view-module { display: none; }
-    .view-module.active { display: block; animation: fadeIn 0.2s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .hidden { display: none !important; }
 
-    /* CARD STATUS ONLINE / OFFLINE TOOGLE */
-    .status-toggle-card {
-      background: var(--bg-card); border: 2px solid var(--border-dark); border-radius: 20px;
-      padding: 18px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;
-      transition: all 0.3s ease;
-    }
-    .status-toggle-card.online { border-color: var(--green); background: rgba(0, 230, 118, 0.05); }
-    .status-toggle-card.offline { border-color: #FF5252; background: rgba(255, 82, 82, 0.05); }
+    /* TELA DE LOGIN */
+    .login-box { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 24px; margin-top: 30px; text-align: center; }
+    .input-group { margin: 16px 0; text-align: left; }
+    .input-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: block; }
+    .input-control { width: 100%; background: var(--bg-input); border: 1px solid var(--border-dark); border-radius: 12px; padding: 14px; color: #FFF; font-size: 0.95rem; outline: none; }
+    .input-control:focus { border-color: var(--primary); }
+    .btn-login { width: 100%; background: var(--primary); color: #FFF; border: none; padding: 16px; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; }
 
-    .status-title-box { display: flex; flex-direction: column; }
-    .status-main-txt { font-size: 1.2rem; font-weight: 900; }
-    .status-main-txt.green { color: var(--green); }
-    .status-main-txt.red { color: #FF5252; }
-    .status-sub-txt { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+    /* PAINEL LOGADO */
+    .status-panel { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .btn-status-toggle { padding: 10px 18px; border-radius: 12px; font-weight: 800; font-size: 0.85rem; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    .btn-status-toggle.online { background: rgba(0, 230, 118, 0.15); border: 1px solid var(--green); color: var(--green); }
+    .btn-status-toggle.offline { background: rgba(255, 152, 0, 0.15); border: 1px solid var(--orange); color: var(--orange); }
 
-    .switch { position: relative; display: inline-block; width: 60px; height: 32px; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .3s; border-radius: 34px; }
-    .slider:before { position: absolute; content: ""; height: 24px; width: 24px; left: 4px; bottom: 4px; background-color: white; transition: .3s; border-radius: 50%; }
-    input:checked + .slider { background-color: var(--green); }
-    input:checked + .slider:before { transform: translateX(28px); }
+    .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .metric-card { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 14px; padding: 14px; text-align: center; }
+    .metric-val { font-size: 1.3rem; font-weight: 900; color: #FFF; margin-top: 4px; }
+    .metric-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
 
-    /* CARD DE OFERTA DE CORRIDA ATIVA */
-    .card-dark { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; position: relative; }
-    .offer-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .badge-offer { background: rgba(255, 152, 0, 0.2); border: 1px solid var(--orange); color: var(--orange); font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 12px; }
-    .offer-value-big { font-size: 1.8rem; font-weight: 900; color: var(--green); }
+    .card-corrida { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
+    .card-corrida.em-rota { border-color: var(--orange); box-shadow: 0 0 15px rgba(255, 152, 0, 0.15); }
+    .badge-status { background: var(--orange); color: #000; font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 8px; }
 
-    .timeline { position: relative; padding-left: 20px; margin: 14px 0; }
-    .timeline::before { content: ''; position: absolute; left: 5px; top: 8px; bottom: 8px; width: 2px; background: var(--border-dark); }
-    .tl-item { position: relative; margin-bottom: 12px; }
-    .tl-item:last-child { margin-bottom: 0; }
-    .tl-dot { position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; }
-    .tl-dot.red { background: var(--primary); }
-    .tl-dot.green { background: var(--green); }
-    .tl-title { font-size: 0.85rem; font-weight: 700; color: #FFF; }
-    .tl-sub { font-size: 0.78rem; color: var(--text-muted); }
+    .tl-box { position: relative; padding-left: 20px; margin: 14px 0; }
+    .tl-box::before { content: ''; position: absolute; left: 5px; top: 8px; bottom: 8px; width: 2px; background: var(--border-dark); }
+    .tl-row { position: relative; margin-bottom: 10px; }
+    .tl-row:last-child { margin-bottom: 0; }
+    .tl-bullet { position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; }
+    .tl-bullet.red { background: var(--primary); }
+    .tl-bullet.green { background: var(--green); }
 
-    /* BOTÕES DE AÇÃO */
-    .btn-accept { background: var(--green); color: #000; border: none; border-radius: 14px; padding: 16px; font-weight: 900; font-size: 1rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-bottom: 10px; }
-    .btn-decline { background: rgba(255, 82, 82, 0.15); border: 1px solid #FF5252; color: #FF5252; border-radius: 14px; padding: 12px; font-weight: 800; font-size: 0.85rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
-    .btn-gps { background: var(--primary); color: #FFF; border: none; border-radius: 14px; padding: 16px; font-weight: 900; font-size: 0.95rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-top: 10px; }
-
-    /* PAINEL DE RESUMO FINANCEIRO DO ENTREGADOR */
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .stat-card { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 14px; padding: 14px; }
-    .stat-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 700; }
-    .stat-value { font-size: 1.3rem; font-weight: 900; color: #FFF; margin-top: 4px; }
-
-    /* CARD DE PARCEIROS & LOJISTAS COM DESCONTO */
-    .partner-card { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 16px; padding: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px; }
-    .partner-icon-box { width: 50px; height: 50px; border-radius: 14px; background: rgba(227, 6, 19, 0.15); border: 1px solid var(--primary); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.3rem; flex-shrink: 0; }
-    .partner-title { font-weight: 800; font-size: 0.9rem; color: #FFF; }
-    .partner-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
-    .partner-discount-tag { background: rgba(0, 230, 118, 0.15); border: 1px solid var(--green); color: var(--green); font-size: 0.68rem; font-weight: 800; padding: 2px 8px; border-radius: 6px; display: inline-block; margin-top: 4px; }
-
-    /* DOCK FIXO NO RODAPÉ */
-    .bottom-dock {
-      position: fixed; bottom: 0; left: 0; right: 0; height: 68px;
-      background: #0D0F12; border-top: 1px solid var(--border-dark);
-      border-radius: 20px 20px 0 0;
-      display: flex; justify-content: space-around; align-items: center; z-index: 9000;
-      padding-bottom: max(0px, env(safe-area-inset-bottom));
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.8);
-    }
-    .dock-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--text-muted); font-size: 0.65rem; font-weight: 600; flex: 1; cursor: pointer; }
-    .dock-item.active { color: var(--primary); font-weight: 700; }
-    .dock-item i { font-size: 1.1rem; }
+    .btn-gps { background: var(--green); color: #000; border: none; border-radius: 12px; padding: 14px; font-weight: 900; font-size: 0.95rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-top: 12px; }
+    .empty-box { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 30px 16px; }
   </style>
 </head>
 <body>
 
-  <!-- HEADER MOTOBOY -->
   <header>
     <div class="brand">
       <div class="brand-logo-box">R1</div>
-      <div class="driver-info">
-        <div class="driver-name" id="driver-name-txt">Lucas Entregador</div>
-        <div class="driver-vehicle" id="driver-moto-txt">Honda CG 160 • ABC-1234</div>
+      <div>
+        <span style="font-weight:900; font-size:1.1rem; color:var(--primary); font-style:italic;">R1 <span style="color:#FFF;">MOTOBOY</span></span>
+        <span style="font-size:0.6rem; color:var(--text-muted); display:block; margin-top:-4px;">ÁREA DO ENTREGADOR</span>
       </div>
     </div>
-    <div style="font-size: 0.75rem; background: rgba(255,255,255,0.08); padding: 4px 10px; border-radius: 8px; color: #FFF;" id="badge-status-top">
-      🟢 Online
+    <div id="header-user-status" class="hidden" style="font-size:0.75rem; color:var(--text-muted);">
+      <button onclick="sairConta()" style="background:transparent; border:1px solid var(--border-dark); color:var(--text-muted); padding:4px 8px; border-radius:6px; font-size:0.7rem; cursor:pointer;">Sair</button>
     </div>
   </header>
 
   <div class="container">
 
-    <!-- MÓDULO 1: PAINEL DE CORRIDAS DO MOTOBOY -->
-    <div id="mod-home" class="view-module active">
-      
-      <!-- BOTÃO LIGADO / DESLIGADO (ONLINE / OFFLINE) -->
-      <div class="status-toggle-card online" id="status-card-box">
-        <div class="status-title-box">
-          <div class="status-main-txt green" id="status-main-lbl">🟢 VOCÊ ESTÁ ONLINE</div>
-          <div class="status-sub-txt" id="status-sub-lbl">Pronto para receber ofertas de entregas da R1AMOBI.</div>
-        </div>
-        <label class="switch">
-          <input type="checkbox" id="chk-online-toggle" checked onchange="alternarStatusOnline(this)">
-          <span class="slider"></span>
-        </label>
+    <!-- TELA 1: AUTENTICAÇÃO DO ENTREGADOR -->
+    <div id="tela-login" class="login-box">
+      <div style="font-size:2rem; color:var(--primary); margin-bottom:8px;"><i class="fa-solid fa-motorcycle"></i></div>
+      <h2 style="font-size:1.1rem; font-weight:900;">Acesso do Entregador</h2>
+      <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Informe seus dados para acessar suas corridas</p>
+
+      <div class="input-group">
+        <label class="input-label">WhatsApp ou CPF Cadastrado</label>
+        <input type="tel" id="login-identificador" class="input-control" placeholder="Digite apenas números (Ex: 18999998888)">
       </div>
 
-      <!-- CARD DE OFERTA DE CORRIDA DE TESTE / ATIVA -->
-      <div class="card-dark" id="card-corrida-oferta">
-        <div class="offer-header">
-          <span class="badge-offer"><i class="fa-solid fa-bell"></i> NOVA OFERTA DISPONÍVEL</span>
-          <div class="offer-value-big">R$ 12,00</div>
-        </div>
-
-        <div style="font-size:0.75rem; color:var(--text-muted);">
-          <b>ID da Ordem:</b> #RH20260804-1002 • <b>Serviço:</b> Motoboy Express (3,5 km)
-        </div>
-
-        <div class="timeline">
-          <div class="tl-item">
-            <div class="tl-dot red"></div>
-            <div class="tl-title">1. COLETA</div>
-            <div class="tl-sub">Lanchonete Ponto Certo - Rua Floriano Peixoto, 450</div>
-          </div>
-          <div class="tl-item">
-            <div class="tl-dot green"></div>
-            <div class="tl-title">2. ENTREGA FINAL</div>
-            <div class="tl-sub">Av. Rui Barbosa, 1200 - Centro, Assis/SP</div>
-          </div>
-        </div>
-
-        <div style="background: rgba(255,255,255,0.04); padding: 10px; border-radius: 10px; font-size: 0.75rem; margin-bottom: 14px; border: 1px solid var(--border-dark);">
-          📝 <b>Obs / Caixas:</b> Marmitex + Refrigerante. Receber em Dinheiro R$ 35,00.
-        </div>
-
-        <!-- BOTÕES DE ACEITE OU NAVEGAÇÃO GPS -->
-        <div id="box-botoes-oferta">
-          <button class="btn-accept" type="button" onclick="aceitarCorrida()"><i class="fa-solid fa-circle-check"></i> ACEITAR CORRIDA</button>
-          <button class="btn-decline" type="button" onclick="recusarCorrida()"><i class="fa-solid fa-xmark"></i> RECUSAR CORRIDA</button>
-        </div>
-
-        <div id="box-botoes-em-andamento" class="hidden">
-          <div style="text-align:center; color:var(--green); font-weight:bold; font-size:0.85rem; margin-bottom:8px;">
-            ✅ Corrida Aceita! Dirija-se até a Coleta.
-          </div>
-          <button class="btn-gps" type="button" onclick="abrirGPSNavegacao()"><i class="fa-solid fa-location-arrow"></i> ABRIR ROTA COMPLETA NO GPS</button>
-          <button class="btn-accept" type="button" style="margin-top:10px; background:#0066FF; color:#FFF;" onclick="concluirCorridaMotoboy()"><i class="fa-solid fa-flag-checkered"></i> CONCLUIR ENTREGA</button>
-        </div>
-      </div>
-
+      <button type="button" class="btn-login" onclick="realizarLoginMotoboy()">
+        <i class="fa-solid fa-right-to-bracket"></i> Acessar Minha Conta
+      </button>
     </div>
 
-    <!-- MÓDULO 2: EXTRATO E GANHOS PESSOAIS -->
-    <div id="mod-ganhos" class="view-module">
-      <div style="margin-bottom:16px;">
-        <h2 style="font-size:1.2rem; font-weight:800; color:#FFF;"><i class="fa-solid fa-wallet" style="color:var(--green);"></i> Extrato de Ganhos</h2>
-        <p style="font-size:0.78rem; color:var(--text-muted);">Acompanhe seus repasses e corridas realizadas.</p>
+    <!-- TELA 2: PAINEL EXCLUSIVO DO ENTREGADOR AUTENTICADO -->
+    <div id="tela-painel" class="hidden">
+      <div class="status-panel">
+        <div>
+          <div style="font-weight:800; font-size:0.95rem;" id="mb-nome-display">--</div>
+          <div style="font-size:0.72rem; color:var(--text-muted);" id="mb-moto-display">--</div>
+        </div>
+        <button class="btn-status-toggle online" id="btn-status" onclick="alternarDisponibilidade()">
+          <i class="fa-solid fa-circle"></i> <span id="status-txt">ONLINE</span>
+        </button>
       </div>
 
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Ganhos Hoje</div>
-          <div class="stat-value" style="color:var(--green);" id="mb-ganhos-hoje">R$ 48,00</div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">Meu Repasse Total</div>
+          <div class="metric-val" style="color:var(--green);" id="mb-faturamento-total">R$ 0,00</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Corridas Concluídas</div>
-          <div class="stat-value" id="mb-corridas-qtd">4 Corridas</div>
+        <div class="metric-card">
+          <div class="metric-label">Entregas Realizadas</div>
+          <div class="metric-val" id="mb-entregas-qtd">0</div>
         </div>
       </div>
 
-      <div class="card-dark">
-        <h3 style="font-size:0.85rem; font-weight:800; margin-bottom:12px;"><i class="fa-solid fa-list-check" style="color:var(--primary);"></i> Histórico Pessoal de Repasses</h3>
-        <div id="lista-ganhos-motoboy">
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-            <div>
-              <div style="font-weight:700; font-size:0.8rem;">OS #RH20260804-1001</div>
-              <div style="font-size:0.68rem; color:var(--text-muted);">Hoje às 14:30 • Motoboy Express</div>
-            </div>
-            <div style="font-weight:900; color:var(--green); font-size:0.9rem;">+ R$ 12,00</div>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-            <div>
-              <div style="font-weight:700; font-size:0.8rem;">OS #RH20260804-1000</div>
-              <div style="font-size:0.68rem; color:var(--text-muted);">Hoje às 12:15 • Motoboy Express</div>
-            </div>
-            <div style="font-weight:900; color:var(--green); font-size:0.9rem;">+ R$ 12,00</div>
-          </div>
-        </div>
+      <div style="font-size:0.85rem; font-weight:800; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+        <span>CHAMADOS EM ANDAMENTO</span>
+        <i class="fa-solid fa-bell" style="color:var(--orange);"></i>
       </div>
+
+      <div id="box-corrida-ativa"></div>
+
+      <div style="font-size:0.85rem; font-weight:800; margin:20px 0 10px 0;">MEU HISTÓRICO DE ENTREGAS</div>
+      <div id="lista-historico-motoboy"></div>
     </div>
 
-    <!-- MÓDULO 3: CLUBE DE PARCEIROS & DESCONTOS 🎁 -->
-    <div id="mod-parceiros" class="view-module">
-      <div style="margin-bottom:16px;">
-        <h2 style="font-size:1.2rem; font-weight:800; color:#FFF;"><i class="fa-solid fa-gift" style="color:var(--primary);"></i> Benefícios & Parceiros R1AMOBI</h2>
-        <p style="font-size:0.78rem; color:var(--text-muted);">Descontos exclusivos em comércios parceiros de Assis/SP.</p>
-      </div>
-
-      <!-- LISTA DE COMÉRCIOS PARCEIROS -->
-      <div class="partner-card">
-        <div class="partner-icon-box"><i class="fa-solid fa-wrench"></i></div>
-        <div>
-          <div class="partner-title">Mecânica & Oficina Zé das Motos</div>
-          <div class="partner-desc">Manutenção, troca de óleo e revisão geral.</div>
-          <span class="partner-discount-tag">15% OFF na Mão de Obra</span>
-        </div>
-      </div>
-
-      <div class="partner-card">
-        <div class="partner-icon-box"><i class="fa-solid fa-dharmachakra"></i></div>
-        <div>
-          <div class="partner-title">Borracharia & Pneus Assis</div>
-          <div class="partner-desc">Conserto de câmara de ar, alinhamento e pneus novos.</div>
-          <span class="partner-discount-tag">10% OFF em Pneus & Serviços</span>
-        </div>
-      </div>
-
-      <div class="partner-card">
-        <div class="partner-icon-box"><i class="fa-solid fa-utensils"></i></div>
-        <div>
-          <div class="partner-title">Restaurante & Marmitaria D'Casa</div>
-          <div class="partner-desc">Marmitex reforçado e bebidas com valor especial para motoboy.</div>
-          <span class="partner-discount-tag">Marmitex Grande por R$ 15,00</span>
-        </div>
-      </div>
-
-      <div class="partner-card">
-        <div class="partner-icon-box"><i class="fa-solid fa-helmet-safety"></i></div>
-        <div>
-          <div class="partner-title">MOTO STORE Capacetes & Capas</div>
-          <div class="partner-desc">Capas de chuva reforçadas, viseiras e luvas de proteção.</div>
-          <span class="partner-discount-tag">12% OFF no Dinheiro/PIX</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- DOCK FIXO NO RODAPÉ -->
-  <div class="bottom-dock">
-    <div class="dock-item active" onclick="navigate('mod-home', this)"><i class="fa-solid fa-motorcycle"></i><span>Corridas</span></div>
-    <div class="dock-item" onclick="navigate('mod-ganhos', this)"><i class="fa-solid fa-wallet"></i><span>Ganhos</span></div>
-    <div class="dock-item" onclick="navigate('mod-parceiros', this)"><i class="fa-solid fa-gift"></i><span>Parceiros</span></div>
   </div>
 
   <script>
-    let statusOnline = true;
+    let motoboyLogado = null;
 
-    function alternarStatusOnline(chk) {
-      statusOnline = chk.checked;
-      const card = document.getElementById('status-card-box');
-      const mainLbl = document.getElementById('status-main-lbl');
-      const subLbl = document.getElementById('status-sub-lbl');
-      const badgeTop = document.getElementById('badge-status-top');
+    window.onload = function() {
+      verificarSessaoSalva();
+    };
 
-      if (statusOnline) {
-        card.className = "status-toggle-card online";
-        mainLbl.className = "status-main-txt green";
-        mainLbl.innerText = "🟢 VOCÊ ESTÁ ONLINE";
-        subLbl.innerText = "Pronto para receber ofertas de entregas da R1AMOBI.";
-        badgeTop.innerText = "🟢 Online";
-        document.getElementById('card-corrida-oferta').style.display = "block";
+    function verificarSessaoSalva() {
+      const sessaoId = localStorage.getItem('r1_sessao_motoboy_id');
+      if (sessaoId) {
+        validarIdentificador(sessaoId);
+      }
+    }
+
+    function realizarLoginMotoboy() {
+      const input = document.getElementById('login-identificador').value.replace(/\D/g, '');
+      if (!input || input.length < 8) {
+        return alert("Digite um WhatsApp ou CPF válido cadastrado na Central.");
+      }
+      validarIdentificador(input);
+    }
+
+    function validarIdentificador(identificador) {
+      const baseMotoboys = JSON.parse(localStorage.getItem('r1_motoboys_data') || '[]');
+      
+      const mbEncontrado = baseMotoboys.find(m => {
+        const whatsLimpo = (m.whats || '').replace(/\D/g, '');
+        const cpfLimpo = (m.cpf || '').replace(/\D/g, '');
+        return whatsLimpo === identificador || cpfLimpo === identificador;
+      });
+
+      if (mbEncontrado) {
+        motoboyLogado = mbEncontrado;
+        localStorage.setItem('r1_sessao_motoboy_id', identificador);
+        carregarPainelLogado();
       } else {
-        card.className = "status-toggle-card offline";
-        mainLbl.className = "status-main-txt red";
-        mainLbl.innerText = "🔴 VOCÊ ESTÁ OFFLINE";
-        subLbl.innerText = "Você não receberá chamados enquanto estiver offline.";
-        badgeTop.innerText = "🔴 Offline";
-        document.getElementById('card-corrida-oferta').style.display = "none";
+        alert("Entregador não encontrado. Solicite o cadastro na Central R1AMOBI.");
       }
     }
 
-    function aceitarCorrida() {
-      document.getElementById('box-botoes-oferta').classList.add('hidden');
-      document.getElementById('box-botoes-em-andamento').classList.remove('hidden');
-      alert("Corrida aceita! Abra o GPS para iniciar a rota.");
+    function carregarPainelLogado() {
+      document.getElementById('tela-login').classList.add('hidden');
+      document.getElementById('tela-painel').classList.remove('hidden');
+      document.getElementById('header-user-status').classList.remove('hidden');
+
+      document.getElementById('mb-nome-display').innerText = motoboyLogado.nome;
+      document.getElementById('mb-moto-display').innerText = `${motoboyLogado.modelo || 'Moto'} • ${motoboyLogado.placa || 'Sem placa'}`;
+
+      const btnStatus = document.getElementById('btn-status');
+      const isOnline = (motoboyLogado.status || 'online') === 'online';
+      btnStatus.className = isOnline ? "btn-status-toggle online" : "btn-status-toggle offline";
+      document.getElementById('status-txt').innerText = isOnline ? "ONLINE" : "PAUSADO";
+
+      atualizarEntregasEMetricas();
     }
 
-    function recusarCorrida() {
-      if(confirm("Deseja recusar esta oferta de corrida?")) {
-        document.getElementById('card-corrida-oferta').style.display = "none";
+    function alternarDisponibilidade() {
+      let baseMotoboys = JSON.parse(localStorage.getItem('r1_motoboys_data') || '[]');
+      const index = baseMotoboys.findIndex(m => m.nome === motoboyLogado.nome);
+
+      if (index >= 0) {
+        const novoStatus = baseMotoboys[index].status === 'online' ? 'pausado' : 'online';
+        baseMotoboys[index].status = novoStatus;
+        motoboyLogado.status = novoStatus;
+        localStorage.setItem('r1_motoboys_data', JSON.stringify(baseMotoboys));
+
+        const btnStatus = document.getElementById('btn-status');
+        btnStatus.className = novoStatus === 'online' ? "btn-status-toggle online" : "btn-status-toggle offline";
+        document.getElementById('status-txt').innerText = novoStatus === 'online' ? "ONLINE" : "PAUSADO";
       }
     }
 
-    function abrirGPSNavegacao() {
-      const orig = "Rua Floriano Peixoto, 450 - Assis SP";
-      const dest = "Av. Rui Barbosa, 1200 - Assis SP";
-      window.open(`https://www.google.com/maps/dir/${encodeURIComponent(orig)}/${encodeURIComponent(dest)}`, '_blank');
+    function atualizarEntregasEMetricas() {
+      const baseOrdens = JSON.parse(localStorage.getItem('r1_ordens_data') || '[]');
+      
+      const minhasOrdens = baseOrdens.filter(r => 
+        r.motoboyNome === motoboyLogado.nome || 
+        (r.motoboyIdx !== "" && baseMotoboys[r.motoboyIdx] && baseMotoboys[r.motoboyIdx].nome === motoboyLogado.nome)
+      );
+
+      const ativa = minhasOrdens.find(r => !r.concluido);
+      const concluidas = minhasOrdens.filter(r => r.concluido);
+
+      const totalRepasse = concluidas.reduce((acc, r) => acc + (r.repasseLiquido !== undefined ? r.repasseLiquido : r.val), 0);
+      document.getElementById('mb-faturamento-total').innerText = `R$ ${totalRepasse.toFixed(2)}`;
+      document.getElementById('mb-entregas-qtd').innerText = concluidas.length;
+
+      const boxAtiva = document.getElementById('box-corrida-ativa');
+      if (ativa) {
+        let pontos = [ativa.orig, ...(ativa.paradasExtras || []), ativa.dest];
+        let linkRotaGPS = `https://www.google.com/maps/dir/` + pontos.map(p => encodeURIComponent(p)).join('/');
+
+        boxAtiva.innerHTML = `
+          <div class="card-corrida em-rota">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="badge-status">DESPACHO ATIVO</span>
+              <span style="font-size:0.8rem; font-weight:800;">OS #${ativa.numOS}</span>
+            </div>
+
+            <div style="font-size:0.95rem; font-weight:900; margin-top:10px; color:#FFF;">Cliente: ${ativa.cli}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);"><i class="fa-solid fa-phone"></i> ${ativa.whats || 'Sem telefone'}</div>
+
+            <div class="tl-box">
+              <div class="tl-row">
+                <div class="tl-bullet red"></div>
+                <div style="font-size:0.7rem; font-weight:700; color:var(--primary);">COLETA</div>
+                <div style="font-size:0.8rem;">${ativa.orig}</div>
+              </div>
+              <div class="tl-row">
+                <div class="tl-bullet green"></div>
+                <div style="font-size:0.7rem; font-weight:700; color:var(--green);">ENTREGA</div>
+                <div style="font-size:0.8rem;">${ativa.dest}</div>
+              </div>
+            </div>
+
+            <div style="background:rgba(255,255,255,0.04); padding:10px; border-radius:10px; margin:10px 0; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-size:0.65rem; color:var(--text-muted);">SEU REPASSE LÍQUIDO</div>
+                <div style="font-size:1.1rem; font-weight:900; color:var(--green);">R$ ${(ativa.repasseLiquido !== undefined ? ativa.repasseLiquido : ativa.val).toFixed(2)}</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:0.65rem; color:var(--text-muted);">FORMA DE PGTO</div>
+                <div style="font-size:0.8rem; font-weight:800; color:#FFF;">${ativa.pag || 'PIX'}</div>
+              </div>
+            </div>
+
+            <button class="btn-gps" onclick="window.open('${linkRotaGPS}', '_blank')">
+              <i class="fa-solid fa-location-arrow"></i> ABRIR ROTA NO GPS
+            </button>
+          </div>
+        `;
+      } else {
+        boxAtiva.innerHTML = `
+          <div class="empty-box card-corrida">
+            <i class="fa-solid fa-hourglass-half" style="font-size:1.8rem; margin-bottom:8px; color:var(--text-muted);"></i>
+            <div>Nenhum chamado ativo no momento para você.</div>
+          </div>
+        `;
+      }
+
+      const histEl = document.getElementById('lista-historico-motoboy');
+      if (concluidas.length === 0) {
+        histEl.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.75rem; padding:12px;">Nenhuma entrega concluída até o momento.</div>`;
+      } else {
+        histEl.innerHTML = concluidas.map(r => `
+          <div style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:12px; padding:12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:700; font-size:0.8rem;">OS #${r.numOS} • ${r.cli}</div>
+              <div style="font-size:0.68rem; color:var(--text-muted);">${r.dtStr}</div>
+            </div>
+            <div style="color:var(--green); font-weight:900; font-size:0.9rem;">+ R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)}</div>
+          </div>
+        `).join('');
+      }
     }
 
-    function concluirCorridaMotoboy() {
-      alert("Entrega concluída com sucesso! Valor de R$ 12,00 creditado no seu extrato.");
-      document.getElementById('card-corrida-oferta').style.display = "none";
-      navigate('mod-ganhos');
-    }
-
-    function navigate(modId, elem) {
-      document.querySelectorAll('.view-module').forEach(m => m.classList.remove('active'));
-      document.querySelectorAll('.dock-item').forEach(d => d.classList.remove('active'));
-      document.getElementById(modId).classList.add('active');
-      if (elem) elem.classList.add('active');
+    function sairConta() {
+      localStorage.removeItem('r1_sessao_motoboy_id');
+      location.reload();
     }
   </script>
 </body>
