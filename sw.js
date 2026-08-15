@@ -1,22 +1,16 @@
-const CACHE_NAME = 'r1hub-v1';
-const assets = [
-  './',
-  './index.html',
-  './manifest.json'
-];
+// Limpador de Cache do Service Worker R1AMOBI
+self.addEventListener('install', (e) => {
+  self.skipWaiting();
+});
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(assets);
-    })
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(keys.map((key) => caches.delete(key)));
+    }).then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
-  );
+self.addEventListener('fetch', (e) => {
+  e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
 });
