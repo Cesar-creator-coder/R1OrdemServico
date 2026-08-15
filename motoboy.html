@@ -3,13 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>R1 MOTOBOY - PAINEL DO ENTREGADOR</title>
+  <title>R1 MOTOBOY - CENTRAL DE ENTREGAS</title>
 
+  <!-- PWA MANIFEST & CONFIGS -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#E30613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="R1 Entregador">
 
+  <!-- FontAwesome & Fonts -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
@@ -25,17 +28,18 @@
       --radius: 16px;
       --green: #00E676;
       --orange: #FF9800;
+      --blue: #0066FF;
+      --red: #FF5252;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; padding-bottom: 30px; }
+    body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; padding-bottom: 40px; }
 
     header { background: var(--bg-main); border-bottom: 1px solid var(--border-dark); padding: 14px 16px; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
     .brand { display: flex; align-items: center; gap: 10px; }
     .brand-logo-box { width: 34px; height: 34px; border-radius: 8px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; }
 
     .container { padding: 16px; max-width: 600px; margin: 0 auto; }
-
     .hidden { display: none !important; }
 
     /* TELA DE LOGIN */
@@ -57,6 +61,17 @@
     .metric-val { font-size: 1.3rem; font-weight: 900; color: #FFF; margin-top: 4px; }
     .metric-label { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
 
+    /* CARD DE OFERTA / CHAMADO (POPUP/CARD DE DECISÃO) */
+    .card-oferta { background: #161922; border: 2px solid var(--primary); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; box-shadow: 0 0 25px rgba(227, 6, 19, 0.35); animation: pulseBorder 1.5s infinite alternate; }
+    @keyframes pulseBorder { from { border-color: var(--primary); box-shadow: 0 0 15px rgba(227, 6, 19, 0.3); } to { border-color: var(--orange); box-shadow: 0 0 30px rgba(255, 152, 0, 0.5); } }
+
+    .oferta-repasse-badge { background: rgba(0, 230, 118, 0.15); border: 1px solid var(--green); border-radius: 12px; padding: 12px; text-align: center; margin: 12px 0; }
+    .oferta-repasse-val { font-size: 2rem; font-weight: 900; color: var(--green); }
+
+    .btn-aceitar { background: var(--green); color: #000; border: none; border-radius: 12px; padding: 16px; font-weight: 900; font-size: 1rem; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-recusar { background: rgba(255, 82, 82, 0.15); border: 1px solid var(--red); color: var(--red); border-radius: 12px; padding: 14px; font-weight: 800; font-size: 0.9rem; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; }
+
+    /* CARD DA CORRIDA EM ANDAMENTO */
     .card-corrida { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
     .card-corrida.em-rota { border-color: var(--orange); box-shadow: 0 0 15px rgba(255, 152, 0, 0.15); }
     .badge-status { background: var(--orange); color: #000; font-size: 0.7rem; font-weight: 800; padding: 3px 8px; border-radius: 8px; }
@@ -68,8 +83,12 @@
     .tl-bullet { position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; }
     .tl-bullet.red { background: var(--primary); }
     .tl-bullet.green { background: var(--green); }
+    .tl-bullet.yellow { background: var(--orange); }
 
-    .btn-gps { background: var(--green); color: #000; border: none; border-radius: 12px; padding: 14px; font-weight: 900; font-size: 0.95rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-top: 12px; }
+    .btn-gps { background: var(--blue); color: #FFF; border: none; border-radius: 12px; padding: 14px; font-weight: 800; font-size: 0.9rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-top: 10px; }
+    .btn-whats-cli { background: #25D366; color: #000; border: none; border-radius: 12px; padding: 14px; font-weight: 800; font-size: 0.9rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-top: 8px; }
+    .btn-etapa-acao { background: var(--primary); color: #FFF; border: none; border-radius: 12px; padding: 16px; font-weight: 900; font-size: 1rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; margin-top: 12px; box-shadow: 0 4px 15px rgba(227, 6, 19, 0.4); }
+
     .empty-box { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 30px 16px; }
   </style>
 </head>
@@ -90,15 +109,15 @@
 
   <div class="container">
 
-    <!-- TELA 1: AUTENTICAÇÃO DO ENTREGADOR -->
+    <!-- TELA 1: LOGIN -->
     <div id="tela-login" class="login-box">
       <div style="font-size:2rem; color:var(--primary); margin-bottom:8px;"><i class="fa-solid fa-motorcycle"></i></div>
       <h2 style="font-size:1.1rem; font-weight:900;">Acesso do Entregador</h2>
-      <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Informe seus dados para acessar suas corridas</p>
+      <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Informe seu WhatsApp ou CPF cadastrado</p>
 
       <div class="input-group">
-        <label class="input-label">WhatsApp ou CPF Cadastrado</label>
-        <input type="tel" id="login-identificador" class="input-control" placeholder="Digite apenas números (Ex: 18999998888)">
+        <label class="input-label">WhatsApp ou CPF</label>
+        <input type="tel" id="login-identificador" class="input-control" placeholder="Ex: 18999998888 ou CPF">
       </div>
 
       <button type="button" class="btn-login" onclick="realizarLoginMotoboy()">
@@ -106,8 +125,10 @@
       </button>
     </div>
 
-    <!-- TELA 2: PAINEL EXCLUSIVO DO ENTREGADOR AUTENTICADO -->
+    <!-- TELA 2: PAINEL DO ENTREGADOR -->
     <div id="tela-painel" class="hidden">
+      
+      <!-- STATUS DO MOTOBOY -->
       <div class="status-panel">
         <div>
           <div style="font-weight:800; font-size:0.95rem;" id="mb-nome-display">--</div>
@@ -118,36 +139,78 @@
         </button>
       </div>
 
+      <!-- MÉTRICAS -->
       <div class="metrics-grid">
         <div class="metric-card">
-          <div class="metric-label">Meu Repasse Total</div>
+          <div class="metric-label">Meu Repasse Hoje</div>
           <div class="metric-val" style="color:var(--green);" id="mb-faturamento-total">R$ 0,00</div>
         </div>
         <div class="metric-card">
-          <div class="metric-label">Entregas Realizadas</div>
+          <div class="metric-label">Corridas Hoje</div>
           <div class="metric-val" id="mb-entregas-qtd">0</div>
         </div>
       </div>
 
+      <!-- ÁREA DE CHAMADOS E OFERTAS (ACEITAR / RECUSAR / ANDAMENTO) -->
       <div style="font-size:0.85rem; font-weight:800; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-        <span>CHAMADOS EM ANDAMENTO</span>
+        <span>CHAMADOS & ENTREGAS</span>
         <i class="fa-solid fa-bell" style="color:var(--orange);"></i>
       </div>
 
-      <div id="box-corrida-ativa"></div>
+      <div id="box-chamados-dinamicos">
+        <div class="empty-box card-corrida">
+          <i class="fa-solid fa-hourglass-half" style="font-size:1.8rem; margin-bottom:8px; color:var(--text-muted);"></i>
+          <div>Aguardando novos chamados da Central...</div>
+        </div>
+      </div>
 
-      <div style="font-size:0.85rem; font-weight:800; margin:20px 0 10px 0;">MEU HISTÓRICO DE ENTREGAS</div>
+      <!-- HISTÓRICO DE REPASSES -->
+      <div style="font-size:0.85rem; font-weight:800; margin:20px 0 10px 0;">MEU HISTÓRICO DE REPASSES</div>
       <div id="lista-historico-motoboy"></div>
+
     </div>
 
   </div>
 
   <script>
     let motoboyLogado = null;
+    let audioLoopInterval = null;
 
     window.onload = function() {
       verificarSessaoSalva();
+      // Checagem periódica a cada 3 segundos para capturar novos chamados
+      setInterval(atualizarEntregasEMetricas, 3000);
     };
+
+    function tocarAlarmeChamado() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.35);
+      } catch(e) { console.log("Áudio:", e); }
+    }
+
+    function iniciarLoopAlarme() {
+      if (!audioLoopInterval) {
+        tocarAlarmeChamado();
+        audioLoopInterval = setInterval(tocarAlarmeChamado, 1500);
+      }
+    }
+
+    function pararLoopAlarme() {
+      if (audioLoopInterval) {
+        clearInterval(audioLoopInterval);
+        audioLoopInterval = null;
+      }
+    }
 
     function verificarSessaoSalva() {
       const sessaoId = localStorage.getItem('r1_sessao_motoboy_id');
@@ -178,7 +241,7 @@
         localStorage.setItem('r1_sessao_motoboy_id', identificador);
         carregarPainelLogado();
       } else {
-        alert("Entregador não encontrado. Solicite o cadastro na Central R1AMOBI.");
+        alert("Entregador não encontrado. Solicite seu cadastro na Central R1AMOBI.");
       }
     }
 
@@ -211,94 +274,244 @@
         const btnStatus = document.getElementById('btn-status');
         btnStatus.className = novoStatus === 'online' ? "btn-status-toggle online" : "btn-status-toggle offline";
         document.getElementById('status-txt').innerText = novoStatus === 'online' ? "ONLINE" : "PAUSADO";
+
+        if (novoStatus === 'pausado') pararLoopAlarme();
       }
     }
 
     function atualizarEntregasEMetricas() {
+      if (!motoboyLogado) return;
+
       const baseOrdens = JSON.parse(localStorage.getItem('r1_ordens_data') || '[]');
-      
+      const inicioHoje = new Date().setHours(0, 0, 0, 0);
+
+      // Filtra ordens vinculadas a este motoboy
       const minhasOrdens = baseOrdens.filter(r => 
         r.motoboyNome === motoboyLogado.nome || 
-        (r.motoboyIdx !== "" && baseMotoboys[r.motoboyIdx] && baseMotoboys[r.motoboyIdx].nome === motoboyLogado.nome)
+        (r.motoboyIdx !== "" && r.motoboyIdx !== null && r.motoboyIdx !== undefined && r.motoboyNome === motoboyLogado.nome)
       );
 
-      const ativa = minhasOrdens.find(r => !r.concluido);
-      const concluidas = minhasOrdens.filter(r => r.concluido);
+      const corridaPendenteDecisao = minhasOrdens.find(r => !r.concluido && !r.motoboyAceitou && !r.motoboyRecusou);
+      const corridaAtivaEmAndamento = minhasOrdens.find(r => !r.concluido && r.motoboyAceitou);
+      const concluidasHoje = minhasOrdens.filter(r => r.concluido && (r.timestamp || 0) >= inicioHoje);
 
-      const totalRepasse = concluidas.reduce((acc, r) => acc + (r.repasseLiquido !== undefined ? r.repasseLiquido : r.val), 0);
+      // Métricas
+      const totalRepasse = concluidasHoje.reduce((acc, r) => acc + (r.repasseLiquido !== undefined ? r.repasseLiquido : r.val), 0);
       document.getElementById('mb-faturamento-total').innerText = `R$ ${totalRepasse.toFixed(2)}`;
-      document.getElementById('mb-entregas-qtd').innerText = concluidas.length;
+      document.getElementById('mb-entregas-qtd').innerText = concluidasHoje.length;
 
-      const boxAtiva = document.getElementById('box-corrida-ativa');
-      if (ativa) {
-        let pontos = [ativa.orig, ...(ativa.paradasExtras || []), ativa.dest];
-        let linkRotaGPS = `https://www.google.com/maps/dir/` + pontos.map(p => encodeURIComponent(p)).join('/');
+      const boxContainer = document.getElementById('box-chamados-dinamicos');
 
-        boxAtiva.innerHTML = `
-          <div class="card-corrida em-rota">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span class="badge-status">DESPACHO ATIVO</span>
-              <span style="font-size:0.8rem; font-weight:800;">OS #${ativa.numOS}</span>
-            </div>
-
-            <div style="font-size:0.95rem; font-weight:900; margin-top:10px; color:#FFF;">Cliente: ${ativa.cli}</div>
-            <div style="font-size:0.75rem; color:var(--text-muted);"><i class="fa-solid fa-phone"></i> ${ativa.whats || 'Sem telefone'}</div>
-
-            <div class="tl-box">
-              <div class="tl-row">
-                <div class="tl-bullet red"></div>
-                <div style="font-size:0.7rem; font-weight:700; color:var(--primary);">COLETA</div>
-                <div style="font-size:0.8rem;">${ativa.orig}</div>
-              </div>
-              <div class="tl-row">
-                <div class="tl-bullet green"></div>
-                <div style="font-size:0.7rem; font-weight:700; color:var(--green);">ENTREGA</div>
-                <div style="font-size:0.8rem;">${ativa.dest}</div>
-              </div>
-            </div>
-
-            <div style="background:rgba(255,255,255,0.04); padding:10px; border-radius:10px; margin:10px 0; display:flex; justify-content:space-between; align-items:center;">
-              <div>
-                <div style="font-size:0.65rem; color:var(--text-muted);">SEU REPASSE LÍQUIDO</div>
-                <div style="font-size:1.1rem; font-weight:900; color:var(--green);">R$ ${(ativa.repasseLiquido !== undefined ? ativa.repasseLiquido : ativa.val).toFixed(2)}</div>
-              </div>
-              <div style="text-align:right;">
-                <div style="font-size:0.65rem; color:var(--text-muted);">FORMA DE PGTO</div>
-                <div style="font-size:0.8rem; font-weight:800; color:#FFF;">${ativa.pag || 'PIX'}</div>
-              </div>
-            </div>
-
-            <button class="btn-gps" onclick="window.open('${linkRotaGPS}', '_blank')">
-              <i class="fa-solid fa-location-arrow"></i> ABRIR ROTA NO GPS
-            </button>
-          </div>
-        `;
+      // 1. SE HOUVER NOVO CHAMADO AGUARDANDO ACEITE (TOCA ALARME)
+      if (corridaPendenteDecisao && (motoboyLogado.status || 'online') === 'online') {
+        iniciarLoopAlarme();
+        renderizarOfertaChamado(corridaPendenteDecisao);
+        return;
       } else {
-        boxAtiva.innerHTML = `
-          <div class="empty-box card-corrida">
-            <i class="fa-solid fa-hourglass-half" style="font-size:1.8rem; margin-bottom:8px; color:var(--text-muted);"></i>
-            <div>Nenhum chamado ativo no momento para você.</div>
-          </div>
-        `;
+        pararLoopAlarme();
       }
 
+      // 2. SE HOUVER CORRIDA EM ANDAMENTO JÁ ACEITA
+      if (corridaAtivaEmAndamento) {
+        renderizarCorridaEmAndamento(corridaAtivaEmAndamento);
+        return;
+      }
+
+      // 3. SEM CHAMADOS ATIVOS
+      boxContainer.innerHTML = `
+        <div class="empty-box card-corrida">
+          <i class="fa-solid fa-hourglass-half" style="font-size:1.8rem; margin-bottom:8px; color:var(--text-muted);"></i>
+          <div>Aguardando novos chamados da Central R1...</div>
+        </div>
+      `;
+
+      // Renderiza Histórico Recente
       const histEl = document.getElementById('lista-historico-motoboy');
-      if (concluidas.length === 0) {
-        histEl.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.75rem; padding:12px;">Nenhuma entrega concluída até o momento.</div>`;
+      if (concluidasHoje.length === 0) {
+        histEl.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.75rem; padding:12px;">Nenhuma entrega finalizada hoje.</div>`;
       } else {
-        histEl.innerHTML = concluidas.map(r => `
+        histEl.innerHTML = concluidasHoje.map(r => `
           <div style="background:var(--bg-card); border:1px solid var(--border-dark); border-radius:12px; padding:12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
             <div>
               <div style="font-weight:700; font-size:0.8rem;">OS #${r.numOS} • ${r.cli}</div>
-              <div style="font-size:0.68rem; color:var(--text-muted);">${r.dtStr}</div>
+              <div style="font-size:0.68rem; color:var(--text-muted);">${r.dtStr} | ${r.km || '0.0'} km</div>
             </div>
-            <div style="color:var(--green); font-weight:900; font-size:0.9rem;">+ R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)}</div>
+            <div style="color:var(--green); font-weight:900; font-size:0.95rem;">+ R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)}</div>
           </div>
         `).join('');
       }
     }
 
+    function renderizarOfertaChamado(r) {
+      const repasse = (r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2);
+      const paradasQtd = r.paradasExtras ? r.paradasExtras.length : 0;
+
+      document.getElementById('box-chamados-dinamicos').innerHTML = `
+        <div class="card-oferta">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="badge-status" style="background:var(--primary); color:#FFF;">🚨 NOVO CHAMADO DISPONÍVEL!</span>
+            <span style="font-size:0.85rem; font-weight:800;">OS #${r.numOS}</span>
+          </div>
+
+          <div class="oferta-repasse-badge">
+            <div style="font-size:0.7rem; font-weight:700; color:var(--text-muted);">SEU REPASSE LÍQUIDO</div>
+            <div class="oferta-repasse-val">R$ ${repasse}</div>
+            <div style="font-size:0.72rem; color:#FFF; font-weight:600; margin-top:2px;">Distância: ${r.km || '0.0'} km • ${r.tipo}</div>
+          </div>
+
+          <div class="tl-box">
+            <div class="tl-row">
+              <div class="tl-bullet red"></div>
+              <div style="font-size:0.7rem; font-weight:700; color:var(--primary);">PONTO DE COLETA</div>
+              <div style="font-size:0.82rem; font-weight:600;">${r.orig}</div>
+            </div>
+            ${paradasQtd > 0 ? `
+              <div class="tl-row">
+                <div class="tl-bullet yellow"></div>
+                <div style="font-size:0.7rem; font-weight:700; color:var(--orange);">${paradasQtd} PARADA(S) EXTRA(S)</div>
+                <div style="font-size:0.75rem; color:#AAA;">${r.paradasExtras.join(' ➔ ')}</div>
+              </div>` : ''
+            }
+            <div class="tl-row">
+              <div class="tl-bullet green"></div>
+              <div style="font-size:0.7rem; font-weight:700; color:var(--green);">PONTO DE ENTREGA</div>
+              <div style="font-size:0.82rem; font-weight:600;">${r.dest}</div>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:6px; margin-top:14px;">
+            <button class="btn-aceitar" onclick="aceitarCorrida(${r.id})">
+              <i class="fa-solid fa-check"></i> ACEITAR CORRIDA AGORA
+            </button>
+            <button class="btn-recusar" onclick="recusarCorrida(${r.id})">
+              <i class="fa-solid fa-xmark"></i> RECUSAR CHAMADO
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function aceitarCorrida(id) {
+      pararLoopAlarme();
+      let baseOrdens = JSON.parse(localStorage.getItem('r1_ordens_data') || '[]');
+      const item = baseOrdens.find(r => r.id === id);
+
+      if (item) {
+        item.motoboyAceitou = true;
+        item.etapaCorrida = 'a_caminho_coleta';
+        localStorage.setItem('r1_ordens_data', JSON.stringify(baseOrdens));
+        atualizarEntregasEMetricas();
+        alert("Corrida aceita com sucesso! Inicie o deslocamento até o ponto de coleta.");
+      }
+    }
+
+    function recusarCorrida(id) {
+      pararLoopAlarme();
+      let baseOrdens = JSON.parse(localStorage.getItem('r1_ordens_data') || '[]');
+      const item = baseOrdens.find(r => r.id === id);
+
+      if (item) {
+        item.motoboyRecusou = true;
+        item.motoboyNome = ""; // Desvincula para outro motoboy ou volta para a central
+        localStorage.setItem('r1_ordens_data', JSON.stringify(baseOrdens));
+        atualizarEntregasEMetricas();
+        alert("Chamado recusado. O pedido foi devolvido para a Central.");
+      }
+    }
+
+    function renderizarCorridaEmAndamento(r) {
+      let pontos = [r.orig, ...(r.paradasExtras || []), r.dest];
+      let linkRotaGPS = `https://www.google.com/maps/dir/` + pontos.map(p => encodeURIComponent(p)).join('/');
+      let whatsLimpo = (r.whats || '').replace(/\D/g, '');
+
+      let etapa = r.etapaCorrida || 'a_caminho_coleta';
+      let btnEtapaTxt = "";
+      let proximaEtapa = "";
+
+      if (etapa === 'a_caminho_coleta') {
+        btnEtapaTxt = "📍 CHEGUEI NO PONTO DE COLETA";
+        proximaEtapa = "coletado_em_rota";
+      } else if (etapa === 'coletado_em_rota') {
+        btnEtapaTxt = "📦 PACOTE COLETADO ➔ INICIAR ENTREGA";
+        proximaEtapa = "a_caminho_entrega";
+      } else {
+        btnEtapaTxt = "✅ CONCLUIR E CONFIRMAR ENTREGA";
+        proximaEtapa = "concluida";
+      }
+
+      document.getElementById('box-chamados-dinamicos').innerHTML = `
+        <div class="card-corrida em-rota">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="badge-status">EM ANDAMENTO</span>
+            <span style="font-size:0.85rem; font-weight:800;">OS #${r.numOS}</span>
+          </div>
+
+          <div style="margin-top:10px;">
+            <div style="font-size:1rem; font-weight:900; color:#FFF;">Cliente: ${r.cli}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);"><i class="fa-solid fa-phone"></i> ${r.whats || 'Sem telefone'}</div>
+          </div>
+
+          <div class="tl-box">
+            <div class="tl-row">
+              <div class="tl-bullet red"></div>
+              <div style="font-size:0.7rem; font-weight:700; color:var(--primary);">COLETA</div>
+              <div style="font-size:0.82rem;">${r.orig}</div>
+            </div>
+            <div class="tl-row">
+              <div class="tl-bullet green"></div>
+              <div style="font-size:0.7rem; font-weight:700; color:var(--green);">ENTREGA</div>
+              <div style="font-size:0.82rem;">${r.dest}</div>
+            </div>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.04); padding:10px; border-radius:10px; margin:10px 0; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-size:0.65rem; color:var(--text-muted);">SEU REPASSE</div>
+              <div style="font-size:1.2rem; font-weight:900; color:var(--green);">R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.65rem; color:var(--text-muted);">PAGAMENTO</div>
+              <div style="font-size:0.85rem; font-weight:800; color:#FFF;">${r.pag || 'PIX'}</div>
+            </div>
+          </div>
+
+          <button class="btn-gps" onclick="window.open('${linkRotaGPS}', '_blank')">
+            <i class="fa-solid fa-location-arrow"></i> ABRIR ROTA NO GPS (MAPS)
+          </button>
+
+          ${whatsLimpo ? `
+            <button class="btn-whats-cli" onclick="window.open('https://wa.me/55${whatsLimpo}', '_blank')">
+              <i class="fa-brands fa-whatsapp"></i> CONVERSAR COM O CLIENTE
+            </button>` : ''
+          }
+
+          <button class="btn-etapa-acao" onclick="avancarEtapaCorrida(${r.id}, '${proximaEtapa}')">
+            ${btnEtapaTxt}
+          </button>
+        </div>
+      `;
+    }
+
+    function avancarEtapaCorrida(id, proximaEtapa) {
+      let baseOrdens = JSON.parse(localStorage.getItem('r1_ordens_data') || '[]');
+      const item = baseOrdens.find(r => r.id === id);
+
+      if (item) {
+        if (proximaEtapa === 'concluida') {
+          item.concluido = true;
+          item.etapaCorrida = 'finalizada';
+          alert("Parabéns! Entrega concluída com sucesso. O repasse foi creditado no seu extrato.");
+        } else {
+          item.etapaCorrida = proximaEtapa;
+        }
+
+        localStorage.setItem('r1_ordens_data', JSON.stringify(baseOrdens));
+        atualizarEntregasEMetricas();
+      }
+    }
+
     function sairConta() {
+      pararLoopAlarme();
       localStorage.removeItem('r1_sessao_motoboy_id');
       location.reload();
     }
