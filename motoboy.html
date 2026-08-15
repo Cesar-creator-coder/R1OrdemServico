@@ -46,13 +46,18 @@
     .container { padding: 16px; max-width: 600px; margin: 0 auto; }
     .hidden { display: none !important; }
 
-    /* TELA DE LOGIN SEGURO (E-MAIL E SENHA) */
+    /* TELA DE LOGIN SEGURO (E-MAIL E SENHA) COM VISUALIZADOR */
     .login-box { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 24px; margin-top: 30px; text-align: center; }
     .input-group { margin: 16px 0; text-align: left; }
     .input-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: block; }
     .input-control { width: 100%; background: var(--bg-input); border: 1px solid var(--border-dark); border-radius: 12px; padding: 14px; color: #FFF; font-size: 0.95rem; outline: none; }
     .input-control:focus { border-color: var(--primary); }
     .btn-login { width: 100%; background: var(--primary); color: #FFF; border: none; padding: 16px; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+    /* Estilo para o visualizador de senha */
+    .password-wrapper { position: relative; width: 100%; }
+    .toggle-password { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer; font-size: 1.1rem; }
+    .toggle-password:hover { color: #FFF; }
 
     /* PAINEL LOGADO */
     .status-panel { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
@@ -116,7 +121,7 @@
 
   <div class="container">
 
-    <!-- TELA 1: LOGIN SEGURO (E-MAIL E SENHA) -->
+    <!-- TELA 1: LOGIN SEGURO (E-MAIL E SENHA) COM VISUALIZADOR -->
     <div id="tela-login" class="login-box">
       <div style="font-size:2.5rem; color:var(--primary); margin-bottom:12px;"><i class="fa-solid fa-lock"></i></div>
       <h2 style="font-size:1.2rem; font-weight:900;">Acesso Seguro R1AMOBI</h2>
@@ -124,12 +129,15 @@
       
       <div class="input-group">
         <label class="input-label">Seu E-mail Cadastrado</label>
-        <input type="email" id="login-email" class="input-control" placeholder="ex: joao@r1.com">
+        <input type="email" id="login-email" class="input-control" placeholder="ex: joao@gmail.com">
       </div>
       
       <div class="input-group" style="margin-top: 10px;">
         <label class="input-label">Sua Senha Pessoal</label>
-        <input type="password" id="login-senha" class="input-control" placeholder="******">
+        <div class="password-wrapper">
+            <input type="password" id="login-senha" class="input-control" placeholder="******">
+            <i class="fa-solid fa-eye-slash toggle-password" id="btn-toggle-senha" onclick="toggleSenha()"></i>
+        </div>
       </div>
 
       <button type="button" class="btn-login" style="margin-top: 15px;" onclick="realizarLoginSeguro()"><i class="fa-solid fa-right-to-bracket"></i> Entrar no Painel</button>
@@ -225,6 +233,22 @@
       verificarSessaoSalva();
       setInterval(atualizarEntregasEMetricas, 3000); // Atualiza dados a cada 3 seg
     };
+
+    // LÓGICA DO OLHINHO (NOVO)
+    function toggleSenha() {
+        const inputSenha = document.getElementById('login-senha');
+        const btnToggle = document.getElementById('btn-toggle-senha');
+        
+        if (inputSenha.type === 'password') {
+            inputSenha.type = 'text';
+            btnToggle.classList.remove('fa-eye-slash');
+            btnToggle.classList.add('fa-eye');
+        } else {
+            inputSenha.type = 'password';
+            btnToggle.classList.remove('fa-eye');
+            btnToggle.classList.add('fa-eye-slash');
+        }
+    }
 
     // LÓGICA SONORA ("R1 R1")
     function tocarAlarmeChamado() {
