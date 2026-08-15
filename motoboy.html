@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>R1 MOTOBOY - Central do Entregador</title>
+
+  <!-- PWA CONFIG -->
+  <link rel="manifest" href="manifest-motoboy.json">
+  <meta name="theme-color" content="#E30613">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="R1 Motoboy">
+  <link rel="icon" type="image/png" href="./icon-motoboy.png">
+  <link rel="apple-touch-icon" href="./icon-motoboy.png">
+
+  <!-- Ícones e Fontes -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #E30613;
+      --bg-main: #090A0C;
+      --bg-card: #121418;
+      --bg-input: #0A0B0E;
+      --text-main: #FFFFFF;
+      --text-muted: #A0A0A0;
+      --border-dark: #222630;
+      --radius: 16px;
+      --green: #00E676;
+      --orange: #FF9800;
+      --red: #FF5252;
+      --blue: #2979FF;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; padding-bottom: 50px; }
+
+    header { background: var(--bg-main); border-bottom: 1px solid var(--border-dark); padding: 14px 16px; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-logo-box { width: 34px; height: 34px; border-radius: 8px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; }
+
+    .container { padding: 16px; max-width: 600px; margin: 0 auto; }
+    .hidden { display: none !important; }
+
+    /* FORMULÁRIOS DE ACESSO E CADASTRO */
+    .auth-box { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 24px; margin-top: 20px; text-align: center; }
+    .input-group { margin: 12px 0; text-align: left; }
+    .input-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: block; }
+    .input-control { width: 100%; background: var(--bg-input); border: 1px solid var(--border-dark); border-radius: 12px; padding: 14px; color: #FFF; font-size: 0.95rem; outline: none; }
+    .input-control:focus { border-color: var(--primary); }
+    
+    .password-wrapper { position: relative; width: 100%; }
+    .toggle-password { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer; font-size: 1.1rem; padding: 6px; }
+
+    .btn-main { width: 100%; background: var(--primary); color: #FFF; border: none; padding: 16px; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; }
+    .toggle-auth-mode { margin-top: 16px; font-size: 0.85rem; color: var(--text-muted); cursor: pointer; text-decoration: underline; }
+
+    /* PAINEL LOGADO */
+    .status-panel { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .btn-status-toggle { padding: 10px 18px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem;}
+    .btn-status-toggle.online { background: rgba(0, 230, 118, 0.15); border: 1px solid var(--green); color: var(--green); }
+    .btn-status-toggle.offline { background: rgba(255, 152, 0, 0.15); border: 1px solid var(--orange); color: var(--orange); }
+
+    .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .metric-card { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 14px; padding: 14px; text-align: center; }
+    .metric-val { font-size: 1.3rem; font-weight: 900; margin-top: 4px; }
+
+    /* CARDS DE CHAMADOS */
+    .card-oferta { background: #161922; border: 2px solid var(--primary); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; }
+    .btn-aceitar { background: var(--green); color: #000; border: none; border-radius: 12px; padding: 16px; font-weight: 900; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem; }
+
+    /* HISTÓRICO */
+    .filter-panel { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 14px; margin: 20px 0 12px 0; }
+    .filter-select { width: 100%; background: var(--bg-input); border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; color: #FFF; font-size: 0.85rem; font-weight: 700; outline: none; margin-top: 6px; }
+    .card-historico { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 12px; padding: 12px; margin-bottom: 8px; }
+    .hist-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid #1A1D24; padding-bottom: 6px; }
+    .hist-os { font-weight: 800; font-size: 0.85rem; }
+    .hist-data { font-size: 0.7rem; color: var(--text-muted); }
+    .hist-body { display: flex; justify-content: space-between; align-items: center; }
+    .hist-val { color: var(--green); font-weight: 900; font-size: 1rem; }
+    .tl-box { position: relative; padding-left: 20px; margin: 14px 0; }
+    .tl-row { position: relative; margin-bottom: 10px; }
+    .tl-bullet { position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--border-dark); }
+    .empty-box { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 30px 16px; border-radius: 12px; border: 1px solid var(--border-dark); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-logo-box">R1</div>
+      <div>
+        <span style="font-weight:900; font-size:1.1rem; color:var(--primary); font-style:italic;">R1 <span style="color:#FFF;">MOTOBOY</span></span>
+        <span style="font-size:0.6rem; color:var(--text-muted); display:block; margin-top:-4px;">CENTRAL DO ENTREGADOR</span>
+      </div>
+    </div>
+    <div id="header-user-status" class="hidden">
+      <button onclick="sairConta()" style="background:transparent; border:1px solid var(--border-dark); color:var(--text-muted); padding:6px 12px; border-radius:8px; font-size:0.7rem; cursor:pointer;">
+        Sair <i class="fa-solid fa-right-from-bracket"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- 1. TELA DE LOGIN -->
+    <div id="box-login" class="auth-box">
+      <div style="font-size:2.5rem; color:var(--primary); margin-bottom:12px;"><i class="fa-solid fa-lock"></i></div>
+      <h2 style="font-size:1.2rem; font-weight:900;">Acesso Seguro R1AMOBI</h2>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">Entre com seu e-mail e senha cadastrados.</p>
+      
+      <div class="input-group">
+        <label class="input-label">E-mail Cadastrado</label>
+        <input type="email" id="login-email" class="input-control" placeholder="seuemail@exemplo.com">
+      </div>
+      
+      <div class="input-group">
+        <label class="input-label">Senha</label>
+        <div class="password-wrapper">
+          <input type="password" id="login-senha" class="input-control" placeholder="******">
+          <i class="fa-solid fa-eye-slash toggle-password" onclick="alternarVisibilidadeSenha('login-senha', this)"></i>
+        </div>
+      </div>
+
+      <button type="button" class="btn-main" onclick="realizarLogin()"><i class="fa-solid fa-right-to-bracket"></i> Entrar no Painel</button>
+      
+      <div class="toggle-auth-mode" onclick="alternarTelaAuth('cadastro')">
+        Novo motoboy? Cadastre-se aqui
+      </div>
+    </div>
+
+    <!-- 2. TELA DE CADASTRO -->
+    <div id="box-cadastro" class="auth-box hidden">
+      <div style="font-size:2.5rem; color:var(--green); margin-bottom:12px;"><i class="fa-solid fa-user-plus"></i></div>
+      <h2 style="font-size:1.2rem; font-weight:900;">Novo Cadastro de Motoboy</h2>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">Crie sua conta para receber chamados R1.</p>
+      
+      <div class="input-group">
+        <label class="input-label">Nome Completo</label>
+        <input type="text" id="cad-nome" class="input-control" placeholder="Ex: Carlos Silva">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">WhatsApp (com DDD)</label>
+        <input type="tel" id="cad-whats" class="input-control" placeholder="Ex: 18999998888">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Modelo da Moto / Placa</label>
+        <input type="text" id="cad-moto" class="input-control" placeholder="Ex: Fan 160 - ABC1D23">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">E-mail para Login</label>
+        <input type="email" id="cad-email" class="input-control" placeholder="seuemail@exemplo.com">
+      </div>
+      
+      <div class="input-group">
+        <label class="input-label">Criar Senha (mínimo 6 dígitos)</label>
+        <div class="password-wrapper">
+          <input type="password" id="cad-senha" class="input-control" placeholder="******">
+          <i class="fa-solid fa-eye-slash toggle-password" onclick="alternarVisibilidadeSenha('cad-senha', this)"></i>
+        </div>
+      </div>
+
+      <button type="button" class="btn-main" style="background:var(--green); color:#000;" onclick="realizarCadastro()"><i class="fa-solid fa-check"></i> Concluir Cadastro</button>
+      
+      <div class="toggle-auth-mode" onclick="alternarTelaAuth('login')">
+        Já possui cadastro? Faça login
+      </div>
+    </div>
+
+    <!-- 3. PAINEL PRINCIPAL (LOGADO) -->
+    <div id="tela-painel" class="hidden">
+      
+      <div class="status-panel">
+        <div>
+          <div style="font-weight:800; font-size:0.95rem;" id="mb-nome-display">--</div>
+          <div style="font-size:0.7rem; color:var(--text-muted);" id="mb-moto-display">--</div>
+        </div>
+        <button class="btn-status-toggle online" id="btn-status" onclick="alternarDisponibilidade()">
+          <i class="fa-solid fa-circle"></i> <span id="status-txt">ONLINE</span>
+        </button>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Repasse Hoje</div>
+          <div class="metric-val" style="color:var(--green);" id="mb-faturamento-total">R$ 0,00</div>
+        </div>
+        <div class="metric-card">
+          <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Corridas Hoje</div>
+          <div class="metric-val" id="mb-entregas-qtd">0</div>
+        </div>
+      </div>
+
+      <div style="font-size:0.85rem; font-weight:800; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+        <span>CHAMADOS & CORRIDAS ATIVAS</span>
+        <i class="fa-solid fa-bell" style="color:var(--orange);"></i>
+      </div>
+      <div id="box-chamados-dinamicos"></div>
+
+      <div class="filter-panel">
+        <div style="font-size:0.8rem; font-weight:800; display:flex; justify-content:space-between; align-items:center;">
+          <span><i class="fa-solid fa-file-invoice-dollar" style="color:var(--green);"></i> HISTÓRICO DE REPASSES</span>
+          <span style="font-size:0.7rem; color:var(--text-muted);" id="lbl-total-historico-corridas">0 registradas</span>
+        </div>
+        <select id="mb-filtro-periodo" class="filter-select" onchange="atualizarEntregasEMetricas()">
+          <option value="hoje">📅 Hoje (Faturamento do Dia)</option>
+          <option value="todos">📂 Todo o Histórico</option>
+        </select>
+      </div>
+
+      <div id="lista-historico-motoboy"></div>
+
+    </div>
+
+  </div>
+
+  <!-- FIREBASE SCRIPTS -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="js/firebase-config.js"></script> 
+
+  <script>
+    let motoboyLogado = null;
+    let db = null;
+    let auth = null; 
+
+    // Alternar campos de senha (Olhinho isolado)
+    function alternarVisibilidadeSenha(inputId, iconEl) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        iconEl.classList.remove('fa-eye-slash');
+        iconEl.classList.add('fa-eye');
+      } else {
+        input.type = 'password';
+        iconEl.classList.remove('fa-eye');
+        iconEl.classList.add('fa-eye-slash');
+      }
+    }
+
+    // Alternar entre tela de Login e tela de Cadastro
+    function alternarTelaAuth(tela) {
+      if (tela === 'cadastro') {
+        document.getElementById('box-login').classList.add('hidden');
+        document.getElementById('box-cadastro').classList.remove('hidden');
+      } else {
+        document.getElementById('box-cadastro').classList.add('hidden');
+        document.getElementById('box-login').classList.remove('hidden');
+      }
+    }
+
+    window.onload = function() {
+      if (typeof firebaseConfig !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+        auth = firebase.auth();
+        
+        auth.onAuthStateChanged((user) => {
+          if (user) {
+            buscarDadosMotoboy(user.uid);
+          }
+        });
+      } else {
+        alert("Configuração do Firebase não carregada. Verifique o arquivo js/firebase-config.js.");
+      }
+    };
+
+    // Função de Cadastro
+    function realizarCadastro() {
+      const nome = document.getElementById('cad-nome').value.trim();
+      const whats = document.getElementById('cad-whats').value.trim();
+      const moto = document.getElementById('cad-moto').value.trim();
+      const email = document.getElementById('cad-email').value.trim();
+      const senha = document.getElementById('cad-senha').value.trim();
+
+      if (!nome || !whats || !email || !senha) {
+        return alert("Por favor, preencha todos os campos obrigatórios.");
+      }
+      if (senha.length < 6) {
+        return alert("A senha deve ter no mínimo 6 dígitos.");
+      }
+
+      auth.createUserWithEmailAndPassword(email, senha)
+        .then((cred) => {
+          const uid = cred.user.uid;
+          const novoMotoboy = {
+            uid: uid,
+            nome: nome,
+            whats: whats,
+            modelo: moto,
+            status: 'online',
+            criadoEm: firebase.database.ServerValue.TIMESTAMP
+          };
+
+          return db.ref('motoboys/' + uid).set(novoMotoboy).then(() => {
+            motoboyLogado = novoMotoboy;
+            motoboyLogado.idFB = uid;
+            carregarPainel();
+          });
+        })
+        .catch((err) => {
+          alert("Erro no cadastro: " + err.message);
+        });
+    }
+
+    // Função de Login
+    function realizarLogin() {
+      const email = document.getElementById('login-email').value.trim();
+      const senha = document.getElementById('login-senha').value.trim();
+
+      if (!email || !senha) {
+        return alert("Preencha e-mail e senha.");
+      }
+
+      auth.signInWithEmailAndPassword(email, senha)
+        .then((cred) => {
+          buscarDadosMotoboy(cred.user.uid);
+        })
+        .catch((err) => {
+          alert("Erro no acesso: Verifique e-mail e senha digitados.");
+        });
+    }
+
+    function buscarDadosMotoboy(uid) {
+      db.ref('motoboys/' + uid).once('value').then((snap) => {
+        if (snap.exists()) {
+          motoboyLogado = snap.val();
+          motoboyLogado.idFB = uid;
+          carregarPainel();
+        } else {
+          // Fallback caso a chave seja push ID
+          db.ref('motoboys').orderByChild('uid').equalTo(uid).once('value').then((subSnap) => {
+            if (subSnap.exists()) {
+              subSnap.forEach((c) => {
+                motoboyLogado = c.val();
+                motoboyLogado.idFB = c.key;
+              });
+              carregarPainel();
+            } else {
+              alert("Cadastro do motoboy não localizado no banco de dados.");
+              sairConta();
+            }
+          });
+        }
+      });
+    }
+
+    function carregarPainel() {
+      document.getElementById('box-login').classList.add('hidden');
+      document.getElementById('box-cadastro').classList.add('hidden');
+      document.getElementById('tela-painel').classList.remove('hidden');
+      document.getElementById('header-user-status').classList.remove('hidden');
+
+      document.getElementById('mb-nome-display').innerText = motoboyLogado.nome;
+      document.getElementById('mb-moto-display').innerText = motoboyLogado.modelo || 'Moto Cadastrada';
+
+      db.ref('motoboys/' + motoboyLogado.idFB + '/status').on('value', (snap) => {
+        const st = snap.val() || 'online';
+        const btn = document.getElementById('btn-status');
+        if (st === 'online') {
+          btn.className = "btn-status-toggle online";
+          document.getElementById('status-txt').innerText = "ONLINE";
+        } else {
+          btn.className = "btn-status-toggle offline";
+          document.getElementById('status-txt').innerText = "PAUSADO";
+        }
+      });
+
+      atualizarEntregasEMetricas();
+      setInterval(atualizarEntregasEMetricas, 5000);
+    }
+
+    function alternarDisponibilidade() {
+      if (!motoboyLogado || !db) return;
+      const atual = document.getElementById('status-txt').innerText;
+      const novo = atual === 'ONLINE' ? 'offline' : 'online';
+      db.ref('motoboys/' + motoboyLogado.idFB).update({ status: novo });
+    }
+
+    function atualizarEntregasEMetricas() {
+      if (!motoboyLogado || !db) return;
+      db.ref('ordens').once('value').then((snap) => {
+        const data = snap.val();
+        let ordens = [];
+        if (data) {
+          for (let k in data) {
+            let o = data[k];
+            o.idFB = k;
+            ordens.push(o);
+          }
+        }
+        processarOrdens(ordens);
+      });
+    }
+
+    function processarOrdens(todas) {
+      const minhas = todas.filter(r => r.motoboyNome === motoboyLogado.nome);
+      const pendentes = minhas.filter(r => !r.concluido && !r.motoboyAceitou && !r.motoboyRecusou);
+      const concluidas = minhas.filter(r => r.concluido);
+
+      // Renderiza chamados pendentes
+      const boxChamados = document.getElementById('box-chamados-dinamicos');
+      if (pendentes.length === 0) {
+        boxChamados.innerHTML = `<div class="empty-box">Aguardando novos chamados da Central R1...</div>`;
+      } else {
+        boxChamados.innerHTML = pendentes.map(r => `
+          <div class="card-oferta">
+            <div style="font-size:0.95rem; font-weight:900; margin-bottom:6px;">🚨 NOVO CHAMADO DISPONÍVEL!</div>
+            <div style="background:rgba(0,230,118,0.1); padding:10px; border-radius:10px; margin:10px 0; text-align:center;">
+              <div style="font-size:0.65rem; color:var(--text-muted);">Repasse Final</div>
+              <div style="font-size:1.8rem; font-weight:900; color:var(--green);">R$ ${(r.val || 0).toFixed(2)}</div>
+            </div>
+            <div class="tl-box">
+              <div class="tl-row"><div class="tl-bullet" style="background:var(--primary);"></div><div style="font-size:0.85rem;">Coleta: ${r.orig || '---'}</div></div>
+              <div class="tl-row"><div class="tl-bullet" style="background:var(--green);"></div><div style="font-size:0.85rem;">Entrega: ${r.dest || '---'}</div></div>
+            </div>
+            <button class="btn-aceitar" onclick="aceitarChamado('${r.idFB}')"><i class="fa-solid fa-check"></i> ACEITAR CHAMADO</button>
+          </div>
+        `).join('');
+      }
+
+      // Atualiza Métricas de Hoje
+      const inicioHoje = new Date().setHours(0,0,0,0);
+      const concluidasHoje = concluidas.filter(r => (r.timestamp || 0) >= inicioHoje);
+      const totalHoje = concluidasHoje.reduce((acc, r) => acc + (r.val || 0), 0);
+
+      document.getElementById('mb-faturamento-total').innerText = `R$ ${totalHoje.toFixed(2)}`;
+      document.getElementById('mb-entregas-qtd').innerText = concluidasHoje.length;
+      document.getElementById('lbl-total-historico-corridas').innerText = `${concluidas.length} finalizadas`;
+
+      // Renderiza Histórico
+      const filtro = document.getElementById('mb-filtro-periodo').value;
+      let lista = filtro === 'hoje' ? concluidasHoje : concluidas;
+      const histEl = document.getElementById('lista-historico-motoboy');
+      
+      if (lista.length === 0) {
+        histEl.innerHTML = `<div class="empty-box">Nenhuma corrida finalizada no período.</div>`;
+      } else {
+        histEl.innerHTML = lista.map(r => `
+          <div class="card-historico">
+            <div class="hist-header">
+              <span class="hist-os">OS #${r.numOS || '---'}</span>
+              <span class="hist-data">${r.dtStr || ''}</span>
+            </div>
+            <div class="hist-body">
+              <div><span style="font-size:0.85rem; font-weight:700;">${r.cli || 'Entrega'}</span></div>
+              <div class="hist-val">R$ ${(r.val || 0).toFixed(2)}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function aceitarChamado(idFB) {
+      if (!db || !idFB) return;
+      db.ref('ordens/' + idFB).update({ motoboyAceitou: true, status: 'a_caminho' }).then(() => {
+        alert("Chamado aceito com sucesso!");
+        atualizarEntregasEMetricas();
+      });
+    }
+
+    function sairConta() {
+      if (auth) auth.signOut();
+      location.reload();
+    }
+  </script>
+</body>
+</html>
