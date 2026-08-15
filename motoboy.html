@@ -144,7 +144,7 @@
         <input type="text" id="cad-moto" class="input-control" placeholder="Ex: FZ25 Vermelha">
       </div>
 
-      <button type="button" class="btn-main" style="background:var(--green); color:#000;" onclick="salvarNovoEntregador()"><i class="fa-solid fa-check"></i> Salvar e Entrar</button>
+      <button type="button" class="btn-main" id="btn-salvar-entregador" style="background:var(--green); color:#000;" onclick="salvarNovoEntregador()"><i class="fa-solid fa-check"></i> Salvar e Entrar</button>
       
       <div class="toggle-auth-mode" onclick="alternarTela('login')">
         Voltar para a lista de acesso
@@ -209,7 +209,7 @@
       storageBucket: "r1oservico-hub.firebasestorage.app",
       messagingSenderId: "1080136865646",
       appId: "1:1080136865646:web:568dbfc6971054d08137f",
-      databaseURL: "https://r1oservico-hub.firebaseio.com"
+      databaseURL: "https://r1oservico-hub-default-rtdb.firebaseio.com"
     };
 
     let db = null;
@@ -230,7 +230,6 @@
 
     function tocarBiBiSonoro() {
       iniciarContextoAudio();
-      
       const audio = new Audio('./alerta.mp3');
       audio.play().catch(() => {
         try {
@@ -275,34 +274,39 @@
     }
 
     window.onload = function() {
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      db = firebase.database();
-
-      // Monitora entregadores cadastrados na Central
-      db.ref('motoboys').on('value', (snap) => {
-        const data = snap.val();
-        listaMotoboysCache = [];
-        const select = document.getElementById('select-motoboys-cadastrados');
-        select.innerHTML = '<option value="">-- Selecione seu nome --</option>';
-
-        if (data) {
-          for (let key in data) {
-            let mb = data[key];
-            mb.idFB = key;
-            listaMotoboysCache.push(mb);
-            let opt = document.createElement('option');
-            opt.value = key;
-            opt.innerText = `${mb.nome} (${mb.modelo || 'Moto'})`;
-            select.appendChild(opt);
-          }
-        } else {
-          select.innerHTML = '<option value="">Nenhum motoboy na central</option>';
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
         }
+        db = firebase.database();
 
+        db.ref('motoboys').on('value', (snap) => {
+          const data = snap.val();
+          listaMotoboysCache = [];
+          const select = document.getElementById('select-motoboys-cadastrados');
+          select.innerHTML = '<option value="">-- Selecione seu nome --</option>';
+
+          if (data) {
+            for (let key in data) {
+              let mb = data[key];
+              mb.idFB = key;
+              listaMotoboysCache.push(mb);
+              let opt = document.createElement('option');
+              opt.value = key;
+              opt.innerText = `${mb.nome} (${mb.modelo || 'Moto'})`;
+              select.appendChild(opt);
+            }
+          } else {
+            select.innerHTML = '<option value="">Nenhum motoboy na central</option>';
+          }
+
+          verificarSessaoAutomatica();
+        }, () => {
+          verificarSessaoAutomatica();
+        });
+      } catch(e) {
         verificarSessaoAutomatica();
-      });
+      }
     };
 
     function selecionarMotoboyDaLista() {
@@ -322,23 +326,32 @@
         return alert("Preencha ao menos Nome e WhatsApp.");
       }
 
-      const novoRef = db.ref('motoboys').push();
+      const tempId = 'mb_' + Date.now();
       const payload = {
+        idFB: tempId,
         nome: nome,
         whats: whats,
         modelo: moto || 'Moto Cadastrada',
         status: 'online',
-        timestamp: firebase.database.ServerValue.TIMESTAMP
+        timestamp: Date.now()
       };
 
-      novoRef.set(payload).then(() => {
-        payload.idFB = novoRef.key;
-        motoboyLogado = payload;
-        localStorage.setItem('r1_sessao_motoboy_id', novoRef.key);
-        carregarPainel();
-      }).catch((e) => {
-        alert("Erro ao salvar: " + e.message);
-      });
+      motoboyLogado = payload;
+      localStorage.setItem('r1_sessao_motoboy_id', tempId);
+      localStorage.setItem('r1_perfil_motoboy_local', JSON.stringify(payload));
+      
+      carregarPainel();
+
+      if (db) {
+        try {
+          const novoRef = db.ref('motoboys').push();
+          novoRef.set(payload).then(() => {
+            payload.idFB = novoRef.key;
+            motoboyLogado.idFB = novoRef.key;
+            localStorage.setItem('r1_sessao_motoboy_id', novoRef.key);
+          }).catch(() => {});
+        } catch(e) {}
+      }
     }
 
     function entrarComoMotoboy() {
@@ -357,7 +370,13 @@
         localStorage.setItem('r1_sessao_motoboy_id', encontrado.idFB);
         carregarPainel();
       } else {
-        alert("Entregador não encontrado. Selecione da lista ou faça um novo cadastro.");
+        const local = localStorage.getItem('r1_perfil_motoboy_local');
+        if (local) {
+          motoboyLogado = JSON.parse(local);
+          carregarPainel();
+        } else {
+          alert("Entregador não encontrado. Selecione da lista ou faça um novo cadastro.");
+        }
       }
     }
 
@@ -369,7 +388,16 @@
         if (achado) {
           motoboyLogado = achado;
           carregarPainel();
+          return;
         }
+      }
+
+      const perfilSalvo = localStorage.getItem('r1_perfil_motoboy_local');
+      if (perfilSalvo) {
+        try {
+          motoboyLogado = JSON.parse(perfilSalvo);
+          carregarPainel();
+        } catch(e) {}
       }
     }
 
@@ -382,39 +410,53 @@
       document.getElementById('mb-nome-display').innerText = motoboyLogado.nome;
       document.getElementById('mb-moto-display').innerText = motoboyLogado.modelo || 'Moto Cadastrada';
 
-      db.ref('motoboys/' + motoboyLogado.idFB + '/status').on('value', (snap) => {
-        const st = snap.val() || 'online';
-        const btn = document.getElementById('btn-status');
-        if (st === 'online') {
-          btn.className = "btn-status-toggle online";
-          document.getElementById('status-txt').innerText = "ONLINE";
-        } else {
-          btn.className = "btn-status-toggle offline";
-          document.getElementById('status-txt').innerText = "PAUSADO";
-          controlarAlarme(false);
-        }
-      });
-
-      // Escuta ordens da Central em tempo real
-      db.ref('ordens').on('value', (snap) => {
-        const data = snap.val();
-        listaOrdensCache = [];
-        if (data) {
-          for (let key in data) {
-            let o = data[key];
-            o.idFB = key;
-            listaOrdensCache.push(o);
+      if (db && motoboyLogado.idFB) {
+        db.ref('motoboys/' + motoboyLogado.idFB + '/status').on('value', (snap) => {
+          const st = snap.val() || 'online';
+          const btn = document.getElementById('btn-status');
+          if (st === 'online') {
+            btn.className = "btn-status-toggle online";
+            document.getElementById('status-txt').innerText = "ONLINE";
+          } else {
+            btn.className = "btn-status-toggle offline";
+            document.getElementById('status-txt').innerText = "PAUSADO";
+            controlarAlarme(false);
           }
-        }
-        renderizarPainelOrdens();
-      });
+        }, () => {});
+
+        db.ref('ordens').on('value', (snap) => {
+          const data = snap.val();
+          listaOrdensCache = [];
+          if (data) {
+            for (let key in data) {
+              let o = data[key];
+              o.idFB = key;
+              listaOrdensCache.push(o);
+            }
+          }
+          renderizarPainelOrdens();
+        }, () => {});
+      }
     }
 
     function alternarStatus() {
-      if (!motoboyLogado || !db) return;
+      if (!motoboyLogado) return;
       const atual = document.getElementById('status-txt').innerText;
       const novo = atual === 'ONLINE' ? 'offline' : 'online';
-      db.ref('motoboys/' + motoboyLogado.idFB).update({ status: novo });
+      
+      const btn = document.getElementById('btn-status');
+      if (novo === 'online') {
+        btn.className = "btn-status-toggle online";
+        document.getElementById('status-txt').innerText = "ONLINE";
+      } else {
+        btn.className = "btn-status-toggle offline";
+        document.getElementById('status-txt').innerText = "PAUSADO";
+        controlarAlarme(false);
+      }
+
+      if (db && motoboyLogado.idFB) {
+        db.ref('motoboys/' + motoboyLogado.idFB).update({ status: novo }).catch(() => {});
+      }
     }
 
     function renderizarPainelOrdens() {
@@ -502,6 +544,7 @@
     function sairConta() {
       controlarAlarme(false);
       localStorage.removeItem('r1_sessao_motoboy_id');
+      localStorage.removeItem('r1_perfil_motoboy_local');
       location.reload();
     }
   </script>
