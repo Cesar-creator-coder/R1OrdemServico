@@ -160,7 +160,7 @@
       <div id="box-chamados-dinamicos">
         <div class="empty-box card-corrida">
           <i class="fa-solid fa-hourglass-half" style="font-size:1.8rem; margin-bottom:8px; color:var(--text-muted);"></i>
-          <div>Aguardando novos chamados da Central...</div>
+          <div>Aguardando novos chamados da Central R1...</div>
         </div>
       </div>
 
@@ -176,7 +176,7 @@
     let motoboyLogado = null;
     let audioLoopInterval = null;
 
-    // PRIORIDADE: Tenta tocar alerta.mp3 hospedado no seu GitHub. Se falhar, usa o link direto ou sintetizador.
+    // ÁUDIO DO TOQUE R1 (Tenta arquivo local alerta.mp3 ou fallback)
     const audioChamadoR1 = new Audio('./alerta.mp3');
 
     window.onload = function() {
@@ -190,7 +190,6 @@
         let playPromise = audioChamadoR1.play();
         if (playPromise !== undefined) {
           playPromise.catch(e => {
-            // Se o arquivo .mp3 não existir no GitHub ainda, aciona o gerador sonoro nativo de alta potência
             tocarBeepNativo();
           });
         }
@@ -218,7 +217,8 @@
     function iniciarLoopAlarme() {
       if (!audioLoopInterval) {
         tocarAlarmeChamado();
-        audioLoopInterval = setInterval(tocarAlarmeChamado, 1800);
+        // INTERVALO AUMENTADO PARA 6.5 SEGUNDOS (Permite que o áudio toque inteiro até o fim)
+        audioLoopInterval = setInterval(tocarAlarmeChamado, 6500);
       }
     }
 
@@ -296,7 +296,12 @@
         btnStatus.className = novoStatus === 'online' ? "btn-status-toggle online" : "btn-status-toggle offline";
         document.getElementById('status-txt').innerText = novoStatus === 'online' ? "ONLINE" : "PAUSADO";
 
-        if (novoStatus === 'pausado') pararLoopAlarme();
+        if (novoStatus === 'online') {
+          // Toca o áudio por completo uma única vez para confirmação
+          tocarAlarmeChamado();
+        } else {
+          pararLoopAlarme();
+        }
       }
     }
 
