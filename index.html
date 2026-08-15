@@ -208,7 +208,7 @@
     .mb-photo-box img { width: 100%; height: 60px; object-fit: cover; border-radius: 6px; margin-top: 4px; }
 
     .bottom-dock { position: fixed; bottom: 0; left: 0; right: 0; height: 68px; background: #0D0F12; border-top: 1px solid var(--border-dark); border-radius: 20px 20px 0 0; display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: max(0px, env(safe-area-inset-bottom)); box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-    .dock-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--text-muted); font-size: 0.65rem; font-weight: 600; flex: 1; cursor: pointer; transition: color 0.2s; }
+    .dock-item { display: flex; direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--text-muted); font-size: 0.65rem; font-weight: 600; flex: 1; cursor: pointer; transition: color 0.2s; }
     .dock-item.active { color: var(--primary); font-weight: 700; }
     .dock-item i { font-size: 1.1rem; }
 
@@ -1804,7 +1804,7 @@
       let m = motoboysSalvos[motoboyAtualIdx];
       let empresa = configApp.empresaName || 'R1AMOBI LOGÍSTICA';
       const corridasDoMotoboy = registrosOS.filter(r => r.motoboyIdx == motoboyAtualIdx || r.motoboyNome === m.nome);
-      const totalRepasseMotoboy = corridasDoMotoboy.reduce((acc, r) => acc + (r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2);
+      const totalRepasseMotoboy = corridasDoMotoboy.reduce((acc, r) => acc + (r.repasseLiquido !== undefined ? r.repasseLiquido : r.val), 0);
 
       let listaTxt = corridasDoMotoboy.slice(0, 5).map(r => `• OS #${r.numOS} | ${r.cli} | Repasse Líquido: R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)} (${r.dtStr})`).join('\n');
 
@@ -2733,7 +2733,7 @@
           compHtml = `
             <div style="margin-top:16px; border-top:1px dashed #CCC; padding-top:12px; text-align:center;">
               <div class="rec-sec-title" style="margin-bottom:8px;"><i class="fa-solid fa-camera"></i> COMPROVANTE DE ENTREGA</div>
-              <img src="${osObj.comprovanteMedia}" style="max-width:100%; max-height:280px; border-radius:8px; border-rec:1px solid #EEE; object-fit:contain;">
+              <img src="${osObj.comprovanteMedia}" style="max-width:100%; max-height:280px; border-radius:8px; border:1px solid #EEE; object-fit:contain;">
             </div>
           `;
         } else {
