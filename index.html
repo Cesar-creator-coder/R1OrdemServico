@@ -208,7 +208,7 @@
     .mb-photo-box img { width: 100%; height: 60px; object-fit: cover; border-radius: 6px; margin-top: 4px; }
 
     .bottom-dock { position: fixed; bottom: 0; left: 0; right: 0; height: 68px; background: #0D0F12; border-top: 1px solid var(--border-dark); border-radius: 20px 20px 0 0; display: flex; justify-content: space-around; align-items: center; z-index: 9000; padding-bottom: max(0px, env(safe-area-inset-bottom)); box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-    .dock-item { display: flex; direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--text-muted); font-size: 0.65rem; font-weight: 600; flex: 1; cursor: pointer; transition: color 0.2s; }
+    .dock-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--text-muted); font-size: 0.65rem; font-weight: 600; flex: 1; cursor: pointer; transition: color 0.2s; }
     .dock-item.active { color: var(--primary); font-weight: 700; }
     .dock-item i { font-size: 1.1rem; }
 
@@ -1405,8 +1405,23 @@
     </div>
   </div>
 
-  <!-- SCRIPT ROBUSTO: COMPRESSÃO CANVAS + PERSISTÊNCIA NATIVA + BIOMETRIA REAL -->
+  <!-- FIREBASE SCRIPTS -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <!-- SCRIPT ROBUSTO: FIREBASE REALTIME + PERSISTÊNCIA COMPLETA -->
   <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzz7FIZgB3EQVCw8CD4HQVMTehU11fXfg",
+      authDomain: "r1oservico-hub.firebaseapp.com",
+      projectId: "r1oservico-hub",
+      storageBucket: "r1oservico-hub.firebasestorage.app",
+      messagingSenderId: "1080136865646",
+      appId: "1:1080136865646:web:568dbfc6971054d08137f",
+      databaseURL: "https://r1oservico-hub.firebaseio.com"
+    };
+
+    let db = null;
     let clientesSalvos = [];
     let motoboysSalvos = [];
     let registrosOS = [];
@@ -1444,7 +1459,6 @@
       cashbackPct: 5.00,
       tarifaKMInter: 2.00,
       mapboxToken: '',
-      
       aiStatus: 'desativado',
       geminiToken: '',
       aiPrompt: `Você é o Assistente Virtual Oficial da R1AMOBI Logística em Assis-SP.\nSua função é realizar cotações e tirar dúvidas no WhatsApp com tom prestativo e direto.`,
@@ -1540,13 +1554,73 @@
     }
 
     window.onload = function() {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      db = firebase.database();
+
       carregarDados();
+      inicializarSincronizacaoFirebase();
       aplicarConfiguracoes();
       resetarCamposCalculo();
       atualizarDadosTelaCarteiraGeral();
       atualizarMetricasDashboard();
       registrarServiceWorkerPWA();
     };
+
+    function inicializarSincronizacaoFirebase() {
+      if (!db) return;
+
+      // Sincroniza Motoboys em Tempo Real
+      db.ref('motoboys').on('value', (snap) => {
+        const data = snap.val();
+        if (data) {
+          let lista = [];
+          for (let k in data) {
+            let item = data[k];
+            item.idFB = k;
+            lista.push(item);
+          }
+          motoboysSalvos = lista;
+          atualizarSelectMotoboysOS();
+          atualizarListaMotoboysVisual();
+          atualizarMetricasDashboard();
+        }
+      });
+
+      // Sincroniza Clientes em Tempo Real
+      db.ref('clientes').on('value', (snap) => {
+        const data = snap.val();
+        if (data) {
+          let lista = [];
+          for (let k in data) {
+            let item = data[k];
+            item.idFB = k;
+            lista.push(item);
+          }
+          clientesSalvos = lista;
+          atualizarSelectClientes();
+          atualizarListaClientesVisual();
+          atualizarDadosTelaCarteiraGeral();
+        }
+      });
+
+      // Sincroniza Ordens de Serviço em Tempo Real
+      db.ref('ordens').on('value', (snap) => {
+        const data = snap.val();
+        if (data) {
+          let lista = [];
+          for (let k in data) {
+            let item = data[k];
+            item.idFB = k;
+            lista.push(item);
+          }
+          registrosOS = lista.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+          filtrarFinanceiroPorPeriodo();
+          atualizarMetricasDashboard();
+        }
+      });
+    }
 
     function registrarServiceWorkerPWA() {
       if ('serviceWorker' in navigator) {
@@ -1645,11 +1719,19 @@
         if (!tempMbCnh) objMotoboy.fotoCnh = mbExistente.fotoCnh;
 
         motoboysSalvos[editIndex] = objMotoboy;
+        if (mbExistente.idFB && db) {
+          db.ref('motoboys/' + mbExistente.idFB).update(objMotoboy);
+        }
         document.getElementById('mb-edit-index').value = "-1";
         document.getElementById('btn-salvar-mb-txt').innerHTML = `<i class="fa-solid fa-user-plus"></i> Salvar Motoboy Parceiro`;
         alert(`Entregador ${nome} atualizado!`);
       } else {
         motoboysSalvos.push(objMotoboy);
+        if (db) {
+          const newRef = db.ref('motoboys').push();
+          newRef.set(objMotoboy);
+          objMotoboy.idFB = newRef.key;
+        }
         alert(`Entregador ${nome} cadastrado na frota!`);
       }
 
@@ -1686,6 +1768,9 @@
       let m = motoboysSalvos[idx];
       if (!m) return;
       m.status = (m.status === 'online') ? 'pausado' : 'online';
+      if (m.idFB && db) {
+        db.ref('motoboys/' + m.idFB).update({ status: m.status });
+      }
       salvarTudo();
       atualizarSelectMotoboysOS();
       atualizarListaMotoboysVisual();
@@ -1694,6 +1779,10 @@
 
     function excluirMotoboy(idx) {
       if(confirm("Deseja remover este motoboy da frota?")) {
+        let m = motoboysSalvos[idx];
+        if (m && m.idFB && db) {
+          db.ref('motoboys/' + m.idFB).remove();
+        }
         motoboysSalvos.splice(idx, 1);
         salvarTudo();
         atualizarSelectMotoboysOS();
@@ -2374,11 +2463,20 @@
         objCliente.totalEntregasAcumuladas = cliExistente.totalEntregasAcumuladas || 0;
         objCliente.extratoCarteira = cliExistente.extratoCarteira || [];
         clientesSalvos[editIndex] = objCliente;
+
+        if (cliExistente.idFB && db) {
+          db.ref('clientes/' + cliExistente.idFB).update(objCliente);
+        }
         document.getElementById('cli-edit-index').value = "-1";
         document.getElementById('btn-salvar-cli-txt').innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Salvar Cliente`;
         alert(`Cliente ${nome} atualizado!`);
       } else {
         clientesSalvos.push(objCliente);
+        if (db) {
+          const newRef = db.ref('clientes').push();
+          newRef.set(objCliente);
+          objCliente.idFB = newRef.key;
+        }
         alert(`Cliente ${nome} cadastrado com sucesso!`);
       }
 
@@ -2413,6 +2511,10 @@
 
     function excluirCliente(idx) {
       if(confirm("Deseja excluir este cliente do cadastro permanente?")) {
+        let c = clientesSalvos[idx];
+        if (c && c.idFB && db) {
+          db.ref('clientes/' + c.idFB).remove();
+        }
         clientesSalvos.splice(idx, 1);
         salvarTudo();
         atualizarSelectClientes();
@@ -2561,6 +2663,14 @@
       };
 
       registrosOS.unshift(ordemServicoAtualObj);
+
+      // Grava Ordem em Tempo Real no Firebase para o App do Motoboy
+      if (db) {
+        const newRef = db.ref('ordens').push();
+        newRef.set(ordemServicoAtualObj);
+        ordemServicoAtualObj.idFB = newRef.key;
+      }
+
       salvarTudo();
 
       document.getElementById('rec-titulo-doc').innerText = "ORDEM DE SERVIÇO (OS)";
@@ -2576,7 +2686,7 @@
 
       tocarAlertaSonoro();
 
-      alert("Ordem de Serviço #" + numOS + " criada com sucesso (Em Rota)!");
+      alert("Ordem de Serviço #" + numOS + " criada com sucesso e sincronizada com a frota!");
     }
 
     function concluirEMitirReciboFinal() {
@@ -2590,6 +2700,10 @@
 
       ordemServicoAtualObj.concluido = true;
       const dtStr = new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+
+      if (ordemServicoAtualObj.idFB && db) {
+        db.ref('ordens/' + ordemServicoAtualObj.idFB).update({ concluido: true });
+      }
 
       if (ordemServicoAtualObj.cliIdx !== "" && ordemServicoAtualObj.cliIdx !== null && ordemServicoAtualObj.cliIdx !== undefined) {
         let clienteObj = clientesSalvos[parseInt(ordemServicoAtualObj.cliIdx)];
@@ -2640,15 +2754,17 @@
         </div>
       `;
 
-      osObj.paradasExtras.forEach((p, idx) => {
-        timelineHtml += `
-          <div class="tl-item">
-            <div class="tl-dot yellow"></div>
-            <div class="rec-sec-title">PARADA INTERMEDIÁRIA ${idx + 1}</div>
-            <div class="rec-text">${p}</div>
-          </div>
-        `;
-      });
+      if (osObj.paradasExtras) {
+        osObj.paradasExtras.forEach((p, idx) => {
+          timelineHtml += `
+            <div class="tl-item">
+              <div class="tl-dot yellow"></div>
+              <div class="rec-sec-title">PARADA INTERMEDIÁRIA ${idx + 1}</div>
+              <div class="rec-text">${p}</div>
+            </div>
+          `;
+        });
+      }
 
       timelineHtml += `
         <div class="tl-item">
@@ -2832,6 +2948,13 @@
         cli.extratoCarteira.unshift({ tipo: 'debito', desc: 'Ajuste Manual de Débito R$ (Admin)', val: valInput, dataHora: dtStr });
       }
 
+      if (cli.idFB && db) {
+        db.ref('clientes/' + cli.idFB).update({
+          saldoCarteira: cli.saldoCarteira,
+          extratoCarteira: cli.extratoCarteira
+        });
+      }
+
       salvarTudo();
       document.getElementById('cart-cli-saldo').innerText = `Saldo Carteira: R$ ${cli.saldoCarteira.toFixed(2)}`;
       document.getElementById('cart-ajuste-val').value = '';
@@ -2997,6 +3120,10 @@
 
     function excluirOS(idCorrida) {
       if(confirm("Deseja apagar esta corrida do histórico? (O cadastro permanente do cliente NÃO será afetado)")) {
+        let r = registrosOS.find(x => x.id === idCorrida);
+        if (r && r.idFB && db) {
+          db.ref('ordens/' + r.idFB).remove();
+        }
         registrosOS = registrosOS.filter(r => r.id !== idCorrida);
         salvarTudo();
         filtrarFinanceiroPorPeriodo();
@@ -3415,6 +3542,11 @@
     function zerarDadosComConfirmacao() {
       let r = prompt('ATENÇÃO: Digite ZERAR para apagar todos os clientes, motoboys e OS salvos:');
       if (r === 'ZERAR') {
+        if (db) {
+          db.ref('clientes').remove();
+          db.ref('motoboys').remove();
+          db.ref('ordens').remove();
+        }
         localStorage.removeItem('r1_clientes_data');
         localStorage.removeItem('r1_motoboys_data');
         localStorage.removeItem('r1_ordens_data');
