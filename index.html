@@ -1409,7 +1409,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
-  <!-- SCRIPT ROBUSTO: FIREBASE REALTIME + PERSISTÊNCIA COMPLETA -->
+  <!-- SCRIPT CENTRAL: FIREBASE REALTIME SYNCHRONIZED -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCzz7FIZgB3EQVCw8CD4HQVMTehU11fXfg",
@@ -1418,7 +1418,7 @@
       storageBucket: "r1oservico-hub.firebasestorage.app",
       messagingSenderId: "1080136865646",
       appId: "1:1080136865646:web:568dbfc6971054d08137f",
-      databaseURL: "https://r1oservico-hub.firebaseio.com"
+      databaseURL: "https://r1oservico-hub-default-rtdb.firebaseio.com"
     };
 
     let db = null;
@@ -1522,7 +1522,7 @@
         gain.connect(audioCtx.destination);
         osc.start();
         osc.stop(audioCtx.currentTime + 0.4);
-      } catch(e) { console.log("Áudio:", e); }
+      } catch(e) {}
     }
 
     function marcarTipoPonto(ponto, tipo) {
@@ -1554,10 +1554,12 @@
     }
 
     window.onload = function() {
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      db = firebase.database();
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        }
+        db = firebase.database();
+      } catch(e) {}
 
       carregarDados();
       inicializarSincronizacaoFirebase();
@@ -1571,7 +1573,6 @@
     function inicializarSincronizacaoFirebase() {
       if (!db) return;
 
-      // Sincroniza Motoboys em Tempo Real
       db.ref('motoboys').on('value', (snap) => {
         const data = snap.val();
         if (data) {
@@ -1588,7 +1589,6 @@
         }
       });
 
-      // Sincroniza Clientes em Tempo Real
       db.ref('clientes').on('value', (snap) => {
         const data = snap.val();
         if (data) {
@@ -1605,7 +1605,6 @@
         }
       });
 
-      // Sincroniza Ordens de Serviço em Tempo Real
       db.ref('ordens').on('value', (snap) => {
         const data = snap.val();
         if (data) {
@@ -1625,8 +1624,8 @@
     function registrarServiceWorkerPWA() {
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('Service Worker PWA Registrado!', reg))
-          .catch(err => console.log('Service Worker falhou:', err));
+          .then(reg => console.log('PWA Service Worker OK'))
+          .catch(() => {});
       }
     }
 
@@ -2014,7 +2013,7 @@
         filtrarFinanceiroPorPeriodo();
         atualizarDadosTelaCarteiraGeral();
         atualizarMetricasDashboard();
-      } catch (err) { console.log("Erro no carregamento:", err); }
+      } catch (err) {}
     }
 
     function salvarTudo() {
@@ -2027,7 +2026,7 @@
         if (configApp.welcomeBg) localStorage.setItem('r1_capa_fixa', configApp.welcomeBg);
         atualizarDadosTelaCarteiraGeral();
         atualizarMetricasDashboard();
-      } catch(e) { console.log("Erro ao salvar:", e); }
+      } catch(e) {}
     }
 
     function atualizarDadosTelaCarteiraGeral() {
@@ -2435,7 +2434,6 @@
           }
         }
       } catch (err) {
-        console.log("Mapbox Multi-Pontos:", err);
         calcularValorOS();
       }
     }
@@ -2664,7 +2662,6 @@
 
       registrosOS.unshift(ordemServicoAtualObj);
 
-      // Grava Ordem em Tempo Real no Firebase para o App do Motoboy
       if (db) {
         const newRef = db.ref('ordens').push();
         newRef.set(ordemServicoAtualObj);
@@ -3334,9 +3331,7 @@
             liberarPainelAdmin();
             return;
           }
-        } catch(e) {
-          console.log("Validação biométrica:", e);
-        }
+        } catch(e) {}
       }
 
       liberarPainelAdmin();
