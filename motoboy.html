@@ -176,32 +176,38 @@
     let motoboyLogado = null;
     let audioLoopInterval = null;
 
+    // ÁUDIO DO SEU GOOGLE DRIVE CONFIGURADO COM LINK DIRETO
+    const audioChamadoR1 = new Audio('https://docs.google.com/uc?export=download&id=1V1ZxZl9E0lG0Z0aYDtNS4CGCD8F0bGy7');
+
     window.onload = function() {
       verificarSessaoSalva();
-      // Checagem periódica a cada 3 segundos para capturar novos chamados
       setInterval(atualizarEntregasEMetricas, 3000);
     };
 
     function tocarAlarmeChamado() {
       try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime);
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.35);
+        audioChamadoR1.currentTime = 0;
+        audioChamadoR1.play().catch(e => {
+          // Fallback nativo caso o navegador requeira interação inicial
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(659.25, audioCtx.currentTime);
+          osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.35);
+        });
       } catch(e) { console.log("Áudio:", e); }
     }
 
     function iniciarLoopAlarme() {
       if (!audioLoopInterval) {
         tocarAlarmeChamado();
-        audioLoopInterval = setInterval(tocarAlarmeChamado, 1500);
+        audioLoopInterval = setInterval(tocarAlarmeChamado, 2000);
       }
     }
 
@@ -210,6 +216,10 @@
         clearInterval(audioLoopInterval);
         audioLoopInterval = null;
       }
+      try {
+        audioChamadoR1.pause();
+        audioChamadoR1.currentTime = 0;
+      } catch(e) {}
     }
 
     function verificarSessaoSalva() {
@@ -285,7 +295,6 @@
       const baseOrdens = JSON.parse(localStorage.getItem('r1_ordens_data') || '[]');
       const inicioHoje = new Date().setHours(0, 0, 0, 0);
 
-      // Filtra ordens vinculadas a este motoboy
       const minhasOrdens = baseOrdens.filter(r => 
         r.motoboyNome === motoboyLogado.nome || 
         (r.motoboyIdx !== "" && r.motoboyIdx !== null && r.motoboyIdx !== undefined && r.motoboyNome === motoboyLogado.nome)
@@ -295,14 +304,12 @@
       const corridaAtivaEmAndamento = minhasOrdens.find(r => !r.concluido && r.motoboyAceitou);
       const concluidasHoje = minhasOrdens.filter(r => r.concluido && (r.timestamp || 0) >= inicioHoje);
 
-      // Métricas
       const totalRepasse = concluidasHoje.reduce((acc, r) => acc + (r.repasseLiquido !== undefined ? r.repasseLiquido : r.val), 0);
       document.getElementById('mb-faturamento-total').innerText = `R$ ${totalRepasse.toFixed(2)}`;
       document.getElementById('mb-entregas-qtd').innerText = concluidasHoje.length;
 
       const boxContainer = document.getElementById('box-chamados-dinamicos');
 
-      // 1. SE HOUVER NOVO CHAMADO AGUARDANDO ACEITE (TOCA ALARME)
       if (corridaPendenteDecisao && (motoboyLogado.status || 'online') === 'online') {
         iniciarLoopAlarme();
         renderizarOfertaChamado(corridaPendenteDecisao);
@@ -311,13 +318,11 @@
         pararLoopAlarme();
       }
 
-      // 2. SE HOUVER CORRIDA EM ANDAMENTO JÁ ACEITA
       if (corridaAtivaEmAndamento) {
         renderizarCorridaEmAndamento(corridaAtivaEmAndamento);
         return;
       }
 
-      // 3. SEM CHAMADOS ATIVOS
       boxContainer.innerHTML = `
         <div class="empty-box card-corrida">
           <i class="fa-solid fa-hourglass-half" style="font-size:1.8rem; margin-bottom:8px; color:var(--text-muted);"></i>
@@ -325,7 +330,6 @@
         </div>
       `;
 
-      // Renderiza Histórico Recente
       const histEl = document.getElementById('lista-historico-motoboy');
       if (concluidasHoje.length === 0) {
         histEl.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.75rem; padding:12px;">Nenhuma entrega finalizada hoje.</div>`;
@@ -412,7 +416,7 @@
 
       if (item) {
         item.motoboyRecusou = true;
-        item.motoboyNome = ""; // Desvincula para outro motoboy ou volta para a central
+        item.motoboyNome = "";
         localStorage.setItem('r1_ordens_data', JSON.stringify(baseOrdens));
         atualizarEntregasEMetricas();
         alert("Chamado recusado. O pedido foi devolvido para a Central.");
