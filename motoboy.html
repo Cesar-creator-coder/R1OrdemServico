@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>R1 MOTOBOY - Central do Entregador</title>
 
-  <!-- PWA CONFIG -->
   <link rel="manifest" href="manifest-motoboy.json">
   <meta name="theme-color" content="#E30613">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,7 +13,6 @@
   <link rel="icon" type="image/png" href="./icon-motoboy.png">
   <link rel="apple-touch-icon" href="./icon-motoboy.png">
 
-  <!-- FontAwesome & Fontes -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
@@ -44,20 +42,15 @@
     .container { padding: 16px; max-width: 600px; margin: 0 auto; }
     .hidden { display: none !important; }
 
-    /* FORMULÁRIOS DE ACESSO E CADASTRO */
     .auth-box { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 24px; margin-top: 20px; text-align: center; }
     .input-group { margin: 12px 0; text-align: left; }
     .input-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: block; }
     .input-control { width: 100%; background: var(--bg-input); border: 1px solid var(--border-dark); border-radius: 12px; padding: 14px; color: #FFF; font-size: 0.95rem; outline: none; }
     .input-control:focus { border-color: var(--primary); }
-    
-    .password-wrapper { position: relative; width: 100%; }
-    .toggle-password { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer; font-size: 1.1rem; padding: 6px; }
 
     .btn-main { width: 100%; background: var(--primary); color: #FFF; border: none; padding: 16px; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; }
     .toggle-auth-mode { margin-top: 16px; font-size: 0.85rem; color: var(--text-muted); cursor: pointer; text-decoration: underline; }
 
-    /* PAINEL LOGADO */
     .status-panel { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
     .btn-status-toggle { padding: 10px 18px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem;}
     .btn-status-toggle.online { background: rgba(0, 230, 118, 0.15); border: 1px solid var(--green); color: var(--green); }
@@ -67,13 +60,9 @@
     .metric-card { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 14px; padding: 14px; text-align: center; }
     .metric-val { font-size: 1.3rem; font-weight: 900; margin-top: 4px; }
 
-    /* CARDS DE CHAMADOS */
-    .card-oferta { background: #161922; border: 2px solid var(--primary); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; animation: pulseAlert 1.5s infinite alternate; }
-    @keyframes pulseAlert { from { box-shadow: 0 0 10px rgba(227,6,19,0.3); } to { box-shadow: 0 0 25px rgba(227,6,19,0.8); } }
-    
+    .card-oferta { background: #161922; border: 2px solid var(--primary); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; box-shadow: 0 0 20px rgba(227,6,19,0.4); }
     .btn-aceitar { background: var(--green); color: #000; border: none; border-radius: 12px; padding: 16px; font-weight: 900; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem; }
 
-    /* HISTÓRICO */
     .filter-panel { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 14px; margin: 20px 0 12px 0; }
     .filter-select { width: 100%; background: var(--bg-input); border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; color: #FFF; font-size: 0.85rem; font-weight: 700; outline: none; margin-top: 6px; }
     .card-historico { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 12px; padding: 12px; margin-bottom: 8px; }
@@ -88,7 +77,7 @@
     .empty-box { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 30px 16px; border-radius: 12px; border: 1px solid var(--border-dark); }
   </style>
 </head>
-<body onclick="desbloquearAudio()">
+<body onclick="iniciarContextoAudio()">
 
   <header>
     <div class="brand">
@@ -107,37 +96,36 @@
 
   <div class="container">
 
-    <!-- 1. TELA DE LOGIN -->
+    <!-- 1. ACESSO RÁPIDO DO ENTREGADOR -->
     <div id="box-login" class="auth-box">
-      <div style="font-size:2.5rem; color:var(--primary); margin-bottom:12px;"><i class="fa-solid fa-lock"></i></div>
-      <h2 style="font-size:1.2rem; font-weight:900;">Acesso Seguro R1AMOBI</h2>
-      <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">Entre com seu e-mail e senha cadastrados.</p>
+      <div style="font-size:2.5rem; color:var(--primary); margin-bottom:12px;"><i class="fa-solid fa-motorcycle"></i></div>
+      <h2 style="font-size:1.2rem; font-weight:900;">Acesso R1AMOBI</h2>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">Selecione seu nome cadastrado ou digite seu WhatsApp.</p>
       
       <div class="input-group">
-        <label class="input-label">E-mail Cadastrado</label>
-        <input type="email" id="login-email" class="input-control" placeholder="seuemail@exemplo.com">
-      </div>
-      
-      <div class="input-group">
-        <label class="input-label">Senha</label>
-        <div class="password-wrapper">
-          <input type="password" id="login-senha" class="input-control" placeholder="******">
-          <i class="fa-solid fa-eye-slash toggle-password" onclick="alternarVisibilidadeSenha('login-senha', this)"></i>
-        </div>
+        <label class="input-label">Selecione seu Perfil</label>
+        <select id="select-motoboys-cadastrados" class="input-control" onchange="selecionarMotoboyDaLista()">
+          <option value="">Carregando entregadores da central...</option>
+        </select>
       </div>
 
-      <button type="button" class="btn-main" id="btn-entrar-acao" onclick="realizarLogin()"><i class="fa-solid fa-right-to-bracket"></i> Entrar no Painel</button>
+      <div class="input-group">
+        <label class="input-label">Ou digite seu WhatsApp</label>
+        <input type="tel" id="login-whats" class="input-control" placeholder="Ex: 18999998888">
+      </div>
+
+      <button type="button" class="btn-main" onclick="entrarComoMotoboy()"><i class="fa-solid fa-right-to-bracket"></i> Acessar Painel</button>
       
-      <div class="toggle-auth-mode" onclick="alternarTelaAuth('cadastro')">
-        Novo motoboy? Cadastre-se aqui
+      <div class="toggle-auth-mode" onclick="alternarTela('cadastro')">
+        Não está na lista? Cadastrar novo entregador
       </div>
     </div>
 
-    <!-- 2. TELA DE CADASTRO -->
+    <!-- 2. NOVO CADASTRO DIRETO NO BANCO -->
     <div id="box-cadastro" class="auth-box hidden">
       <div style="font-size:2.5rem; color:var(--green); margin-bottom:12px;"><i class="fa-solid fa-user-plus"></i></div>
-      <h2 style="font-size:1.2rem; font-weight:900;">Novo Cadastro de Motoboy</h2>
-      <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">Crie sua conta para receber chamados R1.</p>
+      <h2 style="font-size:1.2rem; font-weight:900;">Novo Cadastro de Entregador</h2>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">Os dados serão sincronizados diretamente com a Central R1.</p>
       
       <div class="input-group">
         <label class="input-label">Nome Completo</label>
@@ -151,30 +139,17 @@
 
       <div class="input-group">
         <label class="input-label">Modelo da Moto / Placa</label>
-        <input type="text" id="cad-moto" class="input-control" placeholder="Ex: FZ25 - ABC1D23">
+        <input type="text" id="cad-moto" class="input-control" placeholder="Ex: FZ25 Vermelha">
       </div>
 
-      <div class="input-group">
-        <label class="input-label">E-mail para Login</label>
-        <input type="email" id="cad-email" class="input-control" placeholder="seuemail@exemplo.com">
-      </div>
+      <button type="button" class="btn-main" style="background:var(--green); color:#000;" onclick="salvarNovoEntregador()"><i class="fa-solid fa-check"></i> Salvar e Entrar</button>
       
-      <div class="input-group">
-        <label class="input-label">Criar Senha (mínimo 6 dígitos)</label>
-        <div class="password-wrapper">
-          <input type="password" id="cad-senha" class="input-control" placeholder="******">
-          <i class="fa-solid fa-eye-slash toggle-password" onclick="alternarVisibilidadeSenha('cad-senha', this)"></i>
-        </div>
-      </div>
-
-      <button type="button" class="btn-main" id="btn-cadastrar-acao" style="background:var(--green); color:#000;" onclick="realizarCadastro()"><i class="fa-solid fa-check"></i> Concluir Cadastro</button>
-      
-      <div class="toggle-auth-mode" onclick="alternarTelaAuth('login')">
-        Já possui cadastro? Faça login
+      <div class="toggle-auth-mode" onclick="alternarTela('login')">
+        Voltar para a lista de acesso
       </div>
     </div>
 
-    <!-- 3. PAINEL PRINCIPAL (LOGADO) -->
+    <!-- 3. PAINEL PRINCIPAL DO ENTREGADOR -->
     <div id="tela-painel" class="hidden">
       
       <div class="status-panel">
@@ -182,7 +157,7 @@
           <div style="font-weight:800; font-size:0.95rem;" id="mb-nome-display">--</div>
           <div style="font-size:0.7rem; color:var(--text-muted);" id="mb-moto-display">--</div>
         </div>
-        <button class="btn-status-toggle online" id="btn-status" onclick="alternarDisponibilidade()">
+        <button class="btn-status-toggle online" id="btn-status" onclick="alternarStatus()">
           <i class="fa-solid fa-circle"></i> <span id="status-txt">ONLINE</span>
         </button>
       </div>
@@ -209,7 +184,7 @@
           <span><i class="fa-solid fa-file-invoice-dollar" style="color:var(--green);"></i> HISTÓRICO DE REPASSES</span>
           <span style="font-size:0.7rem; color:var(--text-muted);" id="lbl-total-historico-corridas">0 registradas</span>
         </div>
-        <select id="mb-filtro-periodo" class="filter-select" onchange="processarOrdensCache()">
+        <select id="mb-filtro-periodo" class="filter-select" onchange="renderizarPainelOrdens()">
           <option value="hoje">📅 Hoje (Faturamento do Dia)</option>
           <option value="todos">📂 Todo o Histórico</option>
         </select>
@@ -221,13 +196,10 @@
 
   </div>
 
-  <!-- FIREBASE SDKS -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
   <script>
-    // CONFIGURAÇÃO REALTIME SYNCHRONIZED
     const firebaseConfig = {
       apiKey: "AIzaSyCzz7FIZgB3EQVCw8CD4HQVMTehU11fXfg",
       authDomain: "r1oservico-hub.firebaseapp.com",
@@ -238,71 +210,55 @@
       databaseURL: "https://r1oservico-hub.firebaseio.com"
     };
 
-    let motoboyLogado = null;
     let db = null;
-    let auth = null; 
-    let audioContext = null;
-    let somInterval = null;
-    let cacheOrdens = [];
+    let motoboyLogado = null;
+    let listaMotoboysCache = [];
+    let listaOrdensCache = [];
+    let audioCtx = null;
+    let intervalSom = null;
 
-    // Desbloqueia Web Audio ao toque
-    function desbloquearAudio() {
-      if (!audioContext) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    function iniciarContextoAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
-      if (audioContext && audioContext.state === 'suspended') {
-        audioContext.resume();
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
       }
     }
 
-    // Alerta Sonoro R1
-    function dispararAlertaSonoro() {
-      desbloquearAudio();
+    function tocarBiBiSonoro() {
+      iniciarContextoAudio();
       try {
-        if (!audioContext) return;
-        const osc = audioContext.createOscillator();
-        const gain = audioContext.createGain();
+        if (!audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(800, audioContext.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.3);
-        gain.gain.setValueAtTime(0.6, audioContext.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        osc.frequency.setValueAtTime(850, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(450, audioCtx.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.7, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
         osc.connect(gain);
-        gain.connect(audioContext.destination);
+        gain.connect(audioCtx.destination);
         osc.start();
-        osc.stop(audioContext.currentTime + 0.3);
+        osc.stop(audioCtx.currentTime + 0.25);
       } catch(e) {}
     }
 
-    function iniciarLoopSom() {
-      if (!somInterval) {
-        dispararAlertaSonoro();
-        somInterval = setInterval(dispararAlertaSonoro, 3000);
-      }
-    }
-
-    function pararLoopSom() {
-      if (somInterval) {
-        clearInterval(somInterval);
-        somInterval = null;
-      }
-    }
-
-    function alternarVisibilidadeSenha(inputId, iconEl) {
-      const input = document.getElementById(inputId);
-      if (!input) return;
-      if (input.type === 'password') {
-        input.type = 'text';
-        iconEl.classList.remove('fa-eye-slash');
-        iconEl.classList.add('fa-eye');
+    function controlarAlarme(ativo) {
+      if (ativo) {
+        if (!intervalSom) {
+          tocarBiBiSonoro();
+          intervalSom = setInterval(tocarBiBiSonoro, 3000);
+        }
       } else {
-        input.type = 'password';
-        iconEl.classList.remove('fa-eye');
-        iconEl.classList.add('fa-eye-slash');
+        if (intervalSom) {
+          clearInterval(intervalSom);
+          intervalSom = null;
+        }
       }
     }
 
-    function alternarTelaAuth(tela) {
+    function alternarTela(tela) {
       if (tela === 'cadastro') {
         document.getElementById('box-login').classList.add('hidden');
         document.getElementById('box-cadastro').classList.remove('hidden');
@@ -313,147 +269,102 @@
     }
 
     window.onload = function() {
-      try {
-        if (!firebase.apps.length) {
-          firebase.initializeApp(firebaseConfig);
-        }
-        db = firebase.database();
-        auth = firebase.auth();
-        
-        auth.onAuthStateChanged((user) => {
-          if (user) {
-            buscarOuCriarDadosMotoboy(user);
-          }
-        });
-      } catch(e) {
-        console.error(e);
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
       }
+      db = firebase.database();
+
+      // Monitora entregadores cadastrados na Central
+      db.ref('motoboys').on('value', (snap) => {
+        const data = snap.val();
+        listaMotoboysCache = [];
+        const select = document.getElementById('select-motoboys-cadastrados');
+        select.innerHTML = '<option value="">-- Selecione seu nome --</option>';
+
+        if (data) {
+          for (let key in data) {
+            let mb = data[key];
+            mb.idFB = key;
+            listaMotoboysCache.push(mb);
+            let opt = document.createElement('option');
+            opt.value = key;
+            opt.innerText = `${mb.nome} (${mb.modelo || 'Moto'})`;
+            select.appendChild(opt);
+          }
+        } else {
+          select.innerHTML = '<option value="">Nenhum motoboy na central</option>';
+        }
+
+        verificarSessaoAutomatica();
+      });
     };
 
-    function realizarCadastro() {
+    function selecionarMotoboyDaLista() {
+      const id = document.getElementById('select-motoboys-cadastrados').value;
+      const mb = listaMotoboysCache.find(x => x.idFB === id);
+      if (mb && mb.whats) {
+        document.getElementById('login-whats').value = mb.whats;
+      }
+    }
+
+    function salvarNovoEntregador() {
       const nome = document.getElementById('cad-nome').value.trim();
       const whats = document.getElementById('cad-whats').value.trim();
       const moto = document.getElementById('cad-moto').value.trim();
-      const email = document.getElementById('cad-email').value.trim();
-      const senha = document.getElementById('cad-senha').value.trim();
-      const btn = document.getElementById('btn-cadastrar-acao');
 
-      if (!nome || !whats || !email || !senha) {
-        return alert("Por favor, preencha todos os campos obrigatórios.");
-      }
-      if (senha.length < 6) {
-        return alert("A senha deve ter no mínimo 6 dígitos.");
+      if (!nome || !whats) {
+        return alert("Preencha ao menos Nome e WhatsApp.");
       }
 
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cadastrando...';
+      const novoRef = db.ref('motoboys').push();
+      const payload = {
+        nome: nome,
+        whats: whats,
+        modelo: moto || 'Moto Cadastrada',
+        status: 'online',
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+      };
 
-      auth.createUserWithEmailAndPassword(email, senha)
-        .then((cred) => {
-          const uid = cred.user.uid;
-          const dados = {
-            uid: uid,
-            nome: nome,
-            whats: whats,
-            modelo: moto,
-            status: 'online',
-            email: email
-          };
-          localStorage.setItem('r1_dados_locais', JSON.stringify(dados));
-          
-          db.ref('motoboys/' + uid).set(dados).catch(() => {});
-          motoboyLogado = dados;
-          motoboyLogado.idFB = uid;
-          carregarPainel();
-        })
-        .catch((err) => {
-          btn.disabled = false;
-          btn.innerHTML = '<i class="fa-solid fa-check"></i> Concluir Cadastro';
-          if (err.code === 'auth/email-already-in-use') {
-            alert("Este e-mail já possui cadastro. Faça o login.");
-            alternarTelaAuth('login');
-            document.getElementById('login-email').value = email;
-          } else {
-            alert("Erro no cadastro: " + err.message);
-          }
-        });
-    }
-
-    function realizarLogin() {
-      const email = document.getElementById('login-email').value.trim();
-      const senha = document.getElementById('login-senha').value.trim();
-      const btn = document.getElementById('btn-entrar-acao');
-
-      if (!email || !senha) {
-        return alert("Preencha e-mail e senha.");
-      }
-
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Acessando...';
-
-      auth.signInWithEmailAndPassword(email, senha)
-        .then((cred) => {
-          buscarOuCriarDadosMotoboy(cred.user);
-        })
-        .catch((err) => {
-          btn.disabled = false;
-          btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Entrar no Painel';
-          alert("Erro no acesso: " + (err.message.includes('invalid-credential') ? "E-mail ou senha incorretos." : err.message));
-        });
-    }
-
-    function buscarOuCriarDadosMotoboy(user) {
-      const uid = user.uid;
-      let fallbackExecutado = false;
-
-      const timeoutId = setTimeout(() => {
-        if (!fallbackExecutado) {
-          fallbackExecutado = true;
-          usarPerfilFallback(user);
-        }
-      }, 2500);
-
-      db.ref('motoboys/' + uid).once('value').then((snap) => {
-        clearTimeout(timeoutId);
-        if (!fallbackExecutado) {
-          if (snap.exists()) {
-            motoboyLogado = snap.val();
-            motoboyLogado.idFB = uid;
-            carregarPainel();
-          } else {
-            usarPerfilFallback(user);
-          }
-        }
-      }).catch(() => {
-        clearTimeout(timeoutId);
-        if (!fallbackExecutado) {
-          usarPerfilFallback(user);
-        }
+      novoRef.set(payload).then(() => {
+        payload.idFB = novoRef.key;
+        motoboyLogado = payload;
+        localStorage.setItem('r1_sessao_motoboy_id', novoRef.key);
+        carregarPainel();
+      }).catch((e) => {
+        alert("Erro ao salvar: " + e.message);
       });
     }
 
-    function usarPerfilFallback(user) {
-      let salvo = localStorage.getItem('r1_dados_locais');
-      if (salvo) {
-        try {
-          motoboyLogado = JSON.parse(salvo);
-          motoboyLogado.idFB = user.uid;
-        } catch(e) {}
+    function entrarComoMotoboy() {
+      const idSelecionado = document.getElementById('select-motoboys-cadastrados').value;
+      const whatsDigitado = document.getElementById('login-whats').value.trim().replace(/\D/g, '');
+
+      let encontrado = null;
+      if (idSelecionado) {
+        encontrado = listaMotoboysCache.find(x => x.idFB === idSelecionado);
+      } else if (whatsDigitado) {
+        encontrado = listaMotoboysCache.find(x => (x.whats || '').replace(/\D/g, '') === whatsDigitado);
       }
-      
-      if (!motoboyLogado) {
-        const nomeFormatado = user.email.split('@')[0].toUpperCase();
-        motoboyLogado = {
-          uid: user.uid,
-          idFB: user.uid,
-          nome: nomeFormatado,
-          modelo: 'Moto R1AMOBI',
-          status: 'online',
-          email: user.email
-        };
-        db.ref('motoboys/' + user.uid).set(motoboyLogado).catch(() => {});
+
+      if (encontrado) {
+        motoboyLogado = encontrado;
+        localStorage.setItem('r1_sessao_motoboy_id', encontrado.idFB);
+        carregarPainel();
+      } else {
+        alert("Entregador não encontrado. Selecione da lista ou faça um novo cadastro.");
       }
-      carregarPainel();
+    }
+
+    function verificarSessaoAutomatica() {
+      if (motoboyLogado) return;
+      const salvoId = localStorage.getItem('r1_sessao_motoboy_id');
+      if (salvoId && listaMotoboysCache.length > 0) {
+        const achado = listaMotoboysCache.find(x => x.idFB === salvoId);
+        if (achado) {
+          motoboyLogado = achado;
+          carregarPainel();
+        }
+      }
     }
 
     function carregarPainel() {
@@ -462,10 +373,9 @@
       document.getElementById('tela-painel').classList.remove('hidden');
       document.getElementById('header-user-status').classList.remove('hidden');
 
-      document.getElementById('mb-nome-display').innerText = motoboyLogado.nome || 'Entregador R1';
+      document.getElementById('mb-nome-display').innerText = motoboyLogado.nome;
       document.getElementById('mb-moto-display').innerText = motoboyLogado.modelo || 'Moto Cadastrada';
 
-      // Sincronização em tempo real de status
       db.ref('motoboys/' + motoboyLogado.idFB + '/status').on('value', (snap) => {
         const st = snap.val() || 'online';
         const btn = document.getElementById('btn-status');
@@ -475,60 +385,59 @@
         } else {
           btn.className = "btn-status-toggle offline";
           document.getElementById('status-txt').innerText = "PAUSADO";
-          pararLoopSom();
+          controlarAlarme(false);
         }
       });
 
-      // Listener Ativo em Tempo Real para Novas Ordens
+      // Escuta ordens da Central em tempo real
       db.ref('ordens').on('value', (snap) => {
         const data = snap.val();
-        cacheOrdens = [];
+        listaOrdensCache = [];
         if (data) {
-          for (let k in data) {
-            let o = data[k];
-            o.idFB = k;
-            cacheOrdens.push(o);
+          for (let key in data) {
+            let o = data[key];
+            o.idFB = key;
+            listaOrdensCache.push(o);
           }
         }
-        processarOrdensCache();
+        renderizarPainelOrdens();
       });
     }
 
-    function alternarDisponibilidade() {
+    function alternarStatus() {
       if (!motoboyLogado || !db) return;
       const atual = document.getElementById('status-txt').innerText;
       const novo = atual === 'ONLINE' ? 'offline' : 'online';
       db.ref('motoboys/' + motoboyLogado.idFB).update({ status: novo });
     }
 
-    function processarOrdensCache() {
+    function renderizarPainelOrdens() {
       if (!motoboyLogado) return;
-      
+
       const meuNomeNorm = (motoboyLogado.nome || '').trim().toLowerCase();
 
-      // Compatibilidade: Corrida para este motoboy ou geral da fila
-      const minhas = cacheOrdens.filter(r => {
-        const ordemMotoboyNorm = (r.motoboyNome || r.motoboy || '').trim().toLowerCase();
-        return ordemMotoboyNorm === meuNomeNorm || ordemMotoboyNorm === 'todos' || ordemMotoboyNorm === '';
+      // Identifica chamados do motoboy ou gerais
+      const minhasOrdens = listaOrdensCache.filter(r => {
+        const nomeDest = (r.motoboyNome || r.motoboy || '').trim().toLowerCase();
+        return nomeDest === meuNomeNorm || nomeDest === 'todos' || nomeDest === '';
       });
 
-      const pendentes = minhas.filter(r => !r.concluido && !r.motoboyAceitou && !r.motoboyRecusou);
-      const concluidas = minhas.filter(r => r.concluido);
+      const pendentes = minhasOrdens.filter(r => !r.concluido && !r.motoboyAceitou && !r.motoboyRecusou);
+      const concluidas = minhasOrdens.filter(r => r.concluido);
 
-      // Gestão de Áudio
       const isOnline = document.getElementById('status-txt').innerText === 'ONLINE';
       if (pendentes.length > 0 && isOnline) {
-        iniciarLoopSom();
+        controlarAlarme(true);
       } else {
-        pararLoopSom();
+        controlarAlarme(false);
       }
 
-      // Renderiza Chamados
-      const boxChamados = document.getElementById('box-chamados-dinamicos');
+      // Box de Chamados
+      const box = document.getElementById('box-chamados-dinamicos');
       if (pendentes.length === 0) {
-        boxChamados.innerHTML = `<div class="empty-box">Aguardando novos chamados da Central R1...</div>`;
+        box.innerHTML = `<div class="empty-box">Aguardando novos chamados da Central R1...</div>`;
       } else {
-        boxChamados.innerHTML = pendentes.map(r => `
+        box.innerHTML = pendentes.map(r => `
           <div class="card-oferta">
             <div style="font-size:0.95rem; font-weight:900; margin-bottom:6px;">🚨 NOVO CHAMADO DISPONÍVEL!</div>
             <div style="background:rgba(0,230,118,0.1); padding:10px; border-radius:10px; margin:10px 0; text-align:center;">
@@ -544,7 +453,7 @@
         `).join('');
       }
 
-      // Métricas de Hoje
+      // Métricas e Histórico
       const inicioHoje = new Date().setHours(0,0,0,0);
       const concluidasHoje = concluidas.filter(r => (r.timestamp || 0) >= inicioHoje);
       const totalHoje = concluidasHoje.reduce((acc, r) => acc + parseFloat(r.val || r.valor || 0), 0);
@@ -553,15 +462,14 @@
       document.getElementById('mb-entregas-qtd').innerText = concluidasHoje.length;
       document.getElementById('lbl-total-historico-corridas').innerText = `${concluidas.length} finalizadas`;
 
-      // Histórico
       const filtro = document.getElementById('mb-filtro-periodo').value;
-      let lista = filtro === 'hoje' ? concluidasHoje : concluidas;
+      const listaExibir = filtro === 'hoje' ? concluidasHoje : concluidas;
       const histEl = document.getElementById('lista-historico-motoboy');
-      
-      if (lista.length === 0) {
+
+      if (listaExibir.length === 0) {
         histEl.innerHTML = `<div class="empty-box">Nenhuma corrida finalizada no período.</div>`;
       } else {
-        histEl.innerHTML = lista.map(r => `
+        histEl.innerHTML = listaExibir.map(r => `
           <div class="card-historico">
             <div class="hist-header">
               <span class="hist-os">OS #${r.numOS || '---'}</span>
@@ -578,7 +486,7 @@
 
     function aceitarChamado(idFB) {
       if (!db || !idFB) return;
-      pararLoopSom();
+      controlarAlarme(false);
       db.ref('ordens/' + idFB).update({
         motoboyAceitou: true,
         motoboyNome: motoboyLogado.nome,
@@ -589,9 +497,8 @@
     }
 
     function sairConta() {
-      pararLoopSom();
-      if (auth) auth.signOut();
-      localStorage.removeItem('r1_dados_locais');
+      controlarAlarme(false);
+      localStorage.removeItem('r1_sessao_motoboy_id');
       location.reload();
     }
   </script>
