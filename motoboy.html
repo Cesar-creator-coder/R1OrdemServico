@@ -1,29 +1,130 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <!-- ... (Tags PWA e Ícones mantidas iguais) ... -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>R1 MOTOBOY - Central do Entregador</title>
+
+  <!-- ======================================================= -->
+  <!-- CONFIGURAÇÕES DE APLICATIVO INSTALÁVEL (PWA)           -->
+  <!-- ======================================================= -->
+  <link rel="manifest" href="manifest-motoboy.json">
+  <meta name="theme-color" content="#E30613">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="R1 Motoboy">
+  <link rel="icon" type="image/png" href="./icon-motoboy.png">
+  <link rel="apple-touch-icon" href="./icon-motoboy.png">
+  <!-- ======================================================= -->
+
+  <!-- FontAwesome & Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
   <style>
-    /* ... (Estilos PWA mantidos iguais) ... */
-    /* NOVOS ESTILOS PARA TELA DE LOGIN SEGURO */
-    .login-box { /* ... (Manter estilo anterior) ... */ }
-    .input-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: block; text-align: left;}
+    :root {
+      --primary: #E30613;
+      --bg-main: #090A0C;
+      --bg-card: #121418;
+      --bg-input: #0A0B0E;
+      --text-main: #FFFFFF;
+      --text-muted: #A0A0A0;
+      --border-dark: #222630;
+      --radius: 16px;
+      --green: #00E676;
+      --orange: #FF9800;
+      --red: #FF5252;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; padding-bottom: 50px; }
+
+    header { background: var(--bg-main); border-bottom: 1px solid var(--border-dark); padding: 14px 16px; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-logo-box { width: 34px; height: 34px; border-radius: 8px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; }
+
+    .container { padding: 16px; max-width: 600px; margin: 0 auto; }
+    .hidden { display: none !important; }
+
+    /* TELA DE LOGIN SEGURO (E-MAIL E SENHA) */
+    .login-box { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 24px; margin-top: 30px; text-align: center; }
+    .input-group { margin: 16px 0; text-align: left; }
+    .input-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: block; }
+    .input-control { width: 100%; background: var(--bg-input); border: 1px solid var(--border-dark); border-radius: 12px; padding: 14px; color: #FFF; font-size: 0.95rem; outline: none; }
+    .input-control:focus { border-color: var(--primary); }
+    .btn-login { width: 100%; background: var(--primary); color: #FFF; border: none; padding: 16px; border-radius: 12px; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+    /* PAINEL LOGADO */
+    .status-panel { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .btn-status-toggle { padding: 10px 18px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem;}
+    .btn-status-toggle.online { background: rgba(0, 230, 118, 0.15); border: 1px solid var(--green); color: var(--green); }
+    .btn-status-toggle.offline { background: rgba(255, 152, 0, 0.15); border: 1px solid var(--orange); color: var(--orange); }
+
+    .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .metric-card { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 14px; text-align: center; border-radius: 14px; }
+    .metric-val { font-size: 1.3rem; font-weight: 900; margin-top: 4px; }
+
+    /* CARDS DE CHAMADOS ATIVOS (SUPORTA FILA) */
+    .card-oferta { background: #161922; border: 2px solid var(--primary); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; box-shadow: 0 0 25px rgba(227, 6, 19, 0.35); animation: pulseBorder 1.5s infinite alternate; }
+    @keyframes pulseBorder { from { border-color: var(--primary); box-shadow: 0 0 15px rgba(227, 6, 19, 0.3); } to { border-color: var(--orange); box-shadow: 0 0 30px rgba(255, 152, 0, 0.5); } }
+
+    .btn-aceitar { background: var(--green); color: #000; border: none; border-radius: 12px; padding: 16px; font-weight: 900; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem; }
+    .btn-recusar { background: rgba(255, 82, 82, 0.15); border: 1px solid var(--red); color: var(--red); border-radius: 12px; padding: 14px; width: 100%; cursor: pointer; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 800; font-size: 0.9rem;}
+
+    /* HISTÓRICO COM AÇÕES DE EXCLUSÃO E EDIÇÃO */
+    .filter-panel { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 14px; margin: 20px 0 12px 0; }
+    .filter-select { width: 100%; background: var(--bg-input); border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; color: #FFF; font-size: 0.85rem; font-weight: 700; outline: none; margin-top: 6px; }
+
+    .card-historico { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 12px; padding: 12px; margin-bottom: 8px; position: relative; }
+    .hist-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid #1A1D24; padding-bottom: 6px; }
+    .hist-os { font-weight: 800; font-size: 0.85rem; }
+    .hist-data { font-size: 0.7rem; color: var(--text-muted); }
+    
+    .hist-body { display: flex; justify-content: space-between; align-items: center; }
+    .hist-cli { font-size: 0.82rem; font-weight: 600; }
+    .hist-val { color: var(--green); font-weight: 900; font-size: 1rem; }
+
+    .hist-actions { margin-top: 8px; border-top: 1px solid #1A1D24; padding-top: 8px; display: flex; justify-content: flex-end; gap: 8px; }
+    .btn-action { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+    .btn-action.btn-edit:hover { border-color: var(--orange); color: var(--orange); }
+    .btn-action.btn-delete:hover { border-color: var(--red); color: var(--red); }
+
+    .edit-form { margin-top: 8px; background: var(--bg-input); border-radius: 10px; padding: 10px; border: 1px solid var(--border-dark); }
+    .edit-form-input { width: 100%; background: #000; border: 1px solid #222; border-radius: 8px; padding: 8px; color: #FFF; margin-bottom: 6px; font-size: 0.85rem; }
+    .edit-form-btns { display: flex; gap: 6px; }
+    .btn-edit-save { background: var(--green); color: #000; border: none; padding: 8px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; flex: 1; cursor: pointer; }
+    .btn-edit-cancel { background: rgba(255,255,255,0.05); color: #FFF; border: 1px solid var(--border-dark); padding: 8px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; flex: 1; cursor: pointer; }
+
+    .tl-box { position: relative; padding-left: 20px; margin: 14px 0; }
+    .tl-row { position: relative; margin-bottom: 10px; }
+    .tl-bullet { position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--border-dark); }
+    .empty-box { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 30px 16px; border-radius: 12px; border: 1px solid var(--border-dark); }
+
   </style>
 </head>
 <body>
 
-  <!-- ... (Header mantido igual) ... -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo-box">R1</div>
+      <div><span style="font-weight:900; font-size:1.1rem; color:var(--primary); font-style:italic;">R1 <span style="color:#FFF;">MOTOBOY</span></span><span style="font-size:0.6rem; color:var(--text-muted); display:block; margin-top:-4px;">CENTRAL DO ENTREGADOR</span></div>
+    </div>
+    <div id="header-user-status" class="hidden">
+      <button onclick="sairConta()" style="background:transparent; border:1px solid var(--border-dark); color:var(--text-muted); padding:6px 12px; border-radius:8px; font-size:0.7rem; cursor:pointer;">Sair <i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+  </header>
 
   <div class="container">
 
-    <!-- TELA 1: LOGIN SEGURO (ATUALIZADA) -->
+    <!-- TELA 1: LOGIN SEGURO (E-MAIL E SENHA) -->
     <div id="tela-login" class="login-box">
       <div style="font-size:2.5rem; color:var(--primary); margin-bottom:12px;"><i class="fa-solid fa-lock"></i></div>
       <h2 style="font-size:1.2rem; font-weight:900;">Acesso Seguro R1AMOBI</h2>
-      <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">Informe seu E-mail e Senha pessoal.</p>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">Informe seu E-mail e Senha pessoal cadastrados.</p>
       
       <div class="input-group">
         <label class="input-label">Seu E-mail Cadastrado</label>
-        <input type="email" id="login-email" class="input-control" placeholder="ex: joo@r1.com">
+        <input type="email" id="login-email" class="input-control" placeholder="ex: joao@r1.com">
       </div>
       
       <div class="input-group" style="margin-top: 10px;">
@@ -34,61 +135,170 @@
       <button type="button" class="btn-login" style="margin-top: 15px;" onclick="realizarLoginSeguro()"><i class="fa-solid fa-right-to-bracket"></i> Entrar no Painel</button>
     </div>
 
-    <!-- ... (TELA 2: PAINEL mantido igual) ... -->
+    <!-- TELA 2: PAINEL DO ENTREGADOR (LOGADO) -->
+    <div id="tela-painel" class="hidden">
+      
+      <!-- STATUS -->
+      <div class="status-panel">
+        <div>
+          <div style="font-weight:800; font-size:0.95rem;" id="mb-nome-display">--</div>
+          <div style="font-size:0.7rem; color:var(--text-muted);" id="mb-moto-display">--</div>
+        </div>
+        <button class="btn-status-toggle online" id="btn-status" onclick="alternarDisponibilidade()">
+          <i class="fa-solid fa-circle"></i> <span id="status-txt">ONLINE</span>
+        </button>
+      </div>
+
+      <!-- MÉTRICAS -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Repasse Hoje</div>
+          <div class="metric-val" style="color:var(--green);" id="mb-faturamento-total">R$ 0,00</div>
+        </div>
+        <div class="metric-card">
+          <div style="font-size:0.7rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Corridas Hoje</div>
+          <div class="metric-val" id="mb-entregas-qtd">0</div>
+        </div>
+      </div>
+
+      <!-- ÁREA DINÂMICA DE CHAMADOS ATIVOS (SUPORTA FILA) -->
+      <div style="font-size:0.85rem; font-weight:800; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+        <span>CHAMADOS & CORRIDAS ATIVAS</span>
+        <i class="fa-solid fa-bell" style="color:var(--orange);"></i>
+      </div>
+      <div id="box-chamados-dinamicos"></div>
+
+      <!-- HISTÓRICO COM EXTRATO E AÇÕES -->
+      <div class="filter-panel">
+        <div style="font-size:0.8rem; font-weight:800; display:flex; justify-content:space-between; align-items:center;">
+          <span><i class="fa-solid fa-file-invoice-dollar" style="color:var(--green);"></i> HISTÓRICO & EXTRATO DE REPASSES</span>
+          <span style="font-size:0.7rem; color:var(--text-muted);" id="lbl-total-historico-corridas">0 registradas</span>
+        </div>
+        <select id="mb-filtro-periodo" class="filter-select" onchange="atualizarEntregasEMetricas()">
+          <option value="hoje">📅 Hoje (Faturamento do Dia)</option>
+          <option value="todos">📂 Todo o Histórico (Baixar PDF Completo)</option>
+        </select>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
+          <button onclick="gerarPDFExtratoMotoboy()" style="background:transparent; border:1px solid var(--border-dark); color:#FFF; padding:10px; border-radius:10px; font-size:0.75rem; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+            <i class="fa-solid fa-file-pdf" style="color:var(--primary);"></i> Baixar PDF
+          </button>
+          <button onclick="enviarWhatsExtratoMotoboy()" style="background:#25D366; border:none; color:#000; padding:10px; border-radius:10px; font-size:0.75rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+            <i class="fa-brands fa-whatsapp"></i> Meu WhatsApp
+          </button>
+        </div>
+      </div>
+
+      <!-- LISTA DO HISTÓRICO RECENTE -->
+      <div id="lista-historico-motoboy"></div>
+
+    </div>
 
   </div>
 
-  <!-- SCRIPTS -->
-  <!-- ... (Firebase App Compat e Database Compat mantidos iguais) ... -->
-  <!-- NOVO SCRIPT PARA AUTHENTICATION -->
+  <!-- CORE SCRIPTS - FIREBASE & LÓGICA SONORA -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+  <!-- NOVO SCRIPT PARA AUTHENTICATION (SEGURO) -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="js/firebase-config.js"></script> 
 
   <script>
     let motoboyLogado = null;
     let db = null;
-    let auth = null; // Nova variável para Authentication
+    let auth = null; 
+    let audioLoopInterval = null;
+    let ordensNoHistorico = []; // Guarda as ordens processadas para PDF
+
+    // ÁUDIO DO TOQUE R1 (Tenta arquivo local alerta.mp3 ou fallback nativo)
+    const audioChamadoR1 = new Audio('./alerta.mp3');
 
     window.onload = function() {
+      // Inicializa Firebase Realtime Database e Authentication
       if (typeof firebaseConfig !== 'undefined') {
         firebase.initializeApp(firebaseConfig);
         db = firebase.database();
         auth = firebase.auth(); // Inicializa Auth
       } else {
-        console.error("Configuração do Firebase não encontrada.");
+        console.error("Configuração do Firebase (js/firebase-config.js) não encontrada.");
+        alert("Erro grave de configuração. Contate a Central R1AMOBI.");
       }
       verificarSessaoSalva();
-      // ... (Restante do onload mantido) ...
+      setInterval(atualizarEntregasEMetricas, 3000); // Atualiza dados a cada 3 seg
     };
 
-    // ... (Funções de sessão e login antigo removidas) ...
+    // LÓGICA SONORA ("R1 R1")
+    function tocarAlarmeChamado() {
+      try {
+        audioChamadoR1.currentTime = 0;
+        let playPromise = audioChamadoR1.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(e => { tocarBeepNativo(); }); // Fallback se navegador bloquear
+        }
+      } catch(e) { tocarBeepNativo(); }
+    }
+
+    function tocarBeepNativo() { // Beep simples se o MP3 falhar
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime); // Mi
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15); // Lá
+        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.35);
+      } catch(err) { console.log(err); }
+    }
+
+    function iniciarLoopAlarme() {
+      if (!audioLoopInterval) {
+        tocarAlarmeChamado();
+        audioLoopInterval = setInterval(tocarAlarmeChamado, 6500); // Repete a cada 6.5s
+      }
+    }
+
+    function pararLoopAlarme() {
+      if (audioLoopInterval) {
+        clearInterval(audioLoopInterval);
+        audioLoopInterval = null;
+      }
+      try {
+        audioChamadoR1.pause();
+        audioChamadoR1.currentTime = 0;
+      } catch(e) {}
+    }
+
+    // GESTÃO DE SESSÃO E LOGIN SEGURO (NOVO)
+    function verificarSessaoSalva() {
+      const sessaoEmail = localStorage.getItem('r1_sessao_motoboy_email');
+      if (sessaoEmail) {
+          // Se tem e-mail salvo, tenta reautenticar (Firebase Auth faz isso automático)
+          auth.onAuthStateChanged((user) => {
+              if (user && user.email === sessaoEmail) {
+                  buscarDadosMotoboyNoDB(user);
+              } else {
+                  sairConta(); // Sessão expirou ou e-mail não bate
+              }
+          });
+      }
+    }
 
     // NOVA FUNÇÃO DE LOGIN SEGURO COM E-MAIL E SENHA
     function realizarLoginSeguro() {
+        pararLoopAlarme(); // Garante som parado
         const email = document.getElementById('login-email').value;
         const senha = document.getElementById('login-senha').value;
 
-        if (!email || !senha) return alert("Preencha E-mail e Senha.");
+        if (!email || !senha) return alert("Preencha E-mail e Senha cadastrados.");
 
+        // Autentica no Firebase Auth
         auth.signInWithEmailAndPassword(email, senha)
             .then((userCredential) => {
-                // Login com sucesso no Firebase Auth
                 const user = userCredential.user;
-                
-                // Agora buscamos os dados dele no Realtime Database (para saber o nome, moto, etc.)
-                // Vamos usar o UID do Auth para buscar no DB (método mais seguro)
-                db.ref('motoboys').orderByChild('uid').equalTo(user.uid).once('value').then((snapshot) => {
-                    let mbDados = null;
-                    snapshot.forEach((child) => { mbDados = child.val(); mbDados.idFB = child.key; });
-                    
-                    if (mbDados) {
-                        loginSucesso(mbDados, user.email);
-                    } else {
-                        // Se não achar no DB, algo está errado no cadastro da Central
-                        alert("Erro grave: E-mail autenticado mas dados do motoboy não encontrados no banco. Contate a Central.");
-                        auth.signOut(); // Desloga
-                    }
-                });
+                buscarDadosMotoboyNoDB(user); // Busca o nome, moto, etc.
             })
             .catch((error) => {
                 // Erro de login (senha errada, e-mail não existe, etc.)
@@ -97,16 +307,290 @@
             });
     }
 
-    function loginSucesso(motoboy, email) {
-      motoboyLogado = motoboy;
-      localStorage.setItem('r1_sessao_motoboy_email', email); // Salva e-mail na sessão
-      // ... (Restauração da tela igual ao anterior) ...
+    // Busca os dados cadastrais (nome, placa) no DB usando o UID do Auth
+    function buscarDadosMotoboyNoDB(user) {
+        db.ref('motoboys').orderByChild('uid').equalTo(user.uid).once('value').then((snapshot) => {
+            let mbDados = null;
+            snapshot.forEach((child) => { mbDados = child.val(); mbDados.idFB = child.key; });
+            
+            if (mbDados) {
+                finalizarLogin(mbDados, user.email);
+            } else {
+                alert("Erro grave: E-mail autenticado mas dados cadastrais do motoboy não encontrados. Contate a Central.");
+                sairConta(); // Desloga
+            }
+        });
     }
 
-    // ... (Restante do código mantido igual: status, métricas, chamados, histórico com ações de apagar/editar) ...
+    function finalizarLogin(motoboy, email) {
+        motoboyLogado = motoboy;
+        localStorage.setItem('r1_sessao_motoboy_email', email); // Salva e-mail na sessão
+        carregarPainelLogado();
+    }
 
+    function carregarPainelLogado() {
+      document.getElementById('tela-login').classList.add('hidden');
+      document.getElementById('tela-painel').classList.remove('hidden');
+      document.getElementById('header-user-status').classList.remove('hidden');
+
+      document.getElementById('mb-nome-display').innerText = motoboyLogado.nome;
+      document.getElementById('mb-moto-display').innerText = `${motoboyLogado.modelo || 'Moto'} • ${motoboyLogado.placa || 'Sem Placa'}`;
+      
+      // Ouve o status em tempo real do Firebase (Central pode mudar)
+      db.ref('motoboys/' + motoboyLogado.idFB + '/status').on('value', (snap) => {
+          const status = snap.val() || 'online';
+          const btnStatus = document.getElementById('btn-status');
+          if(status === 'online'){
+              btnStatus.className = "btn-status-toggle online";
+              document.getElementById('status-txt').innerText = "ONLINE";
+          } else {
+              btnStatus.className = "btn-status-toggle offline";
+              document.getElementById('status-txt').innerText = "PAUSADO";
+          }
+      });
+      atualizarEntregasEMetricas();
+    }
+
+    function alternarDisponibilidade() {
+      if (!db || !motoboyLogado) return;
+      const snap = document.getElementById('status-txt').innerText;
+      const novoStatus = snap === 'ONLINE' ? 'offline' : 'online';
+      
+      // Atualiza no Firebase (Central e App ouvem)
+      db.ref('motoboys/' + motoboyLogado.idFB).update({ status: novoStatus }).then(() => {
+          if (novoStatus === 'offline') pararLoopAlarme();
+      });
+    }
+
+    // PROCESSAMENTO DE DADOS (DASHBOARD E CHAMADOS)
+    function atualizarEntregasEMetricas() {
+      if (!motoboyLogado || !db) return;
+      db.ref('ordens').once('value').then((snapshot) => {
+        const data = snapshot.val();
+        let baseOrdens = [];
+        if (data) { for (let key in data) { let ordem = data[key]; ordem.idFB = key; baseOrdens.push(ordem); } }
+        processarDadosDinamicos(baseOrdens);
+      });
+    }
+
+    function processarDadosDinamicos(baseOrdens) {
+      const minhasOrdens = baseOrdens.filter(r => r.motoboyNome === motoboyLogado.nome);
+      
+      // Separação Operacional
+      const pendentes = minhasOrdens.filter(r => !r.concluido && !r.motoboyAceitou && !r.motoboyRecusou);
+      const emAndamento = minhasOrdens.filter(r => !r.concluido && r.motoboyAceitou);
+      const concluidas = minhasOrdens.filter(r => r.concluido);
+
+      renderizarChamadosE rota(pendentes, emAndamento);
+
+      // Filtro e Renderização do Histórico
+      const filtro = document.getElementById('mb-filtro-periodo').value;
+      const inicioHojeMétrica = new Date().setHours(0,0,0,0);
+      
+      let ordensFiltradas = [];
+      if (filtro === 'hoje') {
+        ordensFiltradas = concluidas.filter(r => (r.timestamp || 0) >= inicioHojeMétrica);
+      } else { ordensFiltradas = [...concluidas]; }
+
+      ordensNoHistorico = ordensFiltradas.sort((a,b) => b.timestamp - a.timestamp); // Mais novas primeiro
+      
+      // Atualiza Métricas de Hoje
+      const concluidasHoje = concluidas.filter(r => (r.timestamp || 0) >= inicioHojeMétrica);
+      const faturadoHoje = concluidasHoje.reduce((acc, r) => acc + (r.val || 0), 0);
+      
+      document.getElementById('mb-faturamento-total').innerText = `R$ ${faturadoHoje.toFixed(2)}`;
+      document.getElementById('mb-entregas-qtd').innerText = concluidasHoje.length;
+      document.getElementById('lbl-total-historico-corridas').innerText = `${concluidas.length} registradas`;
+
+      renderizarHistorico(ordensNoHistorico);
+    }
+
+    function renderizarChamadosE rota(pendentes, emAndamento) {
+      const container = document.getElementById('box-chamados-dinamicos');
+      const isOnline = document.getElementById('status-txt').innerText === 'ONLINE';
+
+      if (pendentes.length === 0 && emAndamento.length === 0) {
+        container.innerHTML = `<div class="empty-box card-corrida"><i class="fa-solid fa-hourglass-half" style="font-size:1.8rem; margin-bottom:8px; color:var(--text-muted);"></i><div>Aguardando novos chamados da Central R1...</div></div>`;
+        pararLoopAlarme();
+        return;
+      }
+
+      // Ativa Som se houver pendentes e estiver Online
+      if (pendentes.length > 0 && isOnline) iniciarLoopAlarme();
+      else pararLoopAlarme();
+
+      let html = '';
+
+      // 1. Renderiza Chamados Pendentes (Vibrantes "R1 R1")
+      pendentes.forEach(r => {
+        html += `
+          <div class="card-oferta">
+            <div style="font-size:0.95rem; font-weight:900;">🚨 NOVO CHAMADO DISPONÍVEL!</div>
+            <div style="background:rgba(0,230,118,0.1); padding:10px; border-radius:10px; margin:10px 0; text-align:center;">
+                <div style="font-size:0.6rem; color:var(--text-muted); text-transform:uppercase;">Seu Repasse Final</div>
+                <div style="font-size:2rem; font-weight:900; color:var(--green);">R$ ${(r.val || 0).toFixed(2)}</div>
+                <div style="font-size:0.7rem; color:#FFF;">Serviço: ${r.tipo || 'Entrega'} • ${r.km || '---'} km</div>
+            </div>
+            <div class="tl-box">
+              <div class="tl-row"><div class="tl-bullet" style="background:var(--primary);"></div><div style="font-size:0.85rem; font-weight:600;">Coleta: ${r.orig}</div></div>
+              <div class="tl-row"><div class="tl-bullet" style="background:var(--green);"></div><div style="font-size:0.85rem; font-weight:600;">Entrega: ${r.dest}</div></div>
+            </div>
+            <button class="btn-aceitar" onclick="aceitarCorrida('${r.idFB}')"><i class="fa-solid fa-check"></i> ACEITAR CHAMADO R1 AGORA</button>
+          </div>
+        `;
+      });
+
+      // 2. Renderiza Corridas em Andamento (Rotas Ativas)
+      emAndamento.forEach(r => {
+        // Gera link de rota GPS com pontos
+        let pontosRota = [r.orig, ...(r.paradasExtras || []), r.dest];
+        let linkRotaGPS = `https://www.google.com/maps/dir/` + pontosRota.map(p => encodeURIComponent(p)).join('/');
+        let whatsLimpoCliente = (r.whats || '').replace(/\D/g, '');
+
+        html += `
+          <div class="card-historico em-rota" style="border-color: var(--orange); margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <span class="hist-os">OS #${r.numOS || '---'}</span>
+              <span style="background:var(--orange); color:#000; font-size:0.7rem; font-weight:800; padding:3px 8px; border-radius:8px;">EM ANDAMENTO</span>
+            </div>
+            <div style="font-size:1.1rem; font-weight:800; margin-bottom:8px;">Cliente: ${r.cli || '---'}</div>
+            <div class="tl-box" style="margin: 10px 0;">
+              <div class="tl-row"><div class="tl-bullet" style="background:var(--primary);"></div><div style="font-size:0.85rem;">Coleta: ${r.orig}</div></div>
+              <div class="tl-row"><div class="tl-bullet" style="background:var(--green);"></div><div style="font-size:0.85rem;">Entrega: ${r.dest}</div></div>
+            </div>
+            <div style="font-size:1.2rem; font-weight:900; color:var(--green); margin-bottom:12px;">Repasse: R$ ${(r.val || 0).toFixed(2)}</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <button class="btn-action" style="background:var(--blue); color:#FFF; border:none; border-radius:10px; width:100%; justify-content:center; padding:12px;" onclick="window.open('${linkRotaGPS}', '_blank')"><i class="fa-solid fa-location-arrow"></i> Ver Rota GPS</button>
+                ${whatsLimpoCliente ? `<button class="btn-action" style="background:#25D366; color:#000; border:none; border-radius:10px; width:100%; justify-content:center; padding:12px;" onclick="window.open('https://wa.me/55${whatsLimpoCliente}', '_blank')"><i class="fa-brands fa-whatsapp"></i> Zap Cliente</button>` : ''}
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function aceitarCorrida(idFB) {
+        pararLoopAlarme(); // Para som R1 instantaneamente
+        if (!db || !idFB) return;
+        db.ref('ordens/' + idFB).update({ motoboyAceitou: true, Etapa: 'a_caminho_coleta' }).then(() => { 
+            atualizarEntregasEMetricas(); // Recarrega tela
+            alert("Parabéns César! Chamado aceito. Inicie o deslocamento para a coleta."); 
+        });
+    }
+
+    // GESTÃO DO HISTÓRICO (COM AÇÕES DE EXCLUSÃO E EDIÇÃO - SOLICITADO)
+    function renderizarHistorico(lista) {
+      const histEl = document.getElementById('lista-historico-motoboy');
+      if (lista.length === 0) {
+        histEl.innerHTML = `<div class="empty-box">Nenhuma corrida finalizada no período selecionado.</div>`;
+        return;
+      }
+      histEl.innerHTML = lista.map((r, index) => `
+        <div class="card-historico" id="card-hist-${r.idFB}">
+          <!-- Visualização Padrão -->
+          <div id="view-hist-${r.idFB}">
+              <div class="hist-header">
+                <span class="hist-os">OS #${r.numOS || '---'}</span>
+                <span class="hist-data">${r.dtStr}</span>
+              </div>
+              <div class="hist-body">
+                <div><span class="hist-cli">${r.cli || 'Finalizada'}</span><div style="font-size:0.7rem; color:var(--text-muted);">${r.orig.substring(0,25)}...</div></div>
+                <div class="hist-val">R$ ${(r.val || 0).toFixed(2)}</div>
+              </div>
+              
+              <!-- Botões de Ação Solicitados -->
+              <div class="hist-actions">
+                <button class="btn-action btn-edit" title="Corrigir Registro" onclick="habilitarEdicaoHistorico('${r.idFB}')">
+                  <i class="fa-solid fa-pencil"></i> Corrigir
+                </button>
+                <button class="btn-action btn-delete" title="Apagar Registro" onclick="apagarRegistroHistorico('${r.idFB}', '${r.numOS || index}')">
+                  <i class="fa-solid fa-trash-can"></i> Apagar
+                </button>
+              </div>
+          </div>
+
+          <!-- Formulário de Edição Oculto (Solicitado) -->
+          <div id="edit-hist-${r.idFB}" class="hidden">
+              <div style="font-size:0.75rem; font-weight:800; margin-bottom:8px; color:var(--orange); text-transform:uppercase;">Corrigir Registro de Repasse</div>
+              <div class="edit-form">
+                  <label style="font-size:0.65rem; color:#AAA;">Valor Recebido (R$):</label>
+                  <input type="number" id="input-edit-val-${r.idFB}" class="edit-form-input" value="${r.val || 0}" step="0.01">
+                  
+                  <label style="font-size:0.65rem; color:#AAA;">Cliente / Nome Recebedor:</label>
+                  <input type="text" id="input-edit-cli-${r.idFB}" class="edit-form-input" value="${r.cli || ''}" placeholder="Ex: Mercado Santa Clara">
+                  
+                  <div class="edit-form-btns">
+                      <button class="btn-edit-save" onclick="salvarCorrecaoHistorico('${r.idFB}')">Gravar Alteração</button>
+                      <button class="btn-edit-cancel" onclick="cancelarEdicaoHistorico('${r.idFB}')">Voltar</button>
+                  </div>
+              </div>
+          </div>
+
+        </div>
+      `).join('');
+    }
+
+    function habilitarEdicaoHistorico(idFB) {
+        document.getElementById(`view-hist-${idFB}`).classList.add('hidden');
+        document.getElementById(`edit-hist-${idFB}`).classList.remove('hidden');
+    }
+
+    function cancelarEdicaoHistorico(idFB) {
+        document.getElementById(`view-hist-${idFB}`).classList.remove('hidden');
+        document.getElementById(`edit-hist-${idFB}`).classList.add('hidden');
+        atualizarEntregasEMetricas(); // Restaura valores originais
+    }
+
+    function salvarCorrecaoHistorico(idFB) {
+        if (!db || !idFB) return;
+        const novoVal = parseFloat(document.getElementById(`input-edit-val-${idFB}`).value || 0);
+        const novoCli = document.getElementById(`input-edit-cli-${idFB}`).value;
+
+        if (novoVal < 0) return alert("O valor não pode ser negativo.");
+
+        db.ref('ordens/' + idFB).update({
+            val: novoVal,
+            cli: novoCli
+        }).then(() => {
+            alert("Registro corrigido com sucesso César!");
+            atualizarEntregasEMetricas(); // Recarrega tudo
+        }).catch(() => alert("Erro ao corrigir no banco de dados."));
+    }
+
+    function apagarRegistroHistorico(idFB, numOS) {
+        if (!db || !idFB) return;
+        
+        const confirmacao = confirm(`⚠️ CÉSAR, ATENÇÃO!\n\nTem certeza absoluta que deseja APAGAR COMPLETAMENTE o registro da OS #${numOS}?\n\nIsso removerá o valor do seu repasse final e do faturamento do dia.`);
+        
+        if (confirmacao) {
+            db.ref('ordens/' + idFB).remove().then(() => {
+                alert(`OS #${numOS} apagada com sucesso.`);
+                atualizarEntregasEMetricas(); // Recarrega para limpar card
+            }).catch(() => alert("Erro ao apagar no banco de dados."));
+        }
+    }
+
+    // EXTRATO (PDF E WHATSAPP) - Simulação mantida
+    function gerarPDFExtratoMotoboy() {
+      if (ordensNoHistorico.length === 0) return alert("Nenhuma ordem no período para gerar PDF.");
+      alert(`⚠️ SIMULAÇÃO: Gerando PDF do Extrato R1AMOBI...\nPeríodo: ${document.getElementById('mb-filtro-periodo').options[document.getElementById('mb-filtro-periodo').selectedIndex].text}\nTotal de Ordens: ${ordensNoHistorico.length}`);
+    }
+
+    function enviarWhatsExtratoMotoboy() {
+      if (ordensNoHistorico.length === 0) return alert("Nenhuma ordem no período para enviar.");
+      const WhatsNossocentral = "5518997034177"; // Sua Central R1
+      const filtro = document.getElementById('mb-filtro-periodo').options[document.getElementById('mb-filtro-periodo').selectedIndex].text;
+      const totalRepasse = ordensNoHistorico.reduce((acc, r) => acc + (r.val || 0), 0).toFixed(2);
+      
+      let texto = `*EXTRATO DE REPASSES R1AMOBI*\nEntregador: ${motoboyLogado.nome}\nPeríodo: ${filtro}\nTotal Repasse: *R$ ${totalRepasse}*\n_Enviado pelo App_`;
+      window.open(`https://wa.me/${WhatsNossocentral}?text=${encodeURIComponent(texto)}`, '_blank');
+    }
+
+    // SAÍDA E SESSÃO
     function sairConta() {
-      auth.signOut(); // Desloga do Firebase Auth
+      pararLoopAlarme();
+      if(auth) auth.signOut(); // Desloga do Firebase Auth (Segurança)
       localStorage.removeItem('r1_sessao_motoboy_email');
       location.reload();
     }
