@@ -1804,7 +1804,7 @@
       let m = motoboysSalvos[motoboyAtualIdx];
       let empresa = configApp.empresaName || 'R1AMOBI LOGÍSTICA';
       const corridasDoMotoboy = registrosOS.filter(r => r.motoboyIdx == motoboyAtualIdx || r.motoboyNome === m.nome);
-      const totalRepasseMotoboy = corridasDoMotoboy.reduce((acc, r) => acc + (r.repasseLiquido !== undefined ? r.repasseLiquido : r.val), 0);
+      const totalRepasseMotoboy = corridasDoMotoboy.reduce((acc, r) => acc + (r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2);
 
       let listaTxt = corridasDoMotoboy.slice(0, 5).map(r => `• OS #${r.numOS} | ${r.cli} | Repasse Líquido: R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)} (${r.dtStr})`).join('\n');
 
@@ -2170,7 +2170,7 @@
           wImg.style.display = 'none';
           wVideo.src = bgUrl;
           wVideo.style.display = 'block';
-        } else if (bgUrl && (bgUrl.startsWith('data:image') || bgUrl.includes('http'))) {
+        } else if (bgUrl && (bgUrl.startsWith('data:image') || bgUrl.includes('http') || bgUrl.includes('.'))) {
           wVideo.style.display = 'none';
           wVideo.src = '';
           wImg.src = bgUrl;
@@ -2187,7 +2187,7 @@
       document.getElementById('wlc-sub').innerText = configApp.welcomeSub || 'Sua plataforma completa para entregas rápidas e seguras.';
       document.getElementById('wlc-btn-txt').innerText = configApp.welcomeBtn || 'ENTRAR NO SISTEMA';
 
-      if (configApp.logoURL && (configApp.logoURL.startsWith('data:image') || configApp.logoURL.includes('http'))) {
+      if (configApp.logoURL && (configApp.logoURL.startsWith('data:image') || configApp.logoURL.includes('http') || configApp.logoURL.includes('.'))) {
         const logoFixed = cleanUrl(configApp.logoURL);
         const imgTag = `<img src="${logoFixed}" style="width:100%; height:100%; object-fit:cover;" onerror="this.parentElement.innerHTML='R1';">`;
         document.getElementById('header-logo-box').innerHTML = imgTag;
@@ -3105,7 +3105,6 @@
       window.open(`https://www.google.com/maps/dir/` + pontos.map(p => encodeURIComponent(p)).join('/'), '_blank');
     }
 
-    // PREVIEW E COMPRESSÃO DA LOGO DA GALERIA (PERMANENTE < 100KB)
     function previewNovaLogo(e) {
       const file = e.target.files[0];
       if (file) {
@@ -3118,7 +3117,6 @@
       }
     }
 
-    // PREVIEW E COMPRESSÃO DA CAPA DA GALERIA (PERMANENTE < 150KB)
     function previewNovaCapaGaleria(e) {
       const file = e.target.files[0];
       if (file) {
@@ -3142,7 +3140,6 @@
       }
     }
 
-    /* AUTENTICAÇÃO REAL POR WEBAUTHN / BIOMETRIA DO CELULAR */
     async function registrarBiometriaAdmin() {
       if (!window.PublicKeyCredential) {
         return alert("Seu navegador ou celular não possui suporte à Biometria Web.");
