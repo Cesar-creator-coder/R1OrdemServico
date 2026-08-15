@@ -14,7 +14,7 @@
   <link rel="icon" type="image/png" href="./icon-motoboy.png">
   <link rel="apple-touch-icon" href="./icon-motoboy.png">
 
-  <!-- Ícones e Fontes -->
+  <!-- FontAwesome & Fontes -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
@@ -124,7 +124,7 @@
         </div>
       </div>
 
-      <button type="button" class="btn-main" onclick="realizarLogin()"><i class="fa-solid fa-right-to-bracket"></i> Entrar no Painel</button>
+      <button type="button" class="btn-main" id="btn-entrar-acao" onclick="realizarLogin()"><i class="fa-solid fa-right-to-bracket"></i> Entrar no Painel</button>
       
       <div class="toggle-auth-mode" onclick="alternarTelaAuth('cadastro')">
         Novo motoboy? Cadastre-se aqui
@@ -165,7 +165,7 @@
         </div>
       </div>
 
-      <button type="button" class="btn-main" style="background:var(--green); color:#000;" onclick="realizarCadastro()"><i class="fa-solid fa-check"></i> Concluir Cadastro</button>
+      <button type="button" class="btn-main" id="btn-cadastrar-acao" style="background:var(--green); color:#000;" onclick="realizarCadastro()"><i class="fa-solid fa-check"></i> Concluir Cadastro</button>
       
       <div class="toggle-auth-mode" onclick="alternarTelaAuth('login')">
         Já possui cadastro? Faça login
@@ -219,18 +219,28 @@
 
   </div>
 
-  <!-- FIREBASE SCRIPTS -->
+  <!-- FIREBASE SDKS -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="js/firebase-config.js"></script> 
 
   <script>
+    // CONFIGURAÇÃO DIRETA INTEGRADA (SEM DEPENDÊNCIA DE ARQUIVOS EXTERNOS)
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzz7FIZgB3EQVCw8CD4HQVMTehU11fXfg",
+      authDomain: "r1oservico-hub.firebaseapp.com",
+      projectId: "r1oservico-hub",
+      storageBucket: "r1oservico-hub.firebasestorage.app",
+      messagingSenderId: "1080136865646",
+      appId: "1:1080136865646:web:568dbfc6971054d08137f",
+      databaseURL: "https://r1oservico-hub-default-rtdb.firebaseio.com"
+    };
+
     let motoboyLogado = null;
     let db = null;
     let auth = null; 
 
-    // Alternar campos de senha (Olhinho isolado)
+    // Alternar visualização da senha
     function alternarVisibilidadeSenha(inputId, iconEl) {
       const input = document.getElementById(inputId);
       if (!input) return;
@@ -257,8 +267,10 @@
     }
 
     window.onload = function() {
-      if (typeof firebaseConfig !== 'undefined') {
-        firebase.initializeApp(firebaseConfig);
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        }
         db = firebase.database();
         auth = firebase.auth();
         
@@ -267,8 +279,9 @@
             buscarDadosMotoboy(user.uid);
           }
         });
-      } else {
-        alert("Configuração do Firebase não carregada. Verifique o arquivo js/firebase-config.js.");
+      } catch(e) {
+        console.error(e);
+        alert("Erro na inicialização: " + e.message);
       }
     };
 
@@ -279,6 +292,7 @@
       const moto = document.getElementById('cad-moto').value.trim();
       const email = document.getElementById('cad-email').value.trim();
       const senha = document.getElementById('cad-senha').value.trim();
+      const btn = document.getElementById('btn-cadastrar-acao');
 
       if (!nome || !whats || !email || !senha) {
         return alert("Por favor, preencha todos os campos obrigatórios.");
@@ -286,6 +300,9 @@
       if (senha.length < 6) {
         return alert("A senha deve ter no mínimo 6 dígitos.");
       }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cadastrando...';
 
       auth.createUserWithEmailAndPassword(email, senha)
         .then((cred) => {
@@ -306,6 +323,8 @@
           });
         })
         .catch((err) => {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-check"></i> Concluir Cadastro';
           alert("Erro no cadastro: " + err.message);
         });
     }
@@ -314,16 +333,22 @@
     function realizarLogin() {
       const email = document.getElementById('login-email').value.trim();
       const senha = document.getElementById('login-senha').value.trim();
+      const btn = document.getElementById('btn-entrar-acao');
 
       if (!email || !senha) {
         return alert("Preencha e-mail e senha.");
       }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Acessando...';
 
       auth.signInWithEmailAndPassword(email, senha)
         .then((cred) => {
           buscarDadosMotoboy(cred.user.uid);
         })
         .catch((err) => {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Entrar no Painel';
           alert("Erro no acesso: Verifique e-mail e senha digitados.");
         });
     }
@@ -335,7 +360,6 @@
           motoboyLogado.idFB = uid;
           carregarPainel();
         } else {
-          // Fallback caso a chave seja push ID
           db.ref('motoboys').orderByChild('uid').equalTo(uid).once('value').then((subSnap) => {
             if (subSnap.exists()) {
               subSnap.forEach((c) => {
@@ -344,7 +368,7 @@
               });
               carregarPainel();
             } else {
-              alert("Cadastro do motoboy não localizado no banco de dados.");
+              alert("Cadastro não localizado no banco de dados.");
               sairConta();
             }
           });
@@ -405,7 +429,6 @@
       const pendentes = minhas.filter(r => !r.concluido && !r.motoboyAceitou && !r.motoboyRecusou);
       const concluidas = minhas.filter(r => r.concluido);
 
-      // Renderiza chamados pendentes
       const boxChamados = document.getElementById('box-chamados-dinamicos');
       if (pendentes.length === 0) {
         boxChamados.innerHTML = `<div class="empty-box">Aguardando novos chamados da Central R1...</div>`;
@@ -426,7 +449,6 @@
         `).join('');
       }
 
-      // Atualiza Métricas de Hoje
       const inicioHoje = new Date().setHours(0,0,0,0);
       const concluidasHoje = concluidas.filter(r => (r.timestamp || 0) >= inicioHoje);
       const totalHoje = concluidasHoje.reduce((acc, r) => acc + (r.val || 0), 0);
@@ -435,7 +457,6 @@
       document.getElementById('mb-entregas-qtd').innerText = concluidasHoje.length;
       document.getElementById('lbl-total-historico-corridas').innerText = `${concluidas.length} finalizadas`;
 
-      // Renderiza Histórico
       const filtro = document.getElementById('mb-filtro-periodo').value;
       let lista = filtro === 'hoje' ? concluidasHoje : concluidas;
       const histEl = document.getElementById('lista-historico-motoboy');
