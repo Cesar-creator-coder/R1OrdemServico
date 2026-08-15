@@ -176,8 +176,8 @@
     let motoboyLogado = null;
     let audioLoopInterval = null;
 
-    // ÁUDIO DO SEU GOOGLE DRIVE CONFIGURADO COM LINK DIRETO
-    const audioChamadoR1 = new Audio('https://docs.google.com/uc?export=download&id=1V1ZxZl9E0lG0Z0aYDtNS4CGCD8F0bGy7');
+    // PRIORIDADE: Tenta tocar alerta.mp3 hospedado no seu GitHub. Se falhar, usa o link direto ou sintetizador.
+    const audioChamadoR1 = new Audio('./alerta.mp3');
 
     window.onload = function() {
       verificarSessaoSalva();
@@ -187,27 +187,38 @@
     function tocarAlarmeChamado() {
       try {
         audioChamadoR1.currentTime = 0;
-        audioChamadoR1.play().catch(e => {
-          // Fallback nativo caso o navegador requeira interação inicial
-          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(659.25, audioCtx.currentTime);
-          osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
-          gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.35);
-        });
-      } catch(e) { console.log("Áudio:", e); }
+        let playPromise = audioChamadoR1.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(e => {
+            // Se o arquivo .mp3 não existir no GitHub ainda, aciona o gerador sonoro nativo de alta potência
+            tocarBeepNativo();
+          });
+        }
+      } catch(e) {
+        tocarBeepNativo();
+      }
+    }
+
+    function tocarBeepNativo() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.35);
+      } catch(err) { console.log(err); }
     }
 
     function iniciarLoopAlarme() {
       if (!audioLoopInterval) {
         tocarAlarmeChamado();
-        audioLoopInterval = setInterval(tocarAlarmeChamado, 2000);
+        audioLoopInterval = setInterval(tocarAlarmeChamado, 1800);
       }
     }
 
