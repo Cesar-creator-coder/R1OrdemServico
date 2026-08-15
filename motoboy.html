@@ -60,7 +60,9 @@
     .metric-card { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 14px; padding: 14px; text-align: center; }
     .metric-val { font-size: 1.3rem; font-weight: 900; margin-top: 4px; }
 
-    .card-oferta { background: #161922; border: 2px solid var(--primary); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; box-shadow: 0 0 20px rgba(227,6,19,0.4); }
+    .card-oferta { background: #161922; border: 2px solid var(--primary); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; box-shadow: 0 0 20px rgba(227,6,19,0.4); animation: pulseAlert 1.5s infinite alternate; }
+    @keyframes pulseAlert { from { box-shadow: 0 0 10px rgba(227,6,19,0.3); } to { box-shadow: 0 0 25px rgba(227,6,19,0.8); } }
+
     .btn-aceitar { background: var(--green); color: #000; border: none; border-radius: 12px; padding: 16px; font-weight: 900; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem; }
 
     .filter-panel { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 14px; margin: 20px 0 12px 0; }
@@ -228,20 +230,24 @@
 
     function tocarBiBiSonoro() {
       iniciarContextoAudio();
-      try {
-        if (!audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(850, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(450, audioCtx.currentTime + 0.25);
-        gain.gain.setValueAtTime(0.7, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.25);
-      } catch(e) {}
+      
+      const audio = new Audio('./alerta.mp3');
+      audio.play().catch(() => {
+        try {
+          if (!audioCtx) return;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(850, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(450, audioCtx.currentTime + 0.25);
+          gain.gain.setValueAtTime(0.7, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.25);
+        } catch(e) {}
+      });
     }
 
     function controlarAlarme(ativo) {
@@ -416,7 +422,6 @@
 
       const meuNomeNorm = (motoboyLogado.nome || '').trim().toLowerCase();
 
-      // Identifica chamados do motoboy ou gerais
       const minhasOrdens = listaOrdensCache.filter(r => {
         const nomeDest = (r.motoboyNome || r.motoboy || '').trim().toLowerCase();
         return nomeDest === meuNomeNorm || nomeDest === 'todos' || nomeDest === '';
@@ -432,7 +437,6 @@
         controlarAlarme(false);
       }
 
-      // Box de Chamados
       const box = document.getElementById('box-chamados-dinamicos');
       if (pendentes.length === 0) {
         box.innerHTML = `<div class="empty-box">Aguardando novos chamados da Central R1...</div>`;
@@ -453,7 +457,6 @@
         `).join('');
       }
 
-      // Métricas e Histórico
       const inicioHoje = new Date().setHours(0,0,0,0);
       const concluidasHoje = concluidas.filter(r => (r.timestamp || 0) >= inicioHoje);
       const totalHoje = concluidasHoje.reduce((acc, r) => acc + parseFloat(r.val || r.valor || 0), 0);
