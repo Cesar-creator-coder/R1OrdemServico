@@ -60,23 +60,33 @@
     .metric-card { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 14px; padding: 14px; text-align: center; }
     .metric-val { font-size: 1.3rem; font-weight: 900; margin-top: 4px; }
 
+    /* CARD OFERTA NOVA */
     .card-oferta { background: #161922; border: 2px solid var(--primary); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; box-shadow: 0 0 20px rgba(227,6,19,0.4); animation: pulseAlert 1.5s infinite alternate; }
     @keyframes pulseAlert { from { box-shadow: 0 0 10px rgba(227,6,19,0.3); } to { box-shadow: 0 0 25px rgba(227,6,19,0.8); } }
 
-    .btn-aceitar { background: var(--green); color: #000; border: none; border-radius: 12px; padding: 16px; font-weight: 900; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem; }
+    /* CARD CORRIDA EM ANDAMENTO */
+    .card-em-andamento { background: #12171F; border: 2px solid var(--blue); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; }
+
+    .grid-botoes-acao { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .btn-aceitar { background: var(--green); color: #000; border: none; border-radius: 12px; padding: 14px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.95rem; }
+    .btn-recusar { background: rgba(255, 82, 82, 0.2); border: 1px solid var(--red); color: var(--red); border-radius: 12px; padding: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.95rem; }
+    .btn-concluir { background: var(--green); color: #000; border: none; border-radius: 12px; padding: 16px; font-weight: 900; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem; margin-top: 10px; }
+    .btn-mapa { background: transparent; border: 1px solid var(--blue); color: var(--blue); border-radius: 12px; padding: 12px; font-weight: 800; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; margin-top: 10px; }
 
     .filter-panel { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 14px; margin: 20px 0 12px 0; }
     .filter-select { width: 100%; background: var(--bg-input); border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; color: #FFF; font-size: 0.85rem; font-weight: 700; outline: none; margin-top: 6px; }
+    
     .card-historico { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 12px; padding: 12px; margin-bottom: 8px; }
     .hist-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid #1A1D24; padding-bottom: 6px; }
     .hist-os { font-weight: 800; font-size: 0.85rem; }
     .hist-data { font-size: 0.7rem; color: var(--text-muted); }
     .hist-body { display: flex; justify-content: space-between; align-items: center; }
     .hist-val { color: var(--green); font-weight: 900; font-size: 1rem; }
-    .tl-box { position: relative; padding-left: 20px; margin: 14px 0; }
-    .tl-row { position: relative; margin-bottom: 10px; }
-    .tl-bullet { position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--border-dark); }
-    .empty-box { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 30px 16px; border-radius: 12px; border: 1px solid var(--border-dark); }
+    
+    .tl-box { position: relative; padding-left: 20px; margin: 12px 0; }
+    .tl-row { position: relative; margin-bottom: 8px; font-size: 0.85rem; }
+    .tl-bullet { position: absolute; left: -20px; top: 4px; width: 10px; height: 10px; border-radius: 50%; }
+    .empty-box { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 24px 16px; border-radius: 12px; border: 1px solid var(--border-dark); }
   </style>
 </head>
 <body onclick="iniciarContextoAudio()">
@@ -176,18 +186,21 @@
       </div>
 
       <div style="font-size:0.85rem; font-weight:800; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-        <span>CHAMADOS & CORRIDAS ATIVAS</span>
+        <span>CHAMADOS & CORRIDAS EM ANDAMENTO</span>
         <i class="fa-solid fa-bell" style="color:var(--orange);"></i>
       </div>
+      
       <div id="box-chamados-dinamicos"></div>
 
       <div class="filter-panel">
         <div style="font-size:0.8rem; font-weight:800; display:flex; justify-content:space-between; align-items:center;">
           <span><i class="fa-solid fa-file-invoice-dollar" style="color:var(--green);"></i> HISTÓRICO DE REPASSES</span>
-          <span style="font-size:0.7rem; color:var(--text-muted);" id="lbl-total-historico-corridas">0 registradas</span>
+          <button onclick="limparHistoricoCompleto()" style="background:transparent; border:none; color:var(--red); font-size:0.7rem; cursor:pointer; font-weight:bold;"><i class="fa-solid fa-trash"></i> Limpar</button>
         </div>
         <select id="mb-filtro-periodo" class="filter-select" onchange="renderizarPainelOrdens()">
           <option value="hoje">📅 Hoje (Faturamento do Dia)</option>
+          <option value="7dias">🗓️ Últimos 7 Dias</option>
+          <option value="mes">📆 Este Mês</option>
           <option value="todos">📂 Todo o Histórico</option>
         </select>
       </div>
@@ -466,12 +479,19 @@
 
       const minhasOrdens = listaOrdensCache.filter(r => {
         const nomeDest = (r.motoboyNome || r.motoboy || '').trim().toLowerCase();
-        return nomeDest === meuNomeNorm || nomeDest === 'todos' || nomeDest === '';
+        return (nomeDest === meuNomeNorm || nomeDest === 'todos' || nomeDest === '') && !r.motoboyRecusou;
       });
 
-      const pendentes = minhasOrdens.filter(r => !r.concluido && !r.motoboyAceitou && !r.motoboyRecusou);
+      // 1. Chamados que estão tocando para aceitar
+      const pendentes = minhasOrdens.filter(r => !r.concluido && !r.motoboyAceitou);
+      
+      // 2. Chamados aceitos que estão em andamento
+      const emAndamento = minhasOrdens.filter(r => !r.concluido && r.motoboyAceitou);
+
+      // 3. Corridas concluídas
       const concluidas = minhasOrdens.filter(r => r.concluido);
 
+      // Controle do alarme sonoro
       const isOnline = document.getElementById('status-txt').innerText === 'ONLINE';
       if (pendentes.length > 0 && isOnline) {
         controlarAlarme(true);
@@ -480,39 +500,82 @@
       }
 
       const box = document.getElementById('box-chamados-dinamicos');
-      if (pendentes.length === 0) {
-        box.innerHTML = `<div class="empty-box">Aguardando novos chamados da Central R1...</div>`;
-      } else {
-        box.innerHTML = pendentes.map(r => `
+      let cardsHtml = '';
+
+      // Renderiza novas ofertas (com Aceitar e Recusar)
+      pendentes.forEach(r => {
+        cardsHtml += `
           <div class="card-oferta">
             <div style="font-size:0.95rem; font-weight:900; margin-bottom:6px;">🚨 NOVO CHAMADO DISPONÍVEL!</div>
-            <div style="background:rgba(0,230,118,0.1); padding:10px; border-radius:10px; margin:10px 0; text-align:center;">
-              <div style="font-size:0.65rem; color:var(--text-muted);">Repasse Final</div>
-              <div style="font-size:1.8rem; font-weight:900; color:var(--green);">R$ ${parseFloat(r.val || r.valor || 0).toFixed(2)}</div>
+            <div style="background:rgba(0,230,118,0.1); padding:10px; border-radius:10px; margin:8px 0; text-align:center;">
+              <div style="font-size:0.65rem; color:var(--text-muted);">Seu Repasse Líquido</div>
+              <div style="font-size:1.8rem; font-weight:900; color:var(--green);">R$ ${parseFloat(r.repasseLiquido !== undefined ? r.repasseLiquido : (r.val || 0)).toFixed(2)}</div>
             </div>
             <div class="tl-box">
-              <div class="tl-row"><div class="tl-bullet" style="background:var(--primary);"></div><div style="font-size:0.85rem;">Coleta: ${r.orig || r.origem || '---'}</div></div>
-              <div class="tl-row"><div class="tl-bullet" style="background:var(--green);"></div><div style="font-size:0.85rem;">Entrega: ${r.dest || r.destino || '---'}</div></div>
+              <div class="tl-row"><div class="tl-bullet" style="background:var(--primary);"></div><b>Coleta:</b> ${r.orig || '---'}</div>
+              <div class="tl-row"><div class="tl-bullet" style="background:var(--green);"></div><b>Entrega:</b> ${r.dest || '---'}</div>
             </div>
-            <button class="btn-aceitar" onclick="aceitarChamado('${r.idFB}')"><i class="fa-solid fa-check"></i> ACEITAR CHAMADO</button>
+            <div class="grid-botoes-acao">
+              <button class="btn-recusar" onclick="recusarChamado('${r.idFB}')"><i class="fa-solid fa-xmark"></i> RECUSAR</button>
+              <button class="btn-aceitar" onclick="aceitarChamado('${r.idFB}')"><i class="fa-solid fa-check"></i> ACEITAR</button>
+            </div>
           </div>
-        `).join('');
+        `;
+      });
+
+      // Renderiza corridas em andamento aceitas pelo motoboy
+      emAndamento.forEach(r => {
+        let rotaGPS = `https://www.google.com/maps/dir/${encodeURIComponent(r.orig || '')}/${encodeURIComponent(r.dest || '')}`;
+        cardsHtml += `
+          <div class="card-em-andamento">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-size:0.85rem; font-weight:900; color:var(--blue);"><i class="fa-solid fa-motorcycle"></i> EM ANDAMENTO (OS #${r.numOS || '---'})</span>
+              <span style="font-weight:900; color:var(--green); font-size:1.1rem;">R$ ${parseFloat(r.repasseLiquido !== undefined ? r.repasseLiquido : (r.val || 0)).toFixed(2)}</span>
+            </div>
+            <div style="font-size:0.8rem; margin-bottom:6px;"><b>Cliente:</b> ${r.cli || 'Cliente'} (${r.whats || 'Sem telefone'})</div>
+            <div class="tl-box">
+              <div class="tl-row"><div class="tl-bullet" style="background:var(--primary);"></div><b>Coleta:</b> ${r.orig || '---'}</div>
+              <div class="tl-row"><div class="tl-bullet" style="background:var(--green);"></div><b>Entrega:</b> ${r.dest || '---'}</div>
+            </div>
+            ${r.inst && r.inst !== '--' ? `<div style="font-size:0.75rem; color:#DDD; background:rgba(0,0,0,0.3); padding:6px; border-radius:6px; margin:6px 0;"><b>Instruções:</b> ${r.inst}</div>` : ''}
+            <button class="btn-mapa" onclick="window.open('${rotaGPS}', '_blank')"><i class="fa-solid fa-location-arrow"></i> ABRIR ROTA NO GPS</button>
+            <button class="btn-concluir" onclick="concluirChamado('${r.idFB}')"><i class="fa-solid fa-check-double"></i> CONCLUIR ENTREGA</button>
+          </div>
+        `;
+      });
+
+      if (cardsHtml === '') {
+        box.innerHTML = `<div class="empty-box">Aguardando novos chamados da Central R1...</div>`;
+      } else {
+        box.innerHTML = cardsHtml;
       }
 
+      // Métricas
+      const agora = new Date();
       const inicioHoje = new Date().setHours(0,0,0,0);
       const concluidasHoje = concluidas.filter(r => (r.timestamp || 0) >= inicioHoje);
-      const totalHoje = concluidasHoje.reduce((acc, r) => acc + parseFloat(r.val || r.valor || 0), 0);
+      const totalHoje = concluidasHoje.reduce((acc, r) => acc + parseFloat(r.repasseLiquido !== undefined ? r.repasseLiquido : (r.val || 0)), 0);
 
       document.getElementById('mb-faturamento-total').innerText = `R$ ${totalHoje.toFixed(2)}`;
       document.getElementById('mb-entregas-qtd').innerText = concluidasHoje.length;
-      document.getElementById('lbl-total-historico-corridas').innerText = `${concluidas.length} finalizadas`;
 
+      // Filtro de Histórico
       const filtro = document.getElementById('mb-filtro-periodo').value;
-      const listaExibir = filtro === 'hoje' ? concluidasHoje : concluidas;
-      const histEl = document.getElementById('lista-historico-motoboy');
+      let listaExibir = concluidas;
 
+      if (filtro === 'hoje') {
+        listaExibir = concluidasHoje;
+      } else if (filtro === '7dias') {
+        const seteDiasAtras = agora.getTime() - (7 * 24 * 60 * 60 * 1000);
+        listaExibir = concluidas.filter(r => (r.timestamp || 0) >= seteDiasAtras);
+      } else if (filtro === 'mes') {
+        const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1).getTime();
+        listaExibir = concluidas.filter(r => (r.timestamp || 0) >= inicioMes);
+      }
+
+      const histEl = document.getElementById('lista-historico-motoboy');
       if (listaExibir.length === 0) {
-        histEl.innerHTML = `<div class="empty-box">Nenhuma corrida finalizada no período.</div>`;
+        histEl.innerHTML = `<div class="empty-box">Nenhuma corrida finalizada neste período.</div>`;
       } else {
         histEl.innerHTML = listaExibir.map(r => `
           <div class="card-historico">
@@ -521,8 +584,14 @@
               <span class="hist-data">${r.dtStr || ''}</span>
             </div>
             <div class="hist-body">
-              <div><span style="font-size:0.85rem; font-weight:700;">${r.cli || r.cliente || 'Entrega'}</span></div>
-              <div class="hist-val">R$ ${parseFloat(r.val || r.valor || 0).toFixed(2)}</div>
+              <div>
+                <span style="font-size:0.85rem; font-weight:700;">${r.cli || 'Entrega'}</span>
+                <div style="font-size:0.7rem; color:var(--text-muted);">${r.orig || ''} ➔ ${r.dest || ''}</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="hist-val">R$ ${parseFloat(r.repasseLiquido !== undefined ? r.repasseLiquido : (r.val || 0)).toFixed(2)}</div>
+                <button onclick="apagarItemHistorico('${r.idFB}')" style="background:transparent; border:none; color:var(--red); cursor:pointer; font-size:0.85rem;"><i class="fa-solid fa-trash"></i></button>
+              </div>
             </div>
           </div>
         `).join('');
@@ -534,11 +603,57 @@
       controlarAlarme(false);
       db.ref('ordens/' + idFB).update({
         motoboyAceitou: true,
+        motoboyRecusou: false,
         motoboyNome: motoboyLogado.nome,
-        status: 'a_caminho'
+        status: 'em_andamento'
       }).then(() => {
-        alert("Chamado aceito com sucesso!");
+        alert("Chamado aceito! A rota está disponível na sua tela.");
       });
+    }
+
+    function recusarChamado(idFB) {
+      if (!db || !idFB) return;
+      controlarAlarme(false);
+      db.ref('ordens/' + idFB).update({
+        motoboyAceitou: false,
+        motoboyRecusou: true,
+        status: 'recusado_pelo_entregador'
+      }).then(() => {
+        alert("Chamado recusado.");
+      });
+    }
+
+    function concluirChamado(idFB) {
+      if (!db || !idFB) return;
+      if (confirm("Confirmar a conclusão desta entrega?")) {
+        db.ref('ordens/' + idFB).update({
+          concluido: true,
+          status: 'concluido',
+          timestampConclusao: Date.now()
+        }).then(() => {
+          alert("Entrega concluída com sucesso! Valor somado ao seu repasse.");
+        });
+      }
+    }
+
+    function apagarItemHistorico(idFB) {
+      if (!confirm("Deseja apagar este registro do seu histórico?")) return;
+      if (db && idFB) {
+        db.ref('ordens/' + idFB).remove();
+      }
+    }
+
+    function limparHistoricoCompleto() {
+      if (!confirm("Deseja limpar todos os seus registros concluídos?")) return;
+      if (db && listaOrdensCache.length > 0) {
+        const meuNomeNorm = (motoboyLogado.nome || '').trim().toLowerCase();
+        listaOrdensCache.forEach(r => {
+          const nomeDest = (r.motoboyNome || r.motoboy || '').trim().toLowerCase();
+          if (nomeDest === meuNomeNorm && r.concluido) {
+            db.ref('ordens/' + r.idFB).remove();
+          }
+        });
+      }
     }
 
     function sairConta() {
