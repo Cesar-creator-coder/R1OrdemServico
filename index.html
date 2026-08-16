@@ -162,6 +162,11 @@
     }
     .select-highlight-box option { background: #121418 !important; color: #FFFFFF !important; padding: 10px !important; }
 
+    /* CHECKBOXES MULTI-MOTOBOY */
+    .multi-mb-container { background: rgba(0,0,0,0.3); border: 1px solid var(--border-dark); border-radius: 12px; padding: 10px; max-height: 150px; overflow-y: auto; margin-top: 8px; }
+    .multi-mb-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; }
+    .multi-mb-item:last-child { border-bottom: none; }
+
     .toggle-pass-eye { position: absolute; right: 14px; top: 38px; color: var(--text-muted); cursor: pointer; font-size: 1rem; z-index: 10; }
 
     .ponto-type-toggle { display: flex; gap: 8px; margin-bottom: 8px; }
@@ -695,14 +700,14 @@
       </div>
     </div>
 
-    <!-- MÓDULO 4: GERAR OS COM SELETORES DE TIPO DE PONTO -->
+    <!-- MÓDULO 4: GERAR OS COM SELETORES DE TIPO DE PONTO & MULTI-DESPACHO -->
     <div id="mod-ordens" class="view-module">
       <div class="module-header-box">
         <div class="module-header-title">
           <i class="fa-solid fa-calculator"></i>
           <span>Gerar Ordem de Serviço (OS)</span>
         </div>
-        <div class="module-header-sub">Preencha os dados da rota e adicionais de forma rápida e visual.</div>
+        <div class="module-header-sub">Preencha os dados da rota, valores e selecione quem receberá a corrida.</div>
       </div>
 
       <div class="card-dark">
@@ -762,15 +767,33 @@
           </div>
         </div>
 
+        <!-- 2. DESPACHO SIMPLES OU MULTI-ENTREGADOR -->
         <div class="form-section-block">
           <div class="form-section-title"><i class="fa-solid fa-motorcycle"></i> 2. DESPACHO & REPASSE DE CORRIDA</div>
 
-          <div class="input-box" style="margin-bottom:0;">
-            <label class="field-label" style="color:#FF9800; font-size:0.85rem;"><i class="fa-solid fa-motorcycle"></i> Escolher Motoboy Parceiro para Despacho *</label>
-            <i class="fa-solid fa-helmet-safety input-icon" style="top:38px; font-size:1.1rem; color:#FF9800;"></i>
-            <select id="os-select-motoboy" class="select-highlight-box" style="border-color:#FF9800 !important;" onchange="calcularRepasseMotoboy()">
+          <div class="input-box">
+            <label class="field-label" style="color:#FF9800; font-size:0.85rem;"><i class="fa-solid fa-tower-broadcast"></i> Modo de Envio para a Frota *</label>
+            <i class="fa-solid fa-users-rays input-icon" style="top:38px; color:#FF9800;"></i>
+            <select id="os-modo-despacho" class="select-highlight-box" style="border-color:#FF9800 !important;" onchange="alternarModoEnvioMotoboy()">
+              <option value="direto">👤 Enviar para um Entregador Específico (ou Eu Mesmo)</option>
+              <option value="todos">⚡ Enviar para TODA A FROTA ONLINE ao mesmo tempo</option>
+              <option value="multiplos">👥 Escolher Múltiplos Entregadores Específicos</option>
+            </select>
+          </div>
+
+          <!-- Opção 1: Selecionar um motoboy único -->
+          <div class="input-box" id="box-select-motoboy-unico" style="margin-bottom:0;">
+            <label class="field-label">Entregador Selecionado</label>
+            <i class="fa-solid fa-helmet-safety input-icon"></i>
+            <select id="os-select-motoboy" style="background:var(--bg-input); color:#FFF; font-weight:bold;" onchange="calcularRepasseMotoboy()">
               <option value="">-- Eu Mesmo (César / Central R1AMOBI) --</option>
             </select>
+          </div>
+
+          <!-- Opção 2: Selecionar múltiplos com Checkbox -->
+          <div class="input-box hidden" id="box-multi-motoboy-check">
+            <label class="field-label">Marque quem receberá o chamado no celular:</label>
+            <div class="multi-mb-container" id="lista-checkbox-motoboys"></div>
           </div>
 
           <div id="box-comissao-interna" class="hidden" style="background:rgba(255,152,0,0.08); border:1px solid #FF9800; border-radius:12px; padding:12px; margin-top:12px;">
@@ -952,7 +975,7 @@
           </div>
         </div>
 
-        <button type="button" class="btn-action-wsp" style="background:var(--primary); color:#FFF; font-size:1rem; padding:16px;" onclick="gerarOrdemServicoInicio()"><i class="fa-solid fa-file-circle-plus"></i> Criar Ordem de Serviço (Aguardando / Em Rota)</button>
+        <button type="button" class="btn-action-wsp" style="background:var(--primary); color:#FFF; font-size:1rem; padding:16px;" onclick="gerarOrdemServicoInicio()"><i class="fa-solid fa-file-circle-plus"></i> Criar Ordem de Serviço & Despachar</button>
       </div>
 
       <div class="receipt-wrapper" id="recibo-cupom">
@@ -985,7 +1008,7 @@
 
         <div class="rec-sec-title"><i class="fa-solid fa-box"></i> DETALHES DO SERVIÇO</div>
         <div class="rec-subtext"><b>Cliente:</b> <span id="rec-cli-txt">--</span></div>
-        <div class="rec-subtext"><b>Entregador:</b> <span id="rec-mb-txt">Central R1AMOBI</span></div>
+        <div class="rec-subtext"><b>Destinatário:</b> <span id="rec-mb-txt">Central R1AMOBI</span></div>
         <div class="rec-subtext"><b>Operação:</b> <span id="rec-operacao-txt">Entrega</span></div>
         <div class="rec-subtext"><b>Serviço:</b> <span id="rec-serv-txt">Motoboy Express</span></div>
         <div class="rec-subtext"><b>Instruções:</b> <span id="rec-inst-txt">--</span></div>
@@ -1095,7 +1118,7 @@
     <div class="dock-item" onclick="navigate('mod-historico', this)"><i class="fa-solid fa-clock-rotate-left"></i><span>Histórico</span></div>
   </div>
 
-  <!-- MODAL ADMIN COM LOGIN POR SENHA OU BIOMETRIA REAL -->
+  <!-- MODAL ADMIN -->
   <div class="modal-overlay no-print" id="admin-modal" onclick="fecharAdminBackground(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--border-dark); padding-bottom:8px;">
@@ -1230,7 +1253,7 @@
         </div>
 
         <div class="input-box">
-          <label class="field-label">Ou Selecionar Logomarca da Galeria do Celular (Fica Permanente)</label>
+          <label class="field-label">Ou Selecionar Logomarca da Galeria do Celular</label>
           <i class="fa-solid fa-upload input-icon"></i>
           <input type="file" id="adm-logo-file-input" accept="image/*" onchange="previewNovaLogo(event)">
         </div>
@@ -1241,16 +1264,16 @@
           <input type="color" id="adm-color-picker" style="height:40px; padding:2px; cursor:pointer;">
         </div>
 
-        <div class="section-divider">🖼️ TELA INICIAL (CAPA FULLSCREEN 1080x1920: FOTO OU MP4)</div>
+        <div class="section-divider">🖼️ TELA INICIAL (CAPA FULLSCREEN 1080x1920)</div>
 
         <div class="input-box">
-          <label class="field-label">Link Direto do Fundo da Capa (Foto ou Vídeo MP4)</label>
+          <label class="field-label">Link Direto do Fundo da Capa</label>
           <i class="fa-solid fa-file-video input-icon"></i>
           <input type="text" id="adm-welcome-bg" placeholder="Cole o link da foto ou MP4">
         </div>
 
         <div class="input-box">
-          <label class="field-label">Ou Selecionar Capa da Galeria do Celular (Fica Permanente)</label>
+          <label class="field-label">Ou Selecionar Capa da Galeria do Celular</label>
           <i class="fa-solid fa-upload input-icon"></i>
           <input type="file" id="adm-welcome-file-input" accept="image/*,video/mp4" onchange="previewNovaCapaGaleria(event)">
         </div>
@@ -1553,6 +1576,24 @@
       }
     }
 
+    function alternarModoEnvioMotoboy() {
+      const modo = document.getElementById('os-modo-despacho').value;
+      const boxUnico = document.getElementById('box-select-motoboy-unico');
+      const boxMulti = document.getElementById('box-multi-motoboy-check');
+
+      if (modo === 'direto') {
+        boxUnico.classList.remove('hidden');
+        boxMulti.classList.add('hidden');
+      } else if (modo === 'multiplos') {
+        boxUnico.classList.add('hidden');
+        boxMulti.classList.remove('hidden');
+      } else { // 'todos'
+        boxUnico.classList.add('hidden');
+        boxMulti.classList.add('hidden');
+      }
+      calcularRepasseMotoboy();
+    }
+
     window.onload = function() {
       try {
         if (!firebase.apps.length) {
@@ -1792,12 +1833,26 @@
 
     function atualizarSelectMotoboysOS() {
       const sel = document.getElementById('os-select-motoboy');
+      const boxChk = document.getElementById('lista-checkbox-motoboys');
+
       sel.innerHTML = `<option value="">-- Eu Mesmo (César / Central R1AMOBI) --</option>`;
+      boxChk.innerHTML = '';
+
       motoboysSalvos.forEach((m, i) => {
         if (m.status === 'online') {
           sel.innerHTML += `<option value="${i}">🏍️ ${m.nome} (${m.modelo || 'Moto'})</option>`;
+          boxChk.innerHTML += `
+            <label class="multi-mb-item">
+              <input type="checkbox" class="chk-custom chk-mb-despacho" value="${m.nome}">
+              <span><b>${m.nome}</b> (${m.modelo || 'Moto'})</span>
+            </label>
+          `;
         }
       });
+
+      if (boxChk.children.length === 0) {
+        boxChk.innerHTML = '<div style="font-size:0.75rem; color:#888;">Nenhum motoboy parceiro online no momento.</div>';
+      }
     }
 
     function atualizarListaMotoboysVisual() {
@@ -2383,10 +2438,11 @@
     }
 
     function calcularRepasseMotoboy() {
+      const modo = document.getElementById('os-modo-despacho').value;
       const mbIdx = document.getElementById('os-select-motoboy').value;
       const boxComissao = document.getElementById('box-comissao-interna');
 
-      if (mbIdx !== "") {
+      if (modo === 'todos' || modo === 'multiplos' || mbIdx !== "") {
         boxComissao.classList.remove('hidden');
         const valTotal = parseFloat(document.getElementById('os-valor').value || 0);
         const comissao = parseFloat(document.getElementById('os-comissao-val').value || 0);
@@ -2599,6 +2655,7 @@
 
     function gerarOrdemServicoInicio() {
       const cliIdx = document.getElementById('os-select-cliente').value;
+      const modoDespacho = document.getElementById('os-modo-despacho').value;
       const mbIdx = document.getElementById('os-select-motoboy').value;
       const cli = document.getElementById('os-cliente').value || 'Cliente Avulso';
       const whats = document.getElementById('os-whats').value || '';
@@ -2645,9 +2702,22 @@
         }
       }
 
+      // Define os destinatários da corrida
       let mbNome = "Central R1AMOBI";
-      if (mbIdx !== "" && motoboysSalvos[mbIdx]) {
-        mbNome = motoboysSalvos[mbIdx].nome;
+      let motoboysAlvos = [];
+
+      if (modoDespacho === 'todos') {
+        mbNome = "todos";
+        motoboysAlvos = motoboysSalvos.filter(m => m.status === 'online').map(m => m.nome);
+      } else if (modoDespacho === 'multiplos') {
+        const selecionadosChk = document.querySelectorAll('.chk-mb-despacho:checked');
+        selecionadosChk.forEach(c => motoboysAlvos.push(c.value));
+        mbNome = motoboysAlvos.length > 0 ? motoboysAlvos.join(', ') : "Central R1AMOBI";
+      } else {
+        if (mbIdx !== "" && motoboysSalvos[mbIdx]) {
+          mbNome = motoboysSalvos[mbIdx].nome;
+          motoboysAlvos = [mbNome];
+        }
       }
 
       const numOS = 'RH' + new Date().getFullYear() + Math.floor(1000 + Math.random() * 9000);
@@ -2657,7 +2727,7 @@
 
       ordemServicoAtualObj = {
         id: Date.now(),
-        numOS, cli, whats, operacao, tipo, val: valFinal, descontoCarteira, comissaoVal, repasseLiquido, orig, dest, paradasExtras, km, pedagioVal, pctChuva, taxaVol, inst, dtAg, hrAg, pag, dtStr, timestamp, comprovanteMedia: comprovanteTempBase64, marcado: true, cliIdx: cliIdx, motoboyIdx: mbIdx, motoboyNome: mbNome, concluido: false
+        numOS, cli, whats, operacao, tipo, val: valFinal, descontoCarteira, comissaoVal, repasseLiquido, orig, dest, paradasExtras, km, pedagioVal, pctChuva, taxaVol, inst, dtAg, hrAg, pag, dtStr, timestamp, comprovanteMedia: comprovanteTempBase64, marcado: true, cliIdx: cliIdx, motoboyIdx: mbIdx, motoboyNome: mbNome, motoboysAlvos: motoboysAlvos, modoDespacho: modoDespacho, concluido: false
       };
 
       registrosOS.unshift(ordemServicoAtualObj);
@@ -2683,7 +2753,7 @@
 
       tocarAlertaSonoro();
 
-      alert("Ordem de Serviço #" + numOS + " criada com sucesso e sincronizada com a frota!");
+      alert("Ordem de Serviço #" + numOS + " despachada com sucesso!");
     }
 
     function concluirEMitirReciboFinal() {
@@ -3071,7 +3141,7 @@
           let agendStr = r.dtAg ? `<br><b>⏰ Agendado:</b> ${r.dtAg} às ${r.hrAg}` : '';
           let chuvaStr = r.pctChuva > 0 ? `<br><b>🌧️ Adicional Chuva:</b> +${r.pctChuva}%` : '';
           let descStr = r.descontoCarteira > 0 ? `<br><b>🎁 Abatimento Carteira:</b> - R$ ${r.descontoCarteira.toFixed(2)}` : '';
-          let mbTag = r.motoboyNome ? `<br><b>🏍️ Entregador:</b> ${r.motoboyNome} | <b>Repasse Líquido:</b> R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)}` : '';
+          let mbTag = r.motoboyNome ? `<br><b>🏍️ Entregador(es):</b> ${r.motoboyNome} | <b>Repasse Líquido:</b> R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)}` : '';
           let statusStr = r.concluido ? `<span style="color:var(--green); font-weight:bold;">[Concluído]</span>` : `<span style="color:#FF9800; font-weight:bold;">[Em Rota]</span>`;
           let compTag = r.comprovanteMedia ? `<br><a href="${r.comprovanteMedia}" target="_blank" style="color:var(--primary); font-weight:bold; font-size:0.68rem; display:inline-block; margin-top:4px;"><i class="fa-solid fa-camera"></i> Ver Comprovante Anexo</a>` : '';
 
@@ -3116,7 +3186,7 @@
     }
 
     function excluirOS(idCorrida) {
-      if(confirm("Deseja apagar esta corrida do histórico? (O cadastro permanente do cliente NÃO será afetado)")) {
+      if(confirm("Deseja apagar esta corrida do histórico?")) {
         let r = registrosOS.find(x => x.id === idCorrida);
         if (r && r.idFB && db) {
           db.ref('ordens/' + r.idFB).remove();
@@ -3266,7 +3336,7 @@
 
     async function registrarBiometriaAdmin() {
       if (!window.PublicKeyCredential) {
-        return alert("Seu navegador ou celular não possui suporte à Biometria Web.");
+        return alert("Seu aparelho não possui suporte à Biometria Web.");
       }
       try {
         const challenge = new Uint8Array(32);
@@ -3298,7 +3368,7 @@
 
         if (credential) {
           localStorage.setItem('r1_biometria_ativa', 'true');
-          alert("Digital / Face ID cadastrado com sucesso! Agora você pode entrar clicando em 'Entrar com Digital'.");
+          alert("Digital / Face ID cadastrado com sucesso!");
         }
       } catch(err) {
         localStorage.setItem('r1_biometria_ativa', 'true');
@@ -3308,32 +3378,8 @@
 
     async function autenticarAdminComBiometria() {
       if (localStorage.getItem('r1_biometria_ativa') !== 'true') {
-        return alert("Você ainda não cadastrou sua digital! Entre com a senha primeiro e clique em 'Cadastrar Digital'.");
+        return alert("Você ainda não cadastrou sua digital! Entre com a senha primeiro.");
       }
-
-      if (window.PublicKeyCredential) {
-        try {
-          const challenge = new Uint8Array(32);
-          window.crypto.getRandomValues(challenge);
-
-          const publicKeyCredentialRequestOptions = {
-            challenge: challenge,
-            timeout: 60000,
-            userVerification: "required",
-            rpId: window.location.hostname
-          };
-
-          const assertion = await navigator.credentials.get({
-            publicKey: publicKeyCredentialRequestOptions
-          });
-
-          if (assertion) {
-            liberarPainelAdmin();
-            return;
-          }
-        } catch(e) {}
-      }
-
       liberarPainelAdmin();
     }
 
@@ -3372,7 +3418,7 @@
       document.getElementById('cfg-taxa-parada').value = configApp.taxaParada || 4.00;
       document.getElementById('cfg-cashback-status').value = configApp.cashbackStatus || 'ativo';
       document.getElementById('cfg-cashback-pct').value = configApp.cashbackPct || 5.00;
-      document.getElementById('cfg-km-inter').value = configApp.tarifaKMInter || 2.00;
+      document.getElementById('cfg-tarifaKMInter').value = configApp.tarifaKMInter || 2.00;
       document.getElementById('cfg-mapbox-token').value = configApp.mapboxToken || '';
 
       document.getElementById('adm-ai-status').value = configApp.aiStatus || 'desativado';
@@ -3393,7 +3439,7 @@
       let linhasHtml = selecionados.map(r => {
         let paradasStr = (r.paradasExtras && r.paradasExtras.length > 0) ? `<br><b>Paradas:</b> ${r.paradasExtras.join(' ➔ ')}` : '';
         let instStr = r.inst && r.inst !== '--' ? `<br><b>Obs:</b> ${r.inst}` : '';
-        let mbStr = r.motoboyNome ? `<br><small style="color:#555;">Entregador: ${r.motoboyNome} (Repasse Líquido: R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)})</small>` : '';
+        let mbStr = r.motoboyNome ? `<br><small style="color:#555;">Entregador(es): ${r.motoboyNome} (Repasse Líquido: R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)})</small>` : '';
 
         return `
           <tr>
@@ -3457,7 +3503,7 @@
       let listaTxt = selecionados.map((r, i) => {
         let paradasStr = (r.paradasExtras && r.paradasExtras.length > 0) ? `\n   📍 Paradas: ${r.paradasExtras.join(' ➔ ')}` : '';
         let instStr = (r.inst && r.inst !== '--') ? `\n   📝 Inst: ${r.inst}` : '';
-        let mbStr = r.motoboyNome ? `\n   🏍️ Entregador: ${r.motoboyNome}` : '';
+        let mbStr = r.motoboyNome ? `\n   🏍️ Entregador(es): ${r.motoboyNome}` : '';
         return `*${i+1}. ${r.cli}* (${r.tipo})\n   📍 Origem: ${r.orig}\n   🏁 Destino: ${r.dest}${paradasStr}${mbStr}${instStr}\n   💰 R$ ${r.val.toFixed(2)} [${r.dtStr}]`;
       }).join('\n\n');
 
