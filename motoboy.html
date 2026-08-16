@@ -5,14 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>R1 MOTOBOY - Central do Entregador</title>
 
+  <!-- PWA CONFIG & ICONS -->
   <link rel="manifest" href="manifest-motoboy.json">
   <meta name="theme-color" content="#E30613">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="R1 Motoboy">
-  <link rel="icon" type="image/png" href="./icon-motoboy.png">
-  <link rel="apple-touch-icon" href="./icon-motoboy.png">
+  <link rel="icon" type="image/png" href="./icone-motoboy.png">
+  <link rel="apple-touch-icon" href="./icone-motoboy.png">
 
+  <!-- FontAwesome & Fonts -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
@@ -33,11 +35,12 @@
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; padding-bottom: 50px; }
+    body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; padding-bottom: 60px; }
 
     header { background: var(--bg-main); border-bottom: 1px solid var(--border-dark); padding: 14px 16px; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
     .brand { display: flex; align-items: center; gap: 10px; }
     .brand-logo-box { width: 34px; height: 34px; border-radius: 8px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; overflow: hidden; }
+    .brand-logo-box img { width: 100%; height: 100%; object-fit: cover; }
 
     .container { padding: 16px; max-width: 600px; margin: 0 auto; }
     .hidden { display: none !important; }
@@ -76,6 +79,10 @@
     .filter-panel { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 14px; margin: 20px 0 12px 0; }
     .filter-select { width: 100%; background: var(--bg-input); border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; color: #FFF; font-size: 0.85rem; font-weight: 700; outline: none; margin-top: 6px; }
     
+    .btn-relatorio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+    .btn-action-wsp { background: #25D366; color: #000; border: none; border-radius: 10px; padding: 10px; font-weight: 800; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-action-pdf { background: transparent; border: 1px solid var(--border-dark); color: #FFF; border-radius: 10px; padding: 10px; font-weight: 800; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
     .card-historico { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 12px; padding: 12px; margin-bottom: 8px; }
     .hist-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid #1A1D24; padding-bottom: 6px; }
     .hist-os { font-weight: 800; font-size: 0.85rem; }
@@ -87,13 +94,26 @@
     .tl-row { position: relative; margin-bottom: 8px; font-size: 0.85rem; }
     .tl-bullet { position: absolute; left: -20px; top: 4px; width: 10px; height: 10px; border-radius: 50%; }
     .empty-box { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 24px 16px; border-radius: 12px; border: 1px solid var(--border-dark); }
+
+    /* MODAL DE PDF */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 99999; display: none; align-items: center; justify-content: center; padding: 16px; }
+    .modal-pdf { background: #FFF; color: #000; border-radius: 16px; padding: 20px; width: 100%; max-width: 600px; max-height: 85vh; overflow-y: auto; }
+
+    @media print {
+      body * { visibility: hidden; }
+      #modal-pdf-content, #modal-pdf-content * { visibility: visible; }
+      #modal-pdf-content { position: absolute; left: 0; top: 0; width: 100%; color: #000 !important; background: #FFF !important; }
+      .no-print { display: none !important; }
+    }
   </style>
 </head>
 <body onclick="iniciarContextoAudio()">
 
   <header>
     <div class="brand">
-      <div class="brand-logo-box">R1</div>
+      <div class="brand-logo-box">
+        <img src="./icone-motoboy.png" onerror="this.src='./icon-motoboy.png'; this.onerror=function(){this.parentElement.innerText='R1';};">
+      </div>
       <div>
         <span style="font-weight:900; font-size:1.1rem; color:var(--primary); font-style:italic;">R1 <span style="color:#FFF;">MOTOBOY</span></span>
         <span style="font-size:0.6rem; color:var(--text-muted); display:block; margin-top:-4px;">CENTRAL DO ENTREGADOR</span>
@@ -194,21 +214,49 @@
 
       <div class="filter-panel">
         <div style="font-size:0.8rem; font-weight:800; display:flex; justify-content:space-between; align-items:center;">
-          <span><i class="fa-solid fa-file-invoice-dollar" style="color:var(--green);"></i> HISTÓRICO DE REPASSES</span>
+          <span><i class="fa-solid fa-file-invoice-dollar" style="color:var(--green);"></i> HISTÓRICO & EXTRATOS</span>
           <button onclick="limparHistoricoCompleto()" style="background:transparent; border:none; color:var(--red); font-size:0.7rem; cursor:pointer; font-weight:bold;"><i class="fa-solid fa-trash"></i> Limpar</button>
         </div>
-        <select id="mb-filtro-periodo" class="filter-select" onchange="renderizarPainelOrdens()">
+        
+        <select id="mb-filtro-periodo" class="filter-select" onchange="alternarFiltroPeriodo()">
           <option value="hoje">📅 Hoje (Faturamento do Dia)</option>
+          <option value="data_especifica">📆 Data Específica...</option>
           <option value="7dias">🗓️ Últimos 7 Dias</option>
           <option value="mes">📆 Este Mês</option>
           <option value="todos">📂 Todo o Histórico</option>
         </select>
+
+        <div id="box-mb-data-especifica" class="hidden" style="margin-top:8px;">
+          <input type="date" id="mb-input-data-especifica" class="input-control" style="padding:8px 12px; font-size:0.85rem;" onchange="renderizarPainelOrdens()">
+        </div>
+
+        <div class="btn-relatorio-grid">
+          <button type="button" class="btn-action-wsp" onclick="enviarRelatorioMotoboyWhats()"><i class="fa-brands fa-whatsapp"></i> Extrato WhatsApp</button>
+          <button type="button" class="btn-action-pdf" onclick="abrirPDFExtratoMotoboyModal()"><i class="fa-solid fa-file-pdf" style="color:var(--primary);"></i> Baixar PDF</button>
+        </div>
       </div>
 
       <div id="lista-historico-motoboy"></div>
 
     </div>
 
+  </div>
+
+  <!-- MODAL DE VISUALIZAÇÃO/IMPRESSÃO PDF DO ENTREGADOR -->
+  <div class="modal-overlay" id="pdf-motoboy-modal">
+    <div class="modal-pdf">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:2px solid #EEE; padding-bottom:8px;" class="no-print">
+        <h3 style="font-size:1rem; color:#000;"><i class="fa-solid fa-file-invoice-dollar" style="color:var(--primary)"></i> Extrato do Entregador</h3>
+        <i class="fa-solid fa-xmark" style="cursor:pointer; font-size:1.3rem; color:#000;" onclick="fecharPDFModal()"></i>
+      </div>
+
+      <div id="modal-pdf-content"></div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;" class="no-print">
+        <button type="button" class="btn-aceitar" style="background:var(--primary); color:#FFF;" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir / PDF</button>
+        <button type="button" class="btn-recusar" style="background:#EEE; color:#000; border-color:#CCC;" onclick="fecharPDFModal()">Fechar</button>
+      </div>
+    </div>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -284,6 +332,12 @@
         document.getElementById('box-cadastro').classList.add('hidden');
         document.getElementById('box-login').classList.remove('hidden');
       }
+    }
+
+    function alternarFiltroPeriodo() {
+      const f = document.getElementById('mb-filtro-periodo').value;
+      document.getElementById('box-mb-data-especifica').classList.toggle('hidden', f !== 'data_especifica');
+      renderizarPainelOrdens();
     }
 
     window.onload = function() {
@@ -472,6 +526,40 @@
       }
     }
 
+    function obterListaOrdensFiltradas() {
+      if (!motoboyLogado) return [];
+      const meuNomeNorm = (motoboyLogado.nome || '').trim().toLowerCase();
+
+      const minhas = listaOrdensCache.filter(r => {
+        const nomeDest = (r.motoboyNome || r.motoboy || '').trim().toLowerCase();
+        return (nomeDest === meuNomeNorm || nomeDest === 'todos' || nomeDest === '') && !r.motoboyRecusou;
+      });
+
+      const concluidas = minhas.filter(r => r.concluido);
+      const filtro = document.getElementById('mb-filtro-periodo').value;
+      const agora = new Date();
+
+      if (filtro === 'hoje') {
+        const inicioHoje = new Date().setHours(0,0,0,0);
+        return concluidas.filter(r => (r.timestamp || 0) >= inicioHoje);
+      } else if (filtro === 'data_especifica') {
+        const dtVal = document.getElementById('mb-input-data-especifica').value;
+        if (dtVal) {
+          const p = dtVal.split('-');
+          const busca = `${p[2]}/${p[1]}/${p[0]}`;
+          return concluidas.filter(r => (r.dtStr || '').includes(busca));
+        }
+        return concluidas;
+      } else if (filtro === '7dias') {
+        const limite = agora.getTime() - (7 * 24 * 60 * 60 * 1000);
+        return concluidas.filter(r => (r.timestamp || 0) >= limite);
+      } else if (filtro === 'mes') {
+        const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1).getTime();
+        return concluidas.filter(r => (r.timestamp || 0) >= inicioMes);
+      }
+      return concluidas;
+    }
+
     function renderizarPainelOrdens() {
       if (!motoboyLogado) return;
 
@@ -482,16 +570,10 @@
         return (nomeDest === meuNomeNorm || nomeDest === 'todos' || nomeDest === '') && !r.motoboyRecusou;
       });
 
-      // 1. Chamados que estão tocando para aceitar
       const pendentes = minhasOrdens.filter(r => !r.concluido && !r.motoboyAceitou);
-      
-      // 2. Chamados aceitos que estão em andamento
       const emAndamento = minhasOrdens.filter(r => !r.concluido && r.motoboyAceitou);
-
-      // 3. Corridas concluídas
       const concluidas = minhasOrdens.filter(r => r.concluido);
 
-      // Controle do alarme sonoro
       const isOnline = document.getElementById('status-txt').innerText === 'ONLINE';
       if (pendentes.length > 0 && isOnline) {
         controlarAlarme(true);
@@ -502,7 +584,6 @@
       const box = document.getElementById('box-chamados-dinamicos');
       let cardsHtml = '';
 
-      // Renderiza novas ofertas (com Aceitar e Recusar)
       pendentes.forEach(r => {
         cardsHtml += `
           <div class="card-oferta">
@@ -523,7 +604,6 @@
         `;
       });
 
-      // Renderiza corridas em andamento aceitas pelo motoboy
       emAndamento.forEach(r => {
         let rotaGPS = `https://www.google.com/maps/dir/${encodeURIComponent(r.orig || '')}/${encodeURIComponent(r.dest || '')}`;
         cardsHtml += `
@@ -544,14 +624,9 @@
         `;
       });
 
-      if (cardsHtml === '') {
-        box.innerHTML = `<div class="empty-box">Aguardando novos chamados da Central R1...</div>`;
-      } else {
-        box.innerHTML = cardsHtml;
-      }
+      box.innerHTML = cardsHtml || `<div class="empty-box">Aguardando novos chamados da Central R1...</div>`;
 
-      // Métricas
-      const agora = new Date();
+      // Métricas de Hoje
       const inicioHoje = new Date().setHours(0,0,0,0);
       const concluidasHoje = concluidas.filter(r => (r.timestamp || 0) >= inicioHoje);
       const totalHoje = concluidasHoje.reduce((acc, r) => acc + parseFloat(r.repasseLiquido !== undefined ? r.repasseLiquido : (r.val || 0)), 0);
@@ -559,23 +634,12 @@
       document.getElementById('mb-faturamento-total').innerText = `R$ ${totalHoje.toFixed(2)}`;
       document.getElementById('mb-entregas-qtd').innerText = concluidasHoje.length;
 
-      // Filtro de Histórico
-      const filtro = document.getElementById('mb-filtro-periodo').value;
-      let listaExibir = concluidas;
-
-      if (filtro === 'hoje') {
-        listaExibir = concluidasHoje;
-      } else if (filtro === '7dias') {
-        const seteDiasAtras = agora.getTime() - (7 * 24 * 60 * 60 * 1000);
-        listaExibir = concluidas.filter(r => (r.timestamp || 0) >= seteDiasAtras);
-      } else if (filtro === 'mes') {
-        const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1).getTime();
-        listaExibir = concluidas.filter(r => (r.timestamp || 0) >= inicioMes);
-      }
-
+      // Lista do Histórico
+      const listaExibir = obterListaOrdensFiltradas();
       const histEl = document.getElementById('lista-historico-motoboy');
+
       if (listaExibir.length === 0) {
-        histEl.innerHTML = `<div class="empty-box">Nenhuma corrida finalizada neste período.</div>`;
+        histEl.innerHTML = `<div class="empty-box">Nenhuma corrida finalizada no período.</div>`;
       } else {
         histEl.innerHTML = listaExibir.map(r => `
           <div class="card-historico">
@@ -654,6 +718,67 @@
           }
         });
       }
+    }
+
+    function enviarRelatorioMotoboyWhats() {
+      const lista = obterListaOrdensFiltradas();
+      if (lista.length === 0) return alert("Nenhuma corrida concluída no período selecionado para exportar!");
+
+      const totalRepasse = lista.reduce((acc, r) => acc + parseFloat(r.repasseLiquido !== undefined ? r.repasseLiquido : (r.val || 0)), 0);
+      const filtroTxt = document.getElementById('mb-filtro-periodo').options[document.getElementById('mb-filtro-periodo').selectedIndex].text;
+
+      let listaTxt = lista.map((r, i) => `• *OS #${r.numOS || '---'}* | ${r.cli || 'Cliente'}\n  📍 ${r.orig || 'Coleta'} ➔ 🏁 ${r.dest || 'Entrega'}\n  💰 Repasse: R$ ${parseFloat(r.repasseLiquido !== undefined ? r.repasseLiquido : (r.val || 0)).toFixed(2)} (${r.dtStr || ''})`).join('\n\n');
+
+      const txt = `*R1AMOBI - EXTRATO DE REPASSES DO ENTREGADOR*\n----------------------------------\n🏍️ *Entregador:* ${motoboyLogado.nome}\n📋 *Período:* ${filtroTxt}\n📦 *Total de Corridas:* ${lista.length}\n💵 *VALOR TOTAL A RECEBER:* R$ ${totalRepasse.toFixed(2)}\n----------------------------------\n*DETALHAMENTO DAS CORRIDAS:*\n\n${listaTxt}\n----------------------------------\nExtrato gerado em: ${new Date().toLocaleDateString('pt-BR')}`;
+
+      window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank');
+    }
+
+    function abrirPDFExtratoMotoboyModal() {
+      const lista = obterListaOrdensFiltradas();
+      if (lista.length === 0) return alert("Nenhuma corrida no período para gerar o PDF!");
+
+      const totalRepasse = lista.reduce((acc, r) => acc + parseFloat(r.repasseLiquido !== undefined ? r.repasseLiquido : (r.val || 0)), 0);
+      const filtroTxt = document.getElementById('mb-filtro-periodo').options[document.getElementById('mb-filtro-periodo').selectedIndex].text;
+
+      let linhasHtml = lista.map(r => `
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid #DDD; font-size:0.75rem;">${r.dtStr || ''}</td>
+          <td style="padding:6px; border-bottom:1px solid #DDD; font-size:0.75rem;">
+            <b>OS #${r.numOS || '---'} - ${r.cli || 'Cliente'}</b><br>
+            <small style="color:#555;">📍 ${r.orig || ''} ➔ 🏁 ${r.dest || ''}</small>
+          </td>
+          <td style="padding:6px; border-bottom:1px solid #DDD; font-weight:bold; color:#00C853; font-size:0.85rem; text-align:right;">R$ ${parseFloat(r.repasseLiquido !== undefined ? r.repasseLiquido : (r.val || 0)).toFixed(2)}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('modal-pdf-content').innerHTML = `
+        <h2 style="color:#E30613; margin-bottom:2px;">R1AMOBI LOGÍSTICA</h2>
+        <p style="font-size:0.8rem; color:#555;">Extrato Detalhado de Corridas & Repasses</p>
+        <hr style="margin:8px 0; border:0; border-top:1px solid #EEE;">
+        <p style="font-size:0.85rem;"><b>Entregador:</b> ${motoboyLogado.nome} | <b>WhatsApp:</b> ${motoboyLogado.whats || ''}</p>
+        <p style="font-size:0.85rem;"><b>Período:</b> ${filtroTxt} | <b>Total de Corridas:</b> ${lista.length}</p>
+        <p style="font-size:0.95rem; margin-top:4px;"><b>Total Líquido do Período:</b> <b style="color:#00C853;">R$ ${totalRepasse.toFixed(2)}</b></p>
+        
+        <table style="width:100%; border-collapse:collapse; margin-top:12px; font-size:0.75rem; color:#000;">
+          <thead>
+            <tr style="background:#F5F5F5; text-align:left;">
+              <th style="padding:6px;">Data/Hora</th>
+              <th style="padding:6px;">Cliente & Itinerário</th>
+              <th style="padding:6px; text-align:right;">Repasse</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${linhasHtml}
+          </tbody>
+        </table>
+      `;
+
+      document.getElementById('pdf-motoboy-modal').style.display = 'flex';
+    }
+
+    function fecharPDFModal() {
+      document.getElementById('pdf-motoboy-modal').style.display = 'none';
     }
 
     function sairConta() {
