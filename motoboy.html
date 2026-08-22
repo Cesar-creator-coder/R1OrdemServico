@@ -63,6 +63,10 @@
     .metric-card { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 14px; padding: 14px; text-align: center; }
     .metric-val { font-size: 1.3rem; font-weight: 900; margin-top: 4px; }
 
+    /* BARRA DE TESTE DE ÁUDIO */
+    .audio-test-bar { background: rgba(255,255,255,0.04); border: 1px dashed var(--border-dark); border-radius: 10px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .btn-test-sound { background: rgba(227, 6, 19, 0.2); border: 1px solid var(--primary); color: #FFF; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+
     /* CARD OFERTA NOVA */
     .card-oferta { background: #161922; border: 2px solid var(--primary); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; box-shadow: 0 0 20px rgba(227,6,19,0.4); animation: pulseAlert 1.5s infinite alternate; }
     @keyframes pulseAlert { from { box-shadow: 0 0 10px rgba(227,6,19,0.3); } to { box-shadow: 0 0 25px rgba(227,6,19,0.8); } }
@@ -107,7 +111,10 @@
     }
   </style>
 </head>
-<body onclick="iniciarContextoAudio()">
+<body onclick="desbloquearAudioGeral()">
+
+  <!-- Elemento de áudio pré-carregado -->
+  <audio id="audio-player-r1" src="./alerta.mp3" preload="auto" playsinline></audio>
 
   <header>
     <div class="brand">
@@ -192,6 +199,12 @@
         <button class="btn-status-toggle online" id="btn-status" onclick="alternarStatus()">
           <i class="fa-solid fa-circle"></i> <span id="status-txt">ONLINE</span>
         </button>
+      </div>
+
+      <!-- Barra rápida de teste e desbloqueio do alarme -->
+      <div class="audio-test-bar">
+        <div style="font-size:0.75rem; color:var(--text-muted);"><i class="fa-solid fa-volume-high" style="color:var(--primary)"></i> Alarme Sonoro R1</div>
+        <button type="button" class="btn-test-sound" onclick="testarToqueR1Manual()"><i class="fa-solid fa-play"></i> Testar Toque R1</button>
       </div>
 
       <div class="metrics-grid">
@@ -279,47 +292,84 @@
     let listaOrdensCache = [];
     let audioCtx = null;
     let intervalSom = null;
+    let audioDesbloqueado = false;
 
-    function iniciarContextoAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
+    // Desbloqueia a permissão de som no primeiro toque em qualquer parte da tela
+    function desbloquearAudioGeral() {
+      if (audioDesbloqueado) return;
+
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const player = document.getElementById('audio-player-r1');
+        if (player) {
+          player.play().then(() => {
+            player.pause();
+            player.currentTime = 0;
+            audioDesbloqueado = true;
+          }).catch(() => {});
+        }
+      } catch(e) {}
     }
 
     function tocarBiBiSonoro() {
-      iniciarContextoAudio();
-      const audio = new Audio('./alerta.mp3');
-      audio.play().catch(() => {
-        try {
-          if (!audioCtx) return;
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(850, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(450, audioCtx.currentTime + 0.25);
-          gain.gain.setValueAtTime(0.7, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.25);
-        } catch(e) {}
-      });
+      desbloquearAudioGeral();
+
+      // Vibração no celular
+      if (navigator.vibrate) {
+        navigator.vibrate([400, 200, 400]);
+      }
+
+      const player = document.getElementById('audio-player-r1');
+      if (player) {
+        player.currentTime = 0;
+        player.play().catch(() => {
+          // Fallback sonoro nativo via Web Audio sintetizado caso o arquivo falhe
+          try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(850, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(450, audioCtx.currentTime + 0.25);
+            gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.25);
+          } catch(e) {}
+        });
+      }
+    }
+
+    function testarToqueR1Manual() {
+      desbloquearAudioGeral();
+      tocarBiBiSonoro();
     }
 
     function controlarAlarme(ativo) {
       if (ativo) {
         if (!intervalSom) {
           tocarBiBiSonoro();
-          intervalSom = setInterval(tocarBiBiSonoro, 3000);
+          intervalSom = setInterval(tocarBiBiSonoro, 2500);
         }
       } else {
         if (intervalSom) {
           clearInterval(intervalSom);
           intervalSom = null;
+        }
+        const player = document.getElementById('audio-player-r1');
+        if (player) {
+          player.pause();
+          player.currentTime = 0;
         }
       }
     }
@@ -385,6 +435,7 @@
     }
 
     function salvarNovoEntregador() {
+      desbloquearAudioGeral();
       const nome = document.getElementById('cad-nome').value.trim();
       const whats = document.getElementById('cad-whats').value.trim();
       const moto = document.getElementById('cad-moto').value.trim();
@@ -422,6 +473,7 @@
     }
 
     function entrarComoMotoboy() {
+      desbloquearAudioGeral();
       const idSelecionado = document.getElementById('select-motoboys-cadastrados').value;
       const whatsDigitado = document.getElementById('login-whats').value.trim().replace(/\D/g, '');
 
@@ -489,6 +541,7 @@
             document.getElementById('status-txt').innerText = "PAUSADO";
             controlarAlarme(false);
           }
+          renderizarPainelOrdens();
         }, () => {});
 
         db.ref('ordens').on('value', (snap) => {
@@ -507,6 +560,7 @@
     }
 
     function alternarStatus() {
+      desbloquearAudioGeral();
       if (!motoboyLogado) return;
       const atual = document.getElementById('status-txt').innerText;
       const novo = atual === 'ONLINE' ? 'offline' : 'online';
@@ -522,7 +576,9 @@
       }
 
       if (db && motoboyLogado.idFB) {
-        db.ref('motoboys/' + motoboyLogado.idFB).update({ status: novo }).catch(() => {});
+        db.ref('motoboys/' + motoboyLogado.idFB).update({ status: novo }).then(() => {
+          renderizarPainelOrdens();
+        }).catch(() => {});
       }
     }
 
@@ -532,47 +588,51 @@
 
       const minhas = listaOrdensCache.filter(r => {
         const nomeDest = (r.motoboyNome || r.motoboy || '').trim().toLowerCase();
-        return (nomeDest === meuNomeNorm || nomeDest === 'todos' || nomeDest === '') && !r.motoboyRecusou;
+        const souDestinatario = (nomeDest === meuNomeNorm || nomeDest === 'todos' || nomeDest === '' || (r.motoboysAlvos && r.motoboysAlvos.some(n => n.toLowerCase() === meuNomeNorm)));
+        return souDestinatario && r.concluido && (r.motoboyNome || '').toLowerCase() === meuNomeNorm;
       });
 
-      const concluidas = minhas.filter(r => r.concluido);
       const filtro = document.getElementById('mb-filtro-periodo').value;
       const agora = new Date();
 
       if (filtro === 'hoje') {
         const inicioHoje = new Date().setHours(0,0,0,0);
-        return concluidas.filter(r => (r.timestamp || 0) >= inicioHoje);
+        return minhas.filter(r => (r.timestamp || 0) >= inicioHoje);
       } else if (filtro === 'data_especifica') {
         const dtVal = document.getElementById('mb-input-data-especifica').value;
         if (dtVal) {
           const p = dtVal.split('-');
           const busca = `${p[2]}/${p[1]}/${p[0]}`;
-          return concluidas.filter(r => (r.dtStr || '').includes(busca));
+          return minhas.filter(r => (r.dtStr || '').includes(busca));
         }
-        return concluidas;
+        return minhas;
       } else if (filtro === '7dias') {
         const limite = agora.getTime() - (7 * 24 * 60 * 60 * 1000);
-        return concluidas.filter(r => (r.timestamp || 0) >= limite);
+        return minhas.filter(r => (r.timestamp || 0) >= limite);
       } else if (filtro === 'mes') {
         const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1).getTime();
-        return concluidas.filter(r => (r.timestamp || 0) >= inicioMes);
+        return minhas.filter(r => (r.timestamp || 0) >= inicioMes);
       }
-      return concluidas;
+      return minhas;
     }
 
     function renderizarPainelOrdens() {
       if (!motoboyLogado) return;
 
       const meuNomeNorm = (motoboyLogado.nome || '').trim().toLowerCase();
+      const meuNomeKey = meuNomeNorm.replace(/[^a-z0-9]/g, '_');
 
       const minhasOrdens = listaOrdensCache.filter(r => {
         const nomeDest = (r.motoboyNome || r.motoboy || '').trim().toLowerCase();
-        return (nomeDest === meuNomeNorm || nomeDest === 'todos' || nomeDest === '') && !r.motoboyRecusou;
+        const souDestinatario = (nomeDest === meuNomeNorm || nomeDest === 'todos' || nomeDest === '' || (r.motoboysAlvos && r.motoboysAlvos.some(n => n.toLowerCase() === meuNomeNorm)));
+        const euRecusei = r.recusados && r.recusados[meuNomeKey];
+
+        return souDestinatario && !euRecusei;
       });
 
       const pendentes = minhasOrdens.filter(r => !r.concluido && !r.motoboyAceitou);
-      const emAndamento = minhasOrdens.filter(r => !r.concluido && r.motoboyAceitou);
-      const concluidas = minhasOrdens.filter(r => r.concluido);
+      const emAndamento = listaOrdensCache.filter(r => !r.concluido && r.motoboyAceitou && (r.motoboyNome || '').toLowerCase() === meuNomeNorm);
+      const concluidas = listaOrdensCache.filter(r => r.concluido && (r.motoboyNome || '').toLowerCase() === meuNomeNorm);
 
       const isOnline = document.getElementById('status-txt').innerText === 'ONLINE';
       if (pendentes.length > 0 && isOnline) {
@@ -626,7 +686,7 @@
 
       box.innerHTML = cardsHtml || `<div class="empty-box">Aguardando novos chamados da Central R1...</div>`;
 
-      // Métricas de Hoje
+      // Métricas do Dia
       const inicioHoje = new Date().setHours(0,0,0,0);
       const concluidasHoje = concluidas.filter(r => (r.timestamp || 0) >= inicioHoje);
       const totalHoje = concluidasHoje.reduce((acc, r) => acc + parseFloat(r.repasseLiquido !== undefined ? r.repasseLiquido : (r.val || 0)), 0);
@@ -665,25 +725,36 @@
     function aceitarChamado(idFB) {
       if (!db || !idFB) return;
       controlarAlarme(false);
-      db.ref('ordens/' + idFB).update({
-        motoboyAceitou: true,
-        motoboyRecusou: false,
-        motoboyNome: motoboyLogado.nome,
-        status: 'em_andamento'
-      }).then(() => {
-        alert("Chamado aceito! A rota está disponível na sua tela.");
+
+      db.ref('ordens/' + idFB).transaction((ordem) => {
+        if (ordem) {
+          if (ordem.motoboyAceitou) {
+            return;
+          }
+          ordem.motoboyAceitou = true;
+          ordem.motoboyNome = motoboyLogado.nome;
+          ordem.status = 'em_andamento';
+          return ordem;
+        }
+        return ordem;
+      }, (error, committed, snapshot) => {
+        if (committed && snapshot.val() && snapshot.val().motoboyNome === motoboyLogado.nome) {
+          alert("Chamado aceito com sucesso! A rota está na sua tela.");
+        } else {
+          alert("Ops! Esta corrida acabou de ser aceita por outro motoboy.");
+        }
       });
     }
 
     function recusarChamado(idFB) {
-      if (!db || !idFB) return;
+      if (!db || !idFB || !motoboyLogado) return;
       controlarAlarme(false);
-      db.ref('ordens/' + idFB).update({
-        motoboyAceitou: false,
-        motoboyRecusou: true,
-        status: 'recusado_pelo_entregador'
-      }).then(() => {
-        alert("Chamado recusado.");
+
+      const meuNomeNorm = (motoboyLogado.nome || '').trim().toLowerCase();
+      const meuNomeKey = meuNomeNorm.replace(/[^a-z0-9]/g, '_');
+
+      db.ref('ordens/' + idFB + '/recusados/' + meuNomeKey).set(true).then(() => {
+        renderizarPainelOrdens();
       });
     }
 
