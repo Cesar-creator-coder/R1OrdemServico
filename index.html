@@ -162,7 +162,6 @@
     }
     .select-highlight-box option { background: #121418 !important; color: #FFFFFF !important; padding: 10px !important; }
 
-    /* CHECKBOXES MULTI-MOTOBOY */
     .multi-mb-container { background: rgba(0,0,0,0.3); border: 1px solid var(--border-dark); border-radius: 12px; padding: 10px; max-height: 150px; overflow-y: auto; margin-top: 8px; }
     .multi-mb-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; }
     .multi-mb-item:last-child { border-bottom: none; }
@@ -412,7 +411,7 @@
 
       <!-- BOTÕES DE AÇÃO -->
       <button class="btn-action-wsp" type="button" onclick="enviarWhatsCliente()"><i class="fa-brands fa-whatsapp"></i> WhatsApp Recibo do Cliente</button>
-      <button class="btn-action-motoboy" type="button" onclick="enviarWhatsMotoboy()"><i class="fa-solid fa-motorcycle"></i> Despacho Motoboy (Com Rota GPS Multi-Pontos)</button>
+      <button class="btn-action-motoboy" type="button" onclick="enviarWhatsMotoboy()"><i class="fa-solid fa-motorcycle"></i> Despacho Motoboy (Google Maps + Waze GPS)</button>
       <button class="btn-action-gcal" type="button" onclick="agendarNoGoogleCalendar()"><i class="fa-regular fa-calendar-check"></i> Adicionar ao Google Agenda</button>
       <button class="btn-action-map" type="button" onclick="abrirRotaMapbox()"><i class="fa-solid fa-location-arrow"></i> Abrir Rota no Mapa</button>
     </div>
@@ -1047,7 +1046,7 @@
         <button class="btn-action-wsp" type="button" style="background:var(--green); color:#000;" onclick="concluirEMitirReciboFinal()"><i class="fa-solid fa-check-double"></i> 🧾 Gerar & Emitir Recibo de Conclusão (Pago)</button>
         <button class="btn-action-map" type="button" style="color:#FFF; border-color:#333;" onclick="abrirModalPDFRecibo()"><i class="fa-solid fa-download" style="color:var(--primary)"></i> Baixar / Imprimir OS ou Recibo (PDF)</button>
         <button class="btn-action-wsp" type="button" onclick="enviarWhatsCliente()"><i class="fa-brands fa-whatsapp"></i> Enviar WhatsApp ao Cliente</button>
-        <button class="btn-action-motoboy" type="button" onclick="enviarWhatsMotoboy()"><i class="fa-solid fa-motorcycle"></i> Despacho Motoboy (Com Rota GPS Multi-Pontos)</button>
+        <button class="btn-action-motoboy" type="button" onclick="enviarWhatsMotoboy()"><i class="fa-solid fa-motorcycle"></i> Despacho Motoboy (Google Maps + Waze GPS)</button>
       </div>
     </div>
 
@@ -1587,7 +1586,7 @@
       } else if (modo === 'multiplos') {
         boxUnico.classList.add('hidden');
         boxMulti.classList.remove('hidden');
-      } else { // 'todos'
+      } else {
         boxUnico.classList.add('hidden');
         boxMulti.classList.add('hidden');
       }
@@ -2702,7 +2701,6 @@
         }
       }
 
-      // Define os destinatários da corrida
       let mbNome = "Central R1AMOBI";
       let motoboysAlvos = [];
 
@@ -3255,14 +3253,21 @@
         destinatarioWhats = motoboysSalvos[mbIdx].whats.replace(/\D/g, '');
       }
 
-      let pontos = [orig, ...paradas, dest];
-      let linkRotaGPS = `https://www.google.com/maps/dir/` + pontos.map(p => encodeURIComponent(p)).join('/');
+      // Sanitiza endereços removendo tags [COLETA]/[ENTREGA] para garantir localização 100% precisa
+      let listaPontosLimpos = [orig, ...paradas, dest].map(p => p.replace(/\[.*?\]/g, '').trim());
+      
+      // Link Google Maps com todas as paradas
+      let linkGoogleMaps = `https://www.google.com/maps/dir/` + listaPontosLimpos.map(p => encodeURIComponent(p)).join('/');
+      
+      // Link Waze com rota ponto a ponto para o destino
+      let destinoLimpoWaze = dest.replace(/\[.*?\]/g, '').trim();
+      let linkWazeGPS = `https://waze.com/ul?q=${encodeURIComponent(destinoLimpoWaze)}&navigate=yes`;
 
       let txtAg = dtAg ? `\n⏰ *AGENDADO PARA:* ${dtAg} às ${hrAg}` : '';
       let txtParadas = paradas.length > 0 ? `\n📍 *PARADAS INTERMEDIÁRIAS:*\n` + paradas.map((p, i) => `   ${i+1}. ${p}`).join('\n') : '';
       let txtInst = inst ? `\n📝 *INSTRUÇÕES / CAIXAS:*\n${inst}` : '';
 
-      const txt = `🚨 *NOVA CORRIDA / DESPACHO R1AMOBI* 🚨\n----------------------------------\n🗓️ *Data do Serviço:* ${dtEmissao}\n*Cliente:* ${cli} (${whatsCli})\n*Operação:* ${operacao} (${tipo})${txtAg}\n📍 *PONTO INICIAL:* ${orig}${txtParadas}\n🏁 *PONTO FINAL:* ${dest}${txtInst}\n\n🗺️ *LINK DA ROTA COMPLETA NO GPS:*\n${linkRotaGPS}\n\n----------------------------------\n📊 *DEMONSTRATIVO DO SERVIÇO:*\n💰 *Valor Cobrado do Cliente:* R$ ${valCliente}\n🏷️ *Comissão da Central:* R$ ${comissaoVal}\n💵 *SEU REPASSE LÍQUIDO:* R$ ${repasseLiquido}\n*Forma de Pgto:* ${pag}\n----------------------------------\nBoa corrida e vá com segurança! 🏍️💨`;
+      const txt = `🚨 *NOVA CORRIDA / DESPACHO R1AMOBI* 🚨\n----------------------------------\n🗓️ *Data do Serviço:* ${dtEmissao}\n*Cliente:* ${cli} (${whatsCli})\n*Operação:* ${operacao} (${tipo})${txtAg}\n📍 *PONTO INICIAL:* ${orig}${txtParadas}\n🏁 *PONTO FINAL:* ${dest}${txtInst}\n\n🗺️ *LINKS DE NAVEGAÇÃO GPS:*\n🔵 *Google Maps (Multi-Paradas):*\n${linkGoogleMaps}\n\n🟣 *Waze GPS (Radares & Trânsito):*\n${linkWazeGPS}\n\n----------------------------------\n📊 *DEMONSTRATIVO DO SERVIÇO:*\n💰 *Valor Cobrado do Cliente:* R$ ${valCliente}\n🏷️ *Comissão da Central:* R$ ${comissaoVal}\n💵 *SEU REPASSE LÍQUIDO:* R$ ${repasseLiquido}\n*Forma de Pgto:* ${pag}\n----------------------------------\nBoa corrida e vá com segurança! 🏍️💨`;
 
       if (destinatarioWhats) {
         window.open(`https://wa.me/55${destinatarioWhats}?text=${encodeURIComponent(txt)}`, '_blank');
@@ -3295,7 +3300,7 @@
       const orig = document.getElementById('os-origem').value || 'Depósito Central';
       const dest = document.getElementById('os-destino').value || 'Entrega';
       const paradas = obterListaParadasIniciais();
-      let pontos = [orig, ...paradas, dest];
+      let pontos = [orig, ...paradas, dest].map(p => p.replace(/\[.*?\]/g, '').trim());
       window.open(`https://www.google.com/maps/dir/` + pontos.map(p => encodeURIComponent(p)).join('/'), '_blank');
     }
 
@@ -3418,7 +3423,7 @@
       document.getElementById('cfg-taxa-parada').value = configApp.taxaParada || 4.00;
       document.getElementById('cfg-cashback-status').value = configApp.cashbackStatus || 'ativo';
       document.getElementById('cfg-cashback-pct').value = configApp.cashbackPct || 5.00;
-      document.getElementById('cfg-tarifaKMInter').value = configApp.tarifaKMInter || 2.00;
+      document.getElementById('cfg-km-inter').value = configApp.tarifaKMInter || 2.00;
       document.getElementById('cfg-mapbox-token').value = configApp.mapboxToken || '';
 
       document.getElementById('adm-ai-status').value = configApp.aiStatus || 'desativado';
