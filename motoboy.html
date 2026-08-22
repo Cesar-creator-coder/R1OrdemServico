@@ -32,6 +32,7 @@
       --orange: #FF9800;
       --red: #FF5252;
       --blue: #2979FF;
+      --waze-cyan: #33CCFF;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -75,10 +76,14 @@
     .card-em-andamento { background: #12171F; border: 2px solid var(--blue); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; }
 
     .grid-botoes-acao { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .grid-gps-duplo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; margin-bottom: 12px; }
+
     .btn-aceitar { background: var(--green); color: #000; border: none; border-radius: 12px; padding: 14px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.95rem; }
     .btn-recusar { background: rgba(255, 82, 82, 0.2); border: 1px solid var(--red); color: var(--red); border-radius: 12px; padding: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.95rem; }
-    .btn-concluir { background: var(--green); color: #000; border: none; border-radius: 12px; padding: 16px; font-weight: 900; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem; margin-top: 10px; }
-    .btn-mapa { background: transparent; border: 1px solid var(--blue); color: var(--blue); border-radius: 12px; padding: 12px; font-weight: 800; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; margin-top: 10px; }
+    .btn-concluir { background: var(--green); color: #000; border: none; border-radius: 12px; padding: 16px; font-weight: 900; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem; }
+    
+    .btn-mapa-google { background: rgba(41, 121, 255, 0.15); border: 1.5px solid var(--blue); color: #FFF; border-radius: 12px; padding: 12px 6px; font-weight: 800; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.85rem; }
+    .btn-mapa-waze { background: rgba(51, 204, 255, 0.15); border: 1.5px solid var(--waze-cyan); color: #FFF; border-radius: 12px; padding: 12px 6px; font-weight: 800; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.85rem; }
 
     .filter-panel { background: var(--bg-card); border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 14px; margin: 20px 0 12px 0; }
     .filter-select { width: 100%; background: var(--bg-input); border: 1px solid var(--border-dark); border-radius: 10px; padding: 10px; color: #FFF; font-size: 0.85rem; font-weight: 700; outline: none; margin-top: 6px; }
@@ -201,7 +206,7 @@
         </button>
       </div>
 
-      <!-- Barra rápida de teste e desbloqueio do alarme -->
+      <!-- Barra de teste e ativação de áudio -->
       <div class="audio-test-bar">
         <div style="font-size:0.75rem; color:var(--text-muted);"><i class="fa-solid fa-volume-high" style="color:var(--primary)"></i> Alarme Sonoro R1</div>
         <button type="button" class="btn-test-sound" onclick="testarToqueR1Manual()"><i class="fa-solid fa-play"></i> Testar Toque R1</button>
@@ -294,7 +299,6 @@
     let intervalSom = null;
     let audioDesbloqueado = false;
 
-    // Desbloqueia a permissão de som no primeiro toque em qualquer parte da tela
     function desbloquearAudioGeral() {
       if (audioDesbloqueado) return;
 
@@ -320,7 +324,6 @@
     function tocarBiBiSonoro() {
       desbloquearAudioGeral();
 
-      // Vibração no celular
       if (navigator.vibrate) {
         navigator.vibrate([400, 200, 400]);
       }
@@ -329,7 +332,6 @@
       if (player) {
         player.currentTime = 0;
         player.play().catch(() => {
-          // Fallback sonoro nativo via Web Audio sintetizado caso o arquivo falhe
           try {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -665,7 +667,22 @@
       });
 
       emAndamento.forEach(r => {
-        let rotaGPS = `https://www.google.com/maps/dir/${encodeURIComponent(r.orig || '')}/${encodeURIComponent(r.dest || '')}`;
+        // Limpeza dos endereços para criar URLs de GPS precisas
+        let origLimpa = (r.orig || '').replace(/\[.*?\]/g, '').trim();
+        let destLimpa = (r.dest || '').replace(/\[.*?\]/g, '').trim();
+        let paradasLimpas = (r.paradasExtras || []).map(p => p.replace(/\[.*?\]/g, '').trim());
+
+        // URL Oficial de Navegação com Itinerário no Google Maps
+        let rotaGoogle = '';
+        if (paradasLimpas.length > 0) {
+          rotaGoogle = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origLimpa)}&destination=${encodeURIComponent(destLimpa)}&waypoints=${encodeURIComponent(paradasLimpas.join('|'))}&travelmode=driving`;
+        } else {
+          rotaGoogle = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origLimpa)}&destination=${encodeURIComponent(destLimpa)}&travelmode=driving`;
+        }
+
+        // URL Oficial do Waze Direto para o Destino da Entrega
+        let rotaWaze = `https://waze.com/ul?q=${encodeURIComponent(destLimpa)}&navigate=yes`;
+
         cardsHtml += `
           <div class="card-em-andamento">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -678,7 +695,17 @@
               <div class="tl-row"><div class="tl-bullet" style="background:var(--green);"></div><b>Entrega:</b> ${r.dest || '---'}</div>
             </div>
             ${r.inst && r.inst !== '--' ? `<div style="font-size:0.75rem; color:#DDD; background:rgba(0,0,0,0.3); padding:6px; border-radius:6px; margin:6px 0;"><b>Instruções:</b> ${r.inst}</div>` : ''}
-            <button class="btn-mapa" onclick="window.open('${rotaGPS}', '_blank')"><i class="fa-solid fa-location-arrow"></i> ABRIR ROTA NO GPS</button>
+            
+            <!-- Botões GPS Duplo com Ícones Perfeitos -->
+            <div class="grid-gps-duplo">
+              <button type="button" class="btn-mapa-google" onclick="window.open('${rotaGoogle}', '_blank')">
+                <i class="fa-solid fa-map-location-dot" style="color:var(--blue);"></i> Google Maps
+              </button>
+              <button type="button" class="btn-mapa-waze" onclick="window.open('${rotaWaze}', '_blank')">
+                <svg style="width:16px; height:16px; fill:#33CCFF;" viewBox="0 0 24 24"><path d="M12.003 2C6.48 2 2 6.48 2 12c0 1.54.36 3.04 1.05 4.38L2 22l5.77-1.02c1.3.62 2.73.96 4.23.96 5.52 0 10-4.48 10-10s-4.48-10-10-10zm-3.5 13.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm7 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg> Waze GPS
+              </button>
+            </div>
+
             <button class="btn-concluir" onclick="concluirChamado('${r.idFB}')"><i class="fa-solid fa-check-double"></i> CONCLUIR ENTREGA</button>
           </div>
         `;
