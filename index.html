@@ -411,7 +411,7 @@
 
       <!-- BOTÕES DE AÇÃO -->
       <button class="btn-action-wsp" type="button" onclick="enviarWhatsCliente()"><i class="fa-brands fa-whatsapp"></i> WhatsApp Recibo do Cliente</button>
-      <button class="btn-action-motoboy" type="button" onclick="enviarWhatsMotoboy()"><i class="fa-solid fa-motorcycle"></i> Despacho Motoboy (Google Maps + Waze GPS)</button>
+      <button class="btn-action-motoboy" type="button" onclick="enviarWhatsMotoboy()"><i class="fa-solid fa-motorcycle"></i> Despacho Motoboy (Com Rota GPS Multi-Pontos)</button>
       <button class="btn-action-gcal" type="button" onclick="agendarNoGoogleCalendar()"><i class="fa-regular fa-calendar-check"></i> Adicionar ao Google Agenda</button>
       <button class="btn-action-map" type="button" onclick="abrirRotaMapbox()"><i class="fa-solid fa-location-arrow"></i> Abrir Rota no Mapa</button>
     </div>
@@ -1046,7 +1046,7 @@
         <button class="btn-action-wsp" type="button" style="background:var(--green); color:#000;" onclick="concluirEMitirReciboFinal()"><i class="fa-solid fa-check-double"></i> 🧾 Gerar & Emitir Recibo de Conclusão (Pago)</button>
         <button class="btn-action-map" type="button" style="color:#FFF; border-color:#333;" onclick="abrirModalPDFRecibo()"><i class="fa-solid fa-download" style="color:var(--primary)"></i> Baixar / Imprimir OS ou Recibo (PDF)</button>
         <button class="btn-action-wsp" type="button" onclick="enviarWhatsCliente()"><i class="fa-brands fa-whatsapp"></i> Enviar WhatsApp ao Cliente</button>
-        <button class="btn-action-motoboy" type="button" onclick="enviarWhatsMotoboy()"><i class="fa-solid fa-motorcycle"></i> Despacho Motoboy (Google Maps + Waze GPS)</button>
+        <button class="btn-action-motoboy" type="button" onclick="enviarWhatsMotoboy()"><i class="fa-solid fa-motorcycle"></i> Despacho Motoboy (Com Rota GPS Multi-Pontos)</button>
       </div>
     </div>
 
@@ -1333,7 +1333,7 @@
 
   <!-- MODAL DE HISTÓRICO E EXTRATO DO MOTOBOY PARCEIRO -->
   <div class="modal-overlay" id="motoboy-modal">
-    <div class="modal-content">
+    <div class="modal-content" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid var(--border-dark); padding-bottom:8px;">
         <h3 style="color:#FF9800; font-size:1rem;"><i class="fa-solid fa-motorcycle"></i> Ficha & Extrato do Motoboy</h3>
         <i class="fa-solid fa-xmark" style="cursor:pointer; font-size:1.2rem;" onclick="fecharMotoboyModal()"></i>
@@ -1371,7 +1371,7 @@
 
   <!-- MODAL DE EXTRATO DA CARTEIRA DO CLIENTE -->
   <div class="modal-overlay" id="carteira-modal">
-    <div class="modal-content">
+    <div class="modal-content" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid var(--border-dark); padding-bottom:8px;">
         <h3 style="color:var(--green); font-size:1rem;"><i class="fa-solid fa-wallet"></i> Carteira & Histórico Exclusivo</h3>
         <i class="fa-solid fa-xmark" style="cursor:pointer; font-size:1.2rem;" onclick="fecharCarteiraModal()"></i>
@@ -1412,7 +1412,7 @@
 
   <!-- MODAL DE RELATÓRIO PDF -->
   <div class="modal-overlay" id="pdf-modal">
-    <div class="modal-pdf">
+    <div class="modal-pdf" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:2px solid #EEE; padding-bottom:8px;" class="no-print">
         <h3 style="font-size:1rem; color:#000;"><i class="fa-solid fa-file-pdf" style="color:var(--primary)"></i> Visualização de PDF / Relatório</h3>
         <i class="fa-solid fa-xmark" style="cursor:pointer; font-size:1.3rem; color:#000;" onclick="fecharPDFModal()"></i>
@@ -1601,17 +1601,28 @@
         db = firebase.database();
       } catch(e) {}
 
-      carregarDados();
-      inicializarSincronizacaoFirebase();
-      aplicarConfiguracoes();
-      resetarCamposCalculo();
-      atualizarDadosTelaCarteiraGeral();
-      atualizarMetricasDashboard();
+      carregarDadosDoFirebase();
       registrarServiceWorkerPWA();
     };
 
-    function inicializarSincronizacaoFirebase() {
-      if (!db) return;
+    function carregarDadosDoFirebase() {
+      if (!db) {
+        carregarDadosLocaisFallback();
+        return;
+      }
+
+      // Sincroniza Configurações do Admin no Firebase
+      db.ref('configAdmin').on('value', (snap) => {
+        const val = snap.val();
+        if (val) {
+          configApp = Object.assign(configApp, val);
+          aplicarConfiguracoes();
+        } else {
+          carregarDadosLocaisFallback();
+        }
+      }, () => {
+        carregarDadosLocaisFallback();
+      });
 
       db.ref('motoboys').on('value', (snap) => {
         const data = snap.val();
@@ -1661,12 +1672,68 @@
       });
     }
 
+    function carregarDadosLocaisFallback() {
+      try {
+        const c = localStorage.getItem('r1_clientes_data');
+        const m = localStorage.getItem('r1_motoboys_data');
+        const o = localStorage.getItem('r1_ordens_data');
+        const cfg = localStorage.getItem('r1_config_data');
+
+        if (c) clientesSalvos = JSON.parse(c);
+        if (m) motoboysSalvos = JSON.parse(m);
+        if (o) registrosOS = JSON.parse(o);
+        if (cfg) configApp = Object.assign(configApp, JSON.parse(cfg));
+
+        const logoFixa = localStorage.getItem('r1_logo_fixa');
+        const capaFixa = localStorage.getItem('r1_capa_fixa');
+        if (logoFixa) configApp.logoURL = logoFixa;
+        if (capaFixa) configApp.welcomeBg = capaFixa;
+
+        clientesSalvos.forEach(cli => {
+          if (cli.saldoCarteira === undefined) cli.saldoCarteira = 0.0;
+          if (cli.totalEntregasAcumuladas === undefined) cli.totalEntregasAcumuladas = 0;
+          if (!cli.extratoCarteira) cli.extratoCarteira = [];
+        });
+
+        registrosOS.forEach(r => { if(r.marcado === undefined) r.marcado = true; });
+        registrosOSFiltrados = [...registrosOS];
+
+        atualizarSelectClientes();
+        atualizarSelectMotoboysOS();
+        atualizarListaClientesVisual();
+        atualizarListaMotoboysVisual();
+        filtrarFinanceiroPorPeriodo();
+        atualizarDadosTelaCarteiraGeral();
+        atualizarMetricasDashboard();
+        aplicarConfiguracoes();
+        resetarCamposCalculo();
+      } catch (err) {}
+    }
+
     function registrarServiceWorkerPWA() {
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js')
           .then(reg => console.log('PWA Service Worker OK'))
           .catch(() => {});
       }
+    }
+
+    function salvarTudo() {
+      try {
+        localStorage.setItem('r1_clientes_data', JSON.stringify(clientesSalvos));
+        localStorage.setItem('r1_motoboys_data', JSON.stringify(motoboysSalvos));
+        localStorage.setItem('r1_ordens_data', JSON.stringify(registrosOS));
+        localStorage.setItem('r1_config_data', JSON.stringify(configApp));
+        if (configApp.logoURL) localStorage.setItem('r1_logo_fixa', configApp.logoURL);
+        if (configApp.welcomeBg) localStorage.setItem('r1_capa_fixa', configApp.welcomeBg);
+
+        if (db) {
+          db.ref('configAdmin').set(configApp);
+        }
+
+        atualizarDadosTelaCarteiraGeral();
+        atualizarMetricasDashboard();
+      } catch(e) {}
     }
 
     function atualizarMetricasDashboard() {
@@ -2032,55 +2099,6 @@
       if (box) box.style.display = 'none';
       const fileInput = document.getElementById('os-comprovante-file');
       if (fileInput) fileInput.value = '';
-    }
-
-    function carregarDados() {
-      try {
-        const c = localStorage.getItem('r1_clientes_data');
-        const m = localStorage.getItem('r1_motoboys_data');
-        const o = localStorage.getItem('r1_ordens_data');
-        const cfg = localStorage.getItem('r1_config_data');
-
-        if (c) clientesSalvos = JSON.parse(c);
-        if (m) motoboysSalvos = JSON.parse(m);
-        if (o) registrosOS = JSON.parse(o);
-        if (cfg) configApp = Object.assign(configApp, JSON.parse(cfg));
-
-        const logoFixa = localStorage.getItem('r1_logo_fixa');
-        const capaFixa = localStorage.getItem('r1_capa_fixa');
-        if (logoFixa) configApp.logoURL = logoFixa;
-        if (capaFixa) configApp.welcomeBg = capaFixa;
-
-        clientesSalvos.forEach(cli => {
-          if (cli.saldoCarteira === undefined) cli.saldoCarteira = 0.0;
-          if (cli.totalEntregasAcumuladas === undefined) cli.totalEntregasAcumuladas = 0;
-          if (!cli.extratoCarteira) cli.extratoCarteira = [];
-        });
-
-        registrosOS.forEach(r => { if(r.marcado === undefined) r.marcado = true; });
-        registrosOSFiltrados = [...registrosOS];
-
-        atualizarSelectClientes();
-        atualizarSelectMotoboysOS();
-        atualizarListaClientesVisual();
-        atualizarListaMotoboysVisual();
-        filtrarFinanceiroPorPeriodo();
-        atualizarDadosTelaCarteiraGeral();
-        atualizarMetricasDashboard();
-      } catch (err) {}
-    }
-
-    function salvarTudo() {
-      try {
-        localStorage.setItem('r1_clientes_data', JSON.stringify(clientesSalvos));
-        localStorage.setItem('r1_motoboys_data', JSON.stringify(motoboysSalvos));
-        localStorage.setItem('r1_ordens_data', JSON.stringify(registrosOS));
-        localStorage.setItem('r1_config_data', JSON.stringify(configApp));
-        if (configApp.logoURL) localStorage.setItem('r1_logo_fixa', configApp.logoURL);
-        if (configApp.welcomeBg) localStorage.setItem('r1_capa_fixa', configApp.welcomeBg);
-        atualizarDadosTelaCarteiraGeral();
-        atualizarMetricasDashboard();
-      } catch(e) {}
     }
 
     function atualizarDadosTelaCarteiraGeral() {
@@ -3253,13 +3271,8 @@
         destinatarioWhats = motoboysSalvos[mbIdx].whats.replace(/\D/g, '');
       }
 
-      // Sanitiza endereços removendo tags [COLETA]/[ENTREGA] para garantir localização 100% precisa
       let listaPontosLimpos = [orig, ...paradas, dest].map(p => p.replace(/\[.*?\]/g, '').trim());
-      
-      // Link Google Maps com todas as paradas
       let linkGoogleMaps = `https://www.google.com/maps/dir/` + listaPontosLimpos.map(p => encodeURIComponent(p)).join('/');
-      
-      // Link Waze com rota ponto a ponto para o destino
       let destinoLimpoWaze = dest.replace(/\[.*?\]/g, '').trim();
       let linkWazeGPS = `https://waze.com/ul?q=${encodeURIComponent(destinoLimpoWaze)}&navigate=yes`;
 
@@ -3267,7 +3280,7 @@
       let txtParadas = paradas.length > 0 ? `\n📍 *PARADAS INTERMEDIÁRIAS:*\n` + paradas.map((p, i) => `   ${i+1}. ${p}`).join('\n') : '';
       let txtInst = inst ? `\n📝 *INSTRUÇÕES / CAIXAS:*\n${inst}` : '';
 
-      const txt = `🚨 *NOVA CORRIDA / DESPACHO R1AMOBI* 🚨\n----------------------------------\n🗓️ *Data do Serviço:* ${dtEmissao}\n*Cliente:* ${cli} (${whatsCli})\n*Operação:* ${operacao} (${tipo})${txtAg}\n📍 *PONTO INICIAL:* ${orig}${txtParadas}\n🏁 *PONTO FINAL:* ${dest}${txtInst}\n\n🗺️ *LINKS DE NAVEGAÇÃO GPS:*\n🔵 *Google Maps (Multi-Paradas):*\n${linkGoogleMaps}\n\n🟣 *Waze GPS (Radares & Trânsito):*\n${linkWazeGPS}\n\n----------------------------------\n📊 *DEMONSTRATIVO DO SERVIÇO:*\n💰 *Valor Cobrado do Cliente:* R$ ${valCliente}\n🏷️ *Comissão da Central:* R$ ${comissaoVal}\n💵 *SEU REPASSE LÍQUIDO:* R$ ${repasseLiquido}\n*Forma de Pgto:* ${pag}\n----------------------------------\nBoa corrida e vá com segurança! 🏍️💨`;
+      const txt = `🚨 *NOVA CORRIDA / DESPACHO R1AMOBI* 🚨\n----------------------------------\n🗓️ *Data do Serviço:* ${dtEmissao}\n*Cliente:* ${cli} (${whatsCli})\n*Operação:* ${operacao} (${tipo})${txtAg}\n📍 *PONTO INICIAL:* ${orig}${txtParadas}\n🏁 *PONTO FINAL:* ${dest}${txtInst}\n\n🗺️ *LINKS DE NAVEGAÇÃO GPS:*\n🔵 *Google Maps:*\n${linkGoogleMaps}\n\n🟣 *Waze GPS:*\n${linkWazeGPS}\n\n----------------------------------\n📊 *DEMONSTRATIVO DO SERVIÇO:*\n💰 *Valor Cobrado:* R$ ${valCliente}\n💵 *REPASSE LÍQUIDO:* R$ ${repasseLiquido}\n*Forma de Pgto:* ${pag}\n----------------------------------\nBoa corrida! 🏍️💨`;
 
       if (destinatarioWhats) {
         window.open(`https://wa.me/55${destinatarioWhats}?text=${encodeURIComponent(txt)}`, '_blank');
@@ -3444,7 +3457,7 @@
       let linhasHtml = selecionados.map(r => {
         let paradasStr = (r.paradasExtras && r.paradasExtras.length > 0) ? `<br><b>Paradas:</b> ${r.paradasExtras.join(' ➔ ')}` : '';
         let instStr = r.inst && r.inst !== '--' ? `<br><b>Obs:</b> ${r.inst}` : '';
-        let mbStr = r.motoboyNome ? `<br><small style="color:#555;">Entregador(es): ${r.motoboyNome} (Repasse Líquido: R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)})</small>` : '';
+        let mbStr = r.motoboyNome ? `<br><small style="color:#555;">Entregador(es): ${r.motoboyNome} (Repasse: R$ ${(r.repasseLiquido !== undefined ? r.repasseLiquido : r.val).toFixed(2)})</small>` : '';
 
         return `
           <tr>
@@ -3582,7 +3595,7 @@
       fecharAdmin();
       aplicarConfiguracoes();
       calcularValorOS();
-      alert("Configurações salvas e aplicadas com sucesso!");
+      alert("Configurações salvas e sincronizadas no Firebase!");
     }
 
     function zerarDadosComConfirmacao() {
