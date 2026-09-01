@@ -2320,6 +2320,7 @@
       document.getElementById('splash-title-txt').innerText = configApp.appName || 'R1 HUB';
       document.getElementById('header-cidade-txt').innerText = configApp.cidadeUF || 'Assis - SP';
 
+      // APLICAR CAPA / SPLASH SCREEN CORRETAMENTE
       const wVideo = document.getElementById('welcome-bg-video');
       const wImg = document.getElementById('welcome-bg-img');
       const bgUrl = cleanUrl(configApp.welcomeBg || localStorage.getItem('r1_capa_fixa'));
