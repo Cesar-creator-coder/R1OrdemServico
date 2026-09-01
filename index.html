@@ -58,7 +58,7 @@
       transition: opacity 0.3s ease, visibility 0.3s ease; overflow: hidden;
     }
     .welcome-media-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; }
-    #welcome-bg-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    #welcome-bg-img { width: 100%; height: 100%; object-fit: cover; display: block; }
     #welcome-bg-video { position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); object-fit: cover; display: none; }
     #welcome-screen::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.75) 60%, rgba(0,0,0,0.98) 100%); z-index: 1; }
     .welcome-content { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 12px; text-align: center; }
@@ -1611,7 +1611,6 @@
         return;
       }
 
-      // Sincroniza Configurações do Admin no Firebase
       db.ref('configAdmin').on('value', (snap) => {
         const val = snap.val();
         if (val) {
@@ -2323,7 +2322,7 @@
 
       const wVideo = document.getElementById('welcome-bg-video');
       const wImg = document.getElementById('welcome-bg-img');
-      const bgUrl = cleanUrl(configApp.welcomeBg);
+      const bgUrl = cleanUrl(configApp.welcomeBg || localStorage.getItem('r1_capa_fixa'));
 
       if (wVideo && wImg) {
         if (bgUrl && (bgUrl.endsWith('.mp4') || bgUrl.includes('.mp4?'))) {
@@ -2335,6 +2334,7 @@
           wVideo.src = '';
           wImg.src = bgUrl;
           wImg.style.display = 'block';
+          wImg.style.opacity = '1';
           wImg.onerror = function() { this.style.display = 'none'; };
         } else {
           wVideo.style.display = 'none';
@@ -2347,12 +2347,13 @@
       document.getElementById('wlc-sub').innerText = configApp.welcomeSub || 'Sua plataforma completa para entregas rápidas e seguras.';
       document.getElementById('wlc-btn-txt').innerText = configApp.welcomeBtn || 'ENTRAR NO SISTEMA';
 
-      if (configApp.logoURL && (configApp.logoURL.startsWith('data:image') || configApp.logoURL.includes('http') || configApp.logoURL.includes('.'))) {
-        const logoFixed = cleanUrl(configApp.logoURL);
-        const imgTag = `<img src="${logoFixed}" style="width:100%; height:100%; object-fit:cover;" onerror="this.parentElement.innerHTML='R1';">`;
+      const logoUrlFinal = cleanUrl(configApp.logoURL || localStorage.getItem('r1_logo_fixa'));
+      if (logoUrlFinal) {
+        const imgTag = `<img src="${logoUrlFinal}" style="width:100%; height:100%; object-fit:cover;" onerror="this.parentElement.innerHTML='R1';">`;
         document.getElementById('header-logo-box').innerHTML = imgTag;
         document.getElementById('splash-logo-box').innerHTML = imgTag;
-        document.getElementById('recibo-logo-container').innerHTML = imgTag;
+        const recLogo = document.getElementById('recibo-logo-container');
+        if(recLogo) recLogo.innerHTML = imgTag;
       } else {
         document.getElementById('header-logo-box').innerText = 'R1';
         document.getElementById('splash-logo-box').innerText = 'R1';
